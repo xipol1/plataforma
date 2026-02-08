@@ -30,3 +30,15 @@ npm run dev
 - Web: http://localhost:3000
 - API: http://localhost:4000
 - Health: http://localhost:4000/health
+
+## Vista previa rápida
+
+```bash
+npm run preview
+```
+
+- Por defecto levanta preview local en `http://localhost:3000`.
+- Para intentar URL pública temporal:
+  ```bash
+  TUNNEL_PROVIDER=localtunnel npm run preview
+  ```
