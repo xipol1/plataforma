@@ -1,4 +1,5 @@
 import "./globals.css";
+import HeroFX from "./components/HeroFX";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,6 +9,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
+        <HeroFX />
         <header className="nav">
           <nav className="nav-inner">
             <strong style={{ marginRight: "0.75rem" }}>AdFlow</strong>

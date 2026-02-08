@@ -73,9 +73,9 @@
      }
    }
  
-   return (
-     <main className="container">
-       <section className="card">
+  return (
+    <main className="container">
+      <section className="card reveal">
          <h1 className="title">Panel del Creador</h1>
         <p className="subtitle">Publica tu canal, define precios y verifica propiedad. Contenido de ejemplo: guía rápida para optimizar tu ficha y mejorar conversión.</p>
  

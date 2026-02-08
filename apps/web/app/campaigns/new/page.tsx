@@ -56,7 +56,7 @@
  
   return (
     <main className="container">
-      <section className="card">
+      <section className="card reveal">
         <h1 className="title">Nueva campaña</h1>
         <p className="subtitle">Define el canal, el copy y el destino de tu anuncio. Contenido de ejemplo: recomendaciones de copy, destino y estimaciones de CTR.</p>
         <form onSubmit={onSubmit} className="form">

@@ -47,9 +47,9 @@
      }
    }
  
-   return (
+  return (
     <main className="container">
-      <section className="card">
+      <section className="card reveal">
         <h1 className="title">OPS</h1>
         <p className="subtitle">Publicar campaña y ver estadísticas. Contenido de ejemplo: recomendaciones de ventana de publicación y métricas operativas clave.</p>
         <div className="form" style={{ maxWidth: 640 }}>

@@ -32,7 +32,7 @@
  
   return (
     <main className="container">
-      <section className="card">
+      <section className="card reveal">
         <h1 className="title">Elige tu acceso</h1>
         <p className="subtitle">Divide el acceso entre quienes se publicitan y quienes crean canales. Descubre contenido de ejemplo y guías en cada sección.</p>
         <div className="row" style={{ marginBottom: "0.75rem" }}>
@@ -60,44 +60,47 @@
           </button>
           {status && <span className="badge">{status}</span>}
         </div>
-        <div className="grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
-          <div className="feature-card">
-            <h3 className="feature-title">Acceso Anunciante</h3>
-            <p className="feature-desc">Explora canales y crea campañas con pagos seguros. Contenido de ejemplo: campañas recomendadas, presupuestos orientativos y CTA rápidos.</p>
-            <form onSubmit={onSubmit} className="form">
-              <label className="label">
-                Email
-                <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
-              </label>
-              <label className="label">
-                Password
-                <input className="input" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
-              </label>
-              <div className="row">
-                <button type="submit" className="btn btn-primary">Entrar</button>
-                <a href="/channels" className="btn">Ver canales</a>
-                <a href="/campaigns/new" className="btn">Crear campaña</a>
-              </div>
-            </form>
-          </div>
-          <div className="feature-card">
-            <h3 className="feature-title">Acceso Creador</h3>
-            <p className="feature-desc">Publica y verifica tu canal, define precios y audiencias. Contenido de ejemplo: buenas prácticas de pricing, categorías sugeridas y checklist de verificación.</p>
-            <form onSubmit={onSubmit} className="form">
-              <label className="label">
-                Email
-                <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
-              </label>
-              <label className="label">
-                Password
-                <input className="input" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
-              </label>
-              <div className="row">
-                <button type="submit" className="btn btn-primary">Entrar</button>
-                <a href="/creator" className="btn">Panel Creador</a>
-              </div>
-            </form>
-          </div>
+        <div>
+          {roleView === "ADVERTISER" ? (
+            <div className="feature-card">
+              <h3 className="feature-title">Acceso Anunciante</h3>
+              <p className="feature-desc">Explora canales y crea campañas con pagos seguros. Contenido de ejemplo: campañas recomendadas, presupuestos orientativos y CTA rápidos.</p>
+              <form onSubmit={onSubmit} className="form">
+                <label className="label">
+                  Email
+                  <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
+                </label>
+                <label className="label">
+                  Password
+                  <input className="input" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
+                </label>
+                <div className="row">
+                  <button type="submit" className="btn btn-primary">Entrar</button>
+                  <a href="/channels" className="btn">Ver canales</a>
+                  <a href="/campaigns/new" className="btn">Crear campaña</a>
+                </div>
+              </form>
+            </div>
+          ) : (
+            <div className="feature-card">
+              <h3 className="feature-title">Acceso Creador</h3>
+              <p className="feature-desc">Publica y verifica tu canal, define precios y audiencias. Contenido de ejemplo: buenas prácticas de pricing, categorías sugeridas y checklist de verificación.</p>
+              <form onSubmit={onSubmit} className="form">
+                <label className="label">
+                  Email
+                  <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
+                </label>
+                <label className="label">
+                  Password
+                  <input className="input" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
+                </label>
+                <div className="row">
+                  <button type="submit" className="btn btn-primary">Entrar</button>
+                  <a href="/creator" className="btn">Panel Creador</a>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
       </section>
     </main>
