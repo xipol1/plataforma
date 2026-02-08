@@ -1,0 +1,20 @@
+{
+  "name": "plataforma-mvp",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "bash ./scripts/dev.sh",
+    "dev:apps": "concurrently -k -n api,web \"npm run dev -w apps/api\" \"npm run dev -w apps/web\"",
+    "build": "npm run build -w apps/api && npm run build -w apps/web",
+    "doctor": "node ./scripts/doctor.mjs",
+    "db:migrate": "npm run db:migrate -w apps/api",
+    "db:reset": "npm run db:reset -w apps/api",
+    "db:seed": "npm run db:seed -w apps/api",
+    "db:studio": "npm run db:studio -w apps/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

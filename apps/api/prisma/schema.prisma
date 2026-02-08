@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+  engineType = "client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADVERTISER
+  CHANNEL_ADMIN
+  OPS
+}
+
+enum ChannelPlatform {
+  TELEGRAM
+}
+
+enum ChannelStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+enum CampaignStatus {
+  DRAFT
+  READY_FOR_PAYMENT
+  PAID
+  READY
+  PUBLISHED
+  DISPUTED
+  COMPLETED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  STRIPE
+}
+
+enum PaymentStatus {
+  CREATED
+  REQUIRES_PAYMENT
+  SUCCEEDED
+  FAILED
+  RELEASED
+  REFUNDED
+}
+
+enum TrackingInvalidReason {
+  DUPLICATE
+  OUT_OF_WINDOW
+  CAMPAIGN_INACTIVE
+  RATE_LIMIT
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String
+  role         UserRole
+  createdAt    DateTime @default(now())
+
+  ownedChannels       Channel[]  @relation("ChannelOwner")
+  advertiserCampaigns Campaign[] @relation("CampaignAdvertiser")
+}
+
+model Channel {
+  id             String          @id @default(uuid()) @db.Uuid
+  ownerUserId    String          @db.Uuid
+  platform       ChannelPlatform
+  name           String
+  category       String
+  audienceSize   Int
+  engagementHint String
+  pricePerPost   Int
+  status         ChannelStatus
+  createdAt      DateTime        @default(now())
+
+  owner     User       @relation("ChannelOwner", fields: [ownerUserId], references: [id])
+  campaigns Campaign[]
+
+  @@index([status])
+  @@index([category])
+  @@index([pricePerPost])
+}
+
+model Campaign {
+  id               String         @id @default(uuid()) @db.Uuid
+  advertiserUserId String         @db.Uuid
+  channelId        String         @db.Uuid
+  copyText         String
+  destinationUrl   String
+  scheduledAt      DateTime?
+  status           CampaignStatus
+  createdAt        DateTime       @default(now())
+  publishedAt      DateTime?
+  startAt          DateTime?
+  endAt            DateTime?
+
+  advertiser User           @relation("CampaignAdvertiser", fields: [advertiserUserId], references: [id])
+  channel    Channel        @relation(fields: [channelId], references: [id])
+  payment    Payment?
+  clicks     TrackingClick[]
+
+  @@index([advertiserUserId])
+  @@index([channelId])
+  @@index([status])
+}
+
+model Payment {
+  id          String          @id @default(uuid()) @db.Uuid
+  campaignId  String          @unique @db.Uuid
+  provider    PaymentProvider
+  providerRef String?
+  amount      Int
+  currency    String
+  status      PaymentStatus
+  createdAt   DateTime        @default(now())
+
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+}
+
+model TrackingClick {
+  id        String   @id @default(uuid()) @db.Uuid
+  campaignId String  @db.Uuid
+  ts        DateTime @default(now())
+  ip        String
+  userAgent String
+  referrer  String?
+  isValid   Boolean              @default(false)
+  invalidReason TrackingInvalidReason?
+
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+
+  @@index([campaignId])
+  @@index([ts])
+}
