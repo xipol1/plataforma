@@ -1,0 +1,20 @@
+node_modules
+.env
+.env.local
+.env.*
+.next
+dist
+coverage
+npm-debug.log*
+.DS_Store
+.turbo
+.vercel
+.cache
+*.log
+*.tsbuildinfo
+.pnpm-store
+.vscode/
+apps/**/.next
+apps/**/dist
+apps/**/coverage
+Prueba codigo/
