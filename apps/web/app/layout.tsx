@@ -1,5 +1,7 @@
 import "./globals.css";
 import HeroFX from "./components/HeroFX";
+import NavBar from "./components/NavBar";
+import WelcomePop from "./components/WelcomePop";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,18 +12,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <HeroFX />
-        <header className="nav">
-          <nav className="nav-inner">
-            <strong style={{ marginRight: "0.75rem" }}>AdFlow</strong>
-            <a href="/">Inicio</a>
-            <a href="/login">Login</a>
-            <a href="/channels">Canales</a>
-            <a href="/campaigns/new">Nueva campaña</a>
-            <a href="/campaigns/inbox">Mis campañas</a>
-            <a href="/creator">Creador</a>
-            <a href="/ops">OPS</a>
-          </nav>
-        </header>
+        <NavBar />
+        <WelcomePop />
         {children}
       </body>
     </html>

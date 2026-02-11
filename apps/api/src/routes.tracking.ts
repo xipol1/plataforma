@@ -34,6 +34,10 @@ function getTrackingConfig() {
   };
 }
 
+function normalizeUserAgent(ua: string) {
+  return ua.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
 async function isValidClick(campaign: CampaignForRedirect, ip: string, userAgent: string) {
   const config = getTrackingConfig();
 
@@ -78,7 +82,7 @@ router.get("/r/:campaignId", async (req, res) => {
   const { campaignId } = parsed.data;
   const config = getTrackingConfig();
   const ip = getClientIp(req.headers["x-forwarded-for"] as string | undefined, req.ip);
-  const userAgent = req.get("user-agent") ?? "unknown";
+  const userAgent = normalizeUserAgent(req.get("user-agent") ?? "unknown");
   const referrer = req.get("referer") ?? null;
 
   try {

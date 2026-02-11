@@ -1,10 +1,26 @@
 import { Router } from "express";
+import { z } from "zod";
 
 import { createChannelSchema, listChannelsQuerySchema, updateChannelSchema } from "./channels.schemas.js";
 import { prisma } from "./lib/prisma.js";
 import { authOptional, authRequired, requireRole } from "./middleware/auth.js";
+import { getProviderByName } from "./providers.js";
 
 const router = Router();
+const rateState: Map<string, { count: number; windowStart: number }> = new Map();
+function checkRate(userId: string, max: number, windowSeconds: number) {
+  const now = Math.floor(Date.now() / 1000);
+  const rec = rateState.get(userId);
+  if (!rec || now - rec.windowStart >= windowSeconds) {
+    rateState.set(userId, { count: 1, windowStart: now });
+    return { allowed: true };
+  }
+  if (rec.count < max) {
+    rec.count += 1;
+    return { allowed: true };
+  }
+  return { allowed: false, retryAfter: rec.windowStart + windowSeconds - now };
+}
 
 router.post("/channels", authRequired, requireRole("CHANNEL_ADMIN"), async (req, res) => {
   const parsed = createChannelSchema.safeParse(req.body);
@@ -237,6 +253,136 @@ router.patch("/channels/:id", authRequired, requireRole("OPS"), async (req, res)
     }
 
     return res.status(200).json(result.rows[0]);
+  } catch {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+const activateSchema = z.object({
+  platform: z.literal("TELEGRAM"),
+  channelRef: z.string().min(1),
+  userRef: z.string().min(1),
+});
+
+router.post("/channels/:id/activate", authRequired, requireRole("CHANNEL_ADMIN"), async (req, res) => {
+  const rate = checkRate(req.user!.id, 10, 60);
+  if (!rate.allowed) {
+    return res.status(429).json({ message: "Rate limit exceeded", retry_after_seconds: rate.retryAfter });
+  }
+  const parsed = activateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ message: "Invalid input", issues: parsed.error.flatten() });
+  }
+  const { id } = req.params;
+  try {
+    const result = await prisma.$queryRaw<{
+      ownerUserId: string;
+      status: "PENDING" | "ACTIVE" | "SUSPENDED";
+      platform: "TELEGRAM";
+      name: string;
+    }>`
+      SELECT "ownerUserId"::text AS "ownerUserId", status::text AS status, platform::text AS platform, name
+      FROM "Channel"
+      WHERE id = ${id}::uuid
+      LIMIT 1
+    `;
+    const channel = result.rows[0];
+    if (!channel) {
+      return res.status(404).json({ message: "Channel not found" });
+    }
+    if (channel.ownerUserId !== req.user!.id) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    if (channel.status !== "PENDING") {
+      return res.status(400).json({ message: "Channel not in pending status" });
+    }
+
+    const provider = getProviderByName(parsed.data.platform);
+    if (!provider) {
+      return res.status(400).json({ message: "Provider not available" });
+    }
+    if (!provider.capabilities.supportsChannelOwnershipCheck) {
+      return res.status(400).json({ message: "Ownership check not supported" });
+    }
+
+    const verified = await provider.verifyChannelOwnership({
+      channelRef: parsed.data.channelRef,
+      userRef: parsed.data.userRef,
+    });
+    if (!verified) {
+      return res.status(400).json({ message: "Ownership not verified" });
+    }
+
+    const updated = await prisma.$queryRaw<{
+      id: string;
+      ownerUserId: string;
+      platform: "TELEGRAM";
+      name: string;
+      category: string;
+      audienceSize: number;
+      engagementHint: string;
+      pricePerPost: number;
+      status: "PENDING" | "ACTIVE" | "SUSPENDED";
+      createdAt: string;
+    }>`
+      UPDATE "Channel"
+      SET status = 'ACTIVE'::"ChannelStatus"
+      WHERE id = ${id}::uuid
+      RETURNING
+        id::text,
+        "ownerUserId"::text,
+        platform::text,
+        name,
+        category,
+        "audienceSize",
+        "engagementHint",
+        "pricePerPost",
+        status::text,
+        "createdAt"::text
+    `;
+
+    try {
+      await prisma.$queryRaw`
+        INSERT INTO "AuditLog"("actorUserId","entityType","entityId","action","meta")
+        VALUES (${req.user!.id}::uuid, 'Channel', ${id}::uuid, 'ACTIVATE', ${JSON.stringify({ platform: parsed.data.platform, channelRef: parsed.data.channelRef, userRef: parsed.data.userRef })})
+      `;
+    } catch {}
+
+    return res.status(200).json(updated.rows[0]);
+  } catch {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/channels/:id/metrics", authRequired, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const totals = await prisma.$queryRaw<{ total: number; valid: number; invalid: number }>`
+      SELECT
+        COUNT(*)::int AS total,
+        SUM(CASE WHEN t."isValid" = true THEN 1 ELSE 0 END)::int AS valid,
+        SUM(CASE WHEN t."isValid" = false THEN 1 ELSE 0 END)::int AS invalid
+      FROM "TrackingClick" t
+      JOIN "Campaign" c ON c."id" = t."campaignId"
+      WHERE c."channelId" = ${id}::uuid
+        AND t.ts >= NOW() - INTERVAL '30 days'
+    `;
+    const byCampaign = await prisma.$queryRaw<{ campaignId: string; valid: number }>`
+      SELECT t."campaignId"::text AS "campaignId", SUM(CASE WHEN t."isValid" = true THEN 1 ELSE 0 END)::int AS valid
+      FROM "TrackingClick" t
+      JOIN "Campaign" c ON c."id" = t."campaignId"
+      WHERE c."channelId" = ${id}::uuid
+        AND t.ts >= NOW() - INTERVAL '30 days'
+      GROUP BY t."campaignId"
+      ORDER BY valid DESC
+    `;
+    return res.status(200).json({
+      window_days: 30,
+      total: Number(totals.rows[0]?.total ?? 0),
+      valid: Number(totals.rows[0]?.valid ?? 0),
+      invalid: Number(totals.rows[0]?.invalid ?? 0),
+      top_campaigns: byCampaign.rows.map((r) => ({ campaignId: r.campaignId, valid: Number(r.valid) })),
+    });
   } catch {
     return res.status(500).json({ message: "Internal server error" });
   }

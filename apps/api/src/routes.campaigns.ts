@@ -13,6 +13,43 @@ import { canTransition } from "./campaigns.state.js";
 
 const router = Router();
 
+router.get("/campaigns/:id/summary", authRequired, async (req, res) => {
+  const parsed = idParamSchema.safeParse(req.params);
+  if (!parsed.success) {
+    return res.status(400).json({ message: "Invalid id", issues: parsed.error.flatten() });
+  }
+  const { id } = parsed.data;
+  try {
+    const totals = await prisma.$queryRaw<{ total: number; valid: number; invalid: number }>`
+      SELECT
+        COUNT(*)::int AS total,
+        SUM(CASE WHEN "isValid" = true THEN 1 ELSE 0 END)::int AS valid,
+        SUM(CASE WHEN "isValid" = false THEN 1 ELSE 0 END)::int AS invalid
+      FROM "TrackingClick"
+      WHERE "campaignId" = ${id}::uuid
+        AND ts >= NOW() - INTERVAL '30 days'
+    `;
+    const byReason = await prisma.$queryRaw<{ reason: string | null; count: number }>`
+      SELECT "invalidReason"::text AS reason, COUNT(*)::int AS count
+      FROM "TrackingClick"
+      WHERE "campaignId" = ${id}::uuid
+        AND ts >= NOW() - INTERVAL '30 days'
+        AND "isValid" = false
+      GROUP BY reason
+      ORDER BY count DESC
+    `;
+    return res.status(200).json({
+      window_days: 30,
+      total: Number(totals.rows[0]?.total ?? 0),
+      valid: Number(totals.rows[0]?.valid ?? 0),
+      invalid: Number(totals.rows[0]?.invalid ?? 0),
+      reasons: byReason.rows.map((r) => ({ reason: r.reason, count: Number(r.count) })),
+    });
+  } catch {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 router.post("/campaigns", authRequired, requireRole("ADVERTISER"), async (req, res) => {
   const parsed = createCampaignSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -255,6 +292,13 @@ router.patch("/campaigns/:id/status", authRequired, requireRole("OPS"), async (r
       RETURNING status::text AS status
     `;
 
+    try {
+      await prisma.$queryRaw`
+        INSERT INTO "AuditLog"("actorUserId","entityType","entityId","action","meta")
+        VALUES (${req.user!.id}::uuid, 'Campaign', ${id}::uuid, 'STATUS_CHANGE', ${JSON.stringify({ to: next })})
+      `;
+    } catch {}
+
     return res.status(200).json({ status: updated.rows[0].status });
   } catch {
     return res.status(500).json({ message: "Internal server error" });
@@ -304,6 +348,13 @@ router.patch("/campaigns/:id/publish", authRequired, requireRole("OPS"), async (
     if ((updated.rowCount ?? 0) === 0) {
       return res.status(404).json({ message: "Campaign not found" });
     }
+
+    try {
+      await prisma.$queryRaw`
+        INSERT INTO "AuditLog"("actorUserId","entityType","entityId","action","meta")
+        VALUES (${req.user!.id}::uuid, 'Campaign', ${id}::uuid, 'PUBLISH', ${JSON.stringify({ startAt, endAt })})
+      `;
+    } catch {}
 
     return res.status(200).json({ id, status: "PUBLISHED", startAt, endAt });
   } catch {

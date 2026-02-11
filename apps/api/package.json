@@ -10,7 +10,8 @@
     "db:migrate": "node ./scripts/db-migrate.mjs",
     "db:reset": "node ./scripts/db-reset.mjs",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio --schema prisma/schema.prisma"
+    "db:studio": "prisma studio --schema prisma/schema.prisma",
+    "test:integration": "node ./scripts/integration.test.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.16.0",

@@ -1,4 +1,5 @@
 import HeroFX from "./components/HeroFX";
+import DashboardCTA from "./components/DashboardCTA";
 import CampaignExamples from "./components/CampaignExamples";
 
 async function getApiHealth() {
@@ -31,154 +32,109 @@ async function getProviders() {
 }
 
 export default async function HomePage() {
-  const [health, providers] = await Promise.all([getApiHealth(), getProviders()]);
+  const [health] = await Promise.all([getApiHealth()]);
 
   return (
     <>
       <section className="hero">
         <div className="hero-inner">
-          <span className="pill">Nuevo · Telegram first</span>
-          <h1 className="hero-title">
-            <span className="text-gradient">AdFlow</span>: anuncios en canales con confianza y escala
-          </h1>
-          <p className="hero-subtitle">
-            Conectamos marcas con audiencias reales en canales privados. Pagos seguros, publicación programada y tracking verificado.
-          </p>
-          <div className="cta">
-            <a href="/channels" className="btn btn-primary">Explorar canales</a>
-            <a href="/login" className="btn">Entrar</a>
+          <div className="hero-top">
+            <div className="hero-marquee" aria-label="Acerca del proyecto">
+              <div className="hero-track marquee-anim">
+                {[
+                  "Acerca del proyecto",
+                  "Compra de espacios",
+                  "Pagos seguros",
+                  "Tracking verificado",
+                  "Telegram first",
+                  "Dashboard por rol",
+                ].map((t, i) => (
+                  <span key={i} className="brand-chip">{t}</span>
+                ))}
+                {[
+                  "Acerca del proyecto",
+                  "Compra de espacios",
+                  "Pagos seguros",
+                  "Tracking verificado",
+                  "Telegram first",
+                  "Dashboard por rol",
+                ].map((t, i) => (
+                  <span key={`dup-${i}`} className="brand-chip">{t}</span>
+                ))}
+              </div>
+            </div>
+            <h1 className="hero-title">
+              <span className="text-gradient">AdFlow</span>: activa campañas en canales con confianza y escala
+            </h1>
+            <p className="hero-subtitle">
+              Plataforma de compra de espacios en canales privados: selección de audiencia, pagos seguros y publicación programada con tracking verificado.
+            </p>
+            <div className="hero-ctas">
+              <a href="/channels" className="btn btn-primary">Explorar canales</a>
+              <a href="/login" className="btn">Login/Register</a>
+              <DashboardCTA />
+            </div>
+          </div>
+          <div className="hero-grid">
+            <div className="feature-card">
+              <h3 className="feature-title">Audiencias reales</h3>
+              <p className="feature-desc">Canales verificados con segmentación por categoría e interés.</p>
+              <ul className="tick-list">
+                <li>Selección curada</li>
+                <li>Precios transparentes</li>
+                <li>Disponibilidad real</li>
+              </ul>
+            </div>
+            <div className="feature-card">
+              <h3 className="feature-title">Pagos y publicación</h3>
+              <p className="feature-desc">Flujo seguro con intents, scheduling y comprobaciones.</p>
+              <ul className="tick-list">
+                <li>Pagos seguros</li>
+                <li>Publicación programada</li>
+                <li>Revisión y estado</li>
+              </ul>
+            </div>
+            <div className="feature-card">
+              <h3 className="feature-title">Tracking verificado</h3>
+              <p className="feature-desc">Medición de impresiones y clics con validación antifraude.</p>
+              <ul className="tick-list">
+                <li>Métricas clave</li>
+                <li>CTR y ROAS</li>
+                <li>Logs de publicación</li>
+              </ul>
+            </div>
+          </div>
+          <section className="reveal">
+            <h2 className="title">Ejemplos de campañas</h2>
+            <p className="subtitle">Explora rendimiento y buenas prácticas en campañas reales.</p>
+            <CampaignExamples />
+          </section>
+          <div className="stat-bar">
+            <div className="stat">
+              <div className="label">Canales verificados</div>
+              <div className="value">120+</div>
+            </div>
+            <div className="stat">
+              <div className="label">Campañas activas</div>
+              <div className="value">45</div>
+            </div>
+            <div className="stat">
+              <div className="label">Conversión media</div>
+              <div className="value">2.4%</div>
+            </div>
           </div>
         </div>
       </section>
 
       <main className="container grid">
         <section className="card reveal">
-          <div className="feature-grid">
-            <a className="feature-card" href="/channels">
-              <h3 className="feature-title">Conecta con audiencias reales</h3>
-              <p className="feature-desc">Verificamos propiedad del canal y lectura de audiencia para evitar fraude.</p>
-            </a>
-            <a className="feature-card" href="/campaigns/new">
-              <h3 className="feature-title">Pagos seguros</h3>
-              <p className="feature-desc">Intentos de pago, retenciones y liberaciones con proveedores externos.</p>
-            </a>
-            <a className="feature-card" href="/creator">
-              <h3 className="feature-title">OPS y automatización</h3>
-              <p className="feature-desc">Publicación programada, tracking de clics e informes operativos.</p>
-            </a>
+          <h2 className="title">Estado de la plataforma</h2>
+          <p className="subtitle">{health.status === "ok" ? health.details : "API no disponible"}</p>
+          <div className="row" style={{ gap: "0.5rem" }}>
+            <a className="btn btn-primary" href="/login">Login/Register</a>
+            <a className="btn" href="/about">About</a>
           </div>
         </section>
-
-        <section className="card reveal">
-          <h2 className="title">Confiado por integraciones</h2>
-          {providers.length === 0 ? (
-            <p className="subtitle">No se pudieron cargar proveedores (API no disponible).</p>
-          ) : (
-            <div className="logos">
-              {providers.map((p) => (
-                <span key={p.name} className="logo">{p.name}</span>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="card reveal">
-          <h2 className="title">Cómo funciona</h2>
-          <ul className="list">
-            <li className="list-item">1 · Registra y publica tu canal privado.</li>
-            <li className="list-item">2 · Crea campañas con copy y destino.</li>
-            <li className="list-item">3 · Obtén presupuesto y paga con intento seguro.</li>
-            <li className="list-item">4 · Programa publicación y recibe tracking.</li>
-          </ul>
-        </section>
-
-        <section className="card reveal">
-          <h2 className="title">Para anunciantes</h2>
-          <div className="grid" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
-            <div className="feature-card">
-              <h3 className="feature-title">Catálogo de canales</h3>
-              <p className="feature-desc">Explora categorías y audiencias con precios claros por publicación.</p>
-            </div>
-            <div className="feature-card">
-              <h3 className="feature-title">Presupuestos instantáneos</h3>
-              <p className="feature-desc">Calcula comisiones y costes antes de pagar para evitar sorpresas.</p>
-            </div>
-            <div className="feature-card">
-              <h3 className="feature-title">Tracking verificado</h3>
-              <p className="feature-desc">Clicks y conversiones con filtros antifraude y informes operativos.</p>
-            </div>
-          </div>
-          <div className="accordion" style={{ marginTop: "0.75rem" }}>
-            <details className="accordion-item">
-              <summary>Catálogo de canales</summary>
-              <p>Filtra por país, temática y tamaño. Verifica propiedad y entrega real antes de comprar.</p>
-            </details>
-            <details className="accordion-item">
-              <summary>Presupuestos y pagos</summary>
-              <p>Simula CTR y conversiones según audiencias. Paga seguro con retención y liberación tras entrega.</p>
-            </details>
-            <details className="accordion-item">
-              <summary>Tracking verificado</summary>
-              <p>Clicks únicos con antifraude. Reportes de impresiones y conversiones con atribución simple.</p>
-            </details>
-          </div>
-        </section>
-
-        <section className="card reveal">
-          <h2 className="title">Para creadores</h2>
-          <div className="grid" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
-            <div className="feature-card">
-              <h3 className="feature-title">Verificación de propiedad</h3>
-              <p className="feature-desc">Acredita tu canal y gana visibilidad con sellos de confianza.</p>
-            </div>
-            <div className="feature-card">
-              <h3 className="feature-title">Pricing inteligente</h3>
-              <p className="feature-desc">Guías de precios según audiencia y engagement para maximizar ingresos.</p>
-            </div>
-            <div className="feature-card">
-              <h3 className="feature-title">Gestión de campañas</h3>
-              <p className="feature-desc">Publicación programada, ventanas de tiempo y reporte automático.</p>
-            </div>
-          </div>
-          <div className="accordion" style={{ marginTop: "0.75rem" }}>
-            <details className="accordion-item">
-              <summary>Alta y verificación</summary>
-              <p>Conecta el canal, valida dominio o propiedad y establece categorías y precios.</p>
-            </details>
-            <details className="accordion-item">
-              <summary>Calendario y entregas</summary>
-              <p>Programa contenido, recibe materiales del anunciante y publica según tu mejor horario.</p>
-            </details>
-            <details className="accordion-item">
-              <summary>Analítica y reputación</summary>
-              <p>Consulta rendimiento por campaña, satisfacción de anunciantes y mejora tu perfil.</p>
-            </details>
-          </div>
-        </section>
-
-        <section className="card reveal">
-          <h2 className="title">Ejemplos de campañas</h2>
-          <CampaignExamples />
-        </section>
-
-        <section className="card reveal">
-          <h2 className="title">Confianza y seguridad</h2>
-          <div className="accordion">
-            <details className="accordion-item">
-              <summary>Verificación de propiedad</summary>
-              <p>Validación con DNS/archivo y chequeos de identidad para asegurar que el canal es legítimo.</p>
-            </details>
-            <details className="accordion-item">
-              <summary>Protección de pagos</summary>
-              <p>Depósitos en custodia, liberación tras la entrega y mecanismos de disputa claros.</p>
-            </details>
-            <details className="accordion-item">
-              <summary>Antifraude y métricas</summary>
-              <p>Detección de bots, deduplicación de clics y métricas auditables para toma de decisiones.</p>
-            </details>
-          </div>
-        </section>
-
         <div className="footer">© AdFlow · Privacidad · Términos</div>
       </main>
     </>

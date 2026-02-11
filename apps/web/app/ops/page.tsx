@@ -75,7 +75,7 @@
         </div>
         <div className="row" style={{ marginTop: "0.75rem" }}>
           <a href="/channels" className="btn">Canales</a>
-          <a href="/campaigns/inbox" className="btn">Mis campañas</a>
+          <a href="/app/advertiser/inbox" className="btn">Mis campañas</a>
         </div>
       </section>
     </main>

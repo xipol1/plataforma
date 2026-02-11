@@ -15,8 +15,27 @@ dotenv.config();
 const app = express();
 const port = Number(process.env.PORT_API ?? process.env.API_PORT ?? 4000);
 
-app.use(cors());
-app.use(express.json());
+const allowed = (process.env.ALLOWED_ORIGINS ?? "").split(",").map((o) => o.trim()).filter(Boolean);
+app.use(
+  cors({
+    origin: allowed.length ? allowed : "*",
+    methods: ["GET", "POST", "PATCH"],
+    credentials: false,
+  }),
+);
+app.use((req, res, next) => {
+  if (req.path === "/payments/webhook") return next();
+  return express.json({ limit: "1mb" })(req, res, next);
+});
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Resource-Policy", "same-site");
+  res.setHeader("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'; base-uri 'none'");
+  next();
+});
 app.use(authRouter);
 app.use(channelsRouter);
 app.use(campaignsRouter);

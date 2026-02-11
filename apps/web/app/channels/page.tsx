@@ -1,6 +1,6 @@
- "use client";
- 
- import { useEffect, useState } from "react";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
  
  type Channel = {
    id: string;
@@ -17,6 +17,9 @@
    const [status, setStatus] = useState("");
   const [selectedFeatured, setSelectedFeatured] = useState<typeof featured[number] | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+  function fmtNumber(n: number) { return n.toLocaleString("en-US"); }
+  function fmtUSD(n: number) { return `USD ${n}`; }
   const featured = [
     { name: "Crypto Daily LATAM", category: "crypto", audienceSize: 18000, pricePerPost: 120, platform: "TELEGRAM", publishedCount: 22 },
     { name: "Ecommerce Growth Hub", category: "ecommerce", audienceSize: 9600, pricePerPost: 90, platform: "TELEGRAM", publishedCount: 15 },
@@ -52,6 +55,15 @@
   ];
 
   const items = channels.length > 0 ? channels : filler;
+
+  useEffect(() => {
+    if (selectedFeatured || selectedChannel) {
+      document.body.style.overflow = "hidden";
+      closeBtnRef.current?.focus();
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [selectedFeatured, selectedChannel]);
 
   return (
     <main className="container">
@@ -100,18 +112,26 @@
             ))}
         </div>
         {(selectedFeatured || selectedChannel) && (
-          <div className="modal-backdrop" onClick={() => { setSelectedFeatured(null); setSelectedChannel(null); }}>
-            <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-backdrop" onClick={() => { setSelectedFeatured(null); setSelectedChannel(null); document.body.style.overflow=""; }}>
+            <div
+              className="modal-card"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-title-channels"
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => { if (e.key === "Escape") { setSelectedFeatured(null); setSelectedChannel(null); document.body.style.overflow=""; } }}
+              tabIndex={-1}
+            >
               <div className="modal-header">
-                <h3 className="modal-title">{(selectedFeatured?.name ?? selectedChannel?.name) ?? ""}</h3>
-                <button className="modal-close" onClick={() => { setSelectedFeatured(null); setSelectedChannel(null); }}>Cerrar</button>
+                <h3 id="modal-title-channels" className="modal-title">{(selectedFeatured?.name ?? selectedChannel?.name) ?? ""}</h3>
+                <button ref={closeBtnRef} className="modal-close" onClick={() => { setSelectedFeatured(null); setSelectedChannel(null); document.body.style.overflow=""; }}>Cerrar</button>
               </div>
               <div className="modal-content">
                 <div>
                   <div className="modal-kpis">
-                    <div className="kpi"><div className="label">Audiencia</div><div className="value">{(selectedFeatured?.audienceSize ?? selectedChannel?.audienceSize)?.toLocaleString("en-US")}</div></div>
-                    <div className="kpi"><div className="label">Precio</div><div className="value">USD {(selectedFeatured?.pricePerPost ?? selectedChannel?.pricePerPost) ?? ""}</div></div>
-                    <div className="kpi"><div className="label">Anuncios</div><div className="value">{(selectedFeatured?.publishedCount ?? selectedChannel?.publishedCount ?? 0).toLocaleString("en-US")}</div></div>
+                    <div className="kpi"><div className="label">Audiencia</div><div className="value">{fmtNumber((selectedFeatured?.audienceSize ?? selectedChannel?.audienceSize) ?? 0)}</div></div>
+                    <div className="kpi"><div className="label">Precio</div><div className="value">{fmtUSD((selectedFeatured?.pricePerPost ?? selectedChannel?.pricePerPost) ?? 0)}</div></div>
+                    <div className="kpi"><div className="label">Anuncios</div><div className="value">{fmtNumber((selectedFeatured?.publishedCount ?? selectedChannel?.publishedCount ?? 0))}</div></div>
                     <div className="kpi"><div className="label">Plataforma</div><div className="value">{(selectedFeatured?.platform ?? selectedChannel?.platform) ?? ""}</div></div>
                   </div>
                   <div className="grid" style={{ gridTemplateColumns: "2fr 1fr", marginTop: "0.75rem", alignItems: "center" }}>

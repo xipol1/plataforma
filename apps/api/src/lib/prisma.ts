@@ -110,6 +110,16 @@ class PrismaClient {
         ALTER TABLE "TrackingClick" ADD COLUMN "invalidReason" "TrackingInvalidReason";
         CREATE INDEX "TrackingClick_ip_ts_idx" ON "TrackingClick"(ip, ts);
         CREATE INDEX "TrackingClick_campaign_valid_ts_idx" ON "TrackingClick"("campaignId", "isValid", ts);
+        
+        CREATE TABLE "AuditLog" (
+          "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "ts" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          "actorUserId" UUID,
+          "entityType" TEXT NOT NULL,
+          "entityId" UUID NOT NULL,
+          "action" TEXT NOT NULL,
+          "meta" TEXT
+        );
       `);
 
       const { Pool: MemPool } = db.adapters.createPg();
@@ -122,7 +132,6 @@ class PrismaClient {
           `SELECT 1 FROM "User" WHERE "email" = $1 LIMIT 1`,
           ["ops@plataforma.local"],
         );
-        if ((check.rowCount ?? 0) > 0) return;
 
         const now = new Date().toISOString();
 
@@ -181,6 +190,7 @@ class PrismaClient {
           FROM "User" u WHERE u.email = 'advertiser@plataforma.local'
           ON CONFLICT ("id") DO NOTHING;
         `);
+        
       })().catch((e) => {
         console.error("[pg-mem bootstrap] failed:", e);
         process.exit(1);

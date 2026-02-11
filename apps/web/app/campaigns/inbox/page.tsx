@@ -13,7 +13,7 @@
    const [items, setItems] = useState<Campaign[]>([]);
    const [status, setStatus] = useState("");
    const [actionMsg, setActionMsg] = useState("");
-  const [dashView, setDashView] = useState<"ADVERTISER" | "CREATOR">("ADVERTISER");
+ const [dashView, setDashView] = useState<"ADVERTISER" | "CREATOR">("ADVERTISER");
  
    async function load() {
      const token = localStorage.getItem("token") ?? "";
@@ -36,9 +36,21 @@
      }
    }
  
-   useEffect(() => {
-     void load();
-   }, []);
+  useEffect(() => {
+    const token = localStorage.getItem("token") ?? "";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+    if (token) {
+      fetch(`${apiUrl}/me`, { headers: { Authorization: `Bearer ${token}` } })
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((me) => {
+          const role = (me.role as string) ?? "";
+          if (role === "CHANNEL_ADMIN") setDashView("CREATOR");
+          else setDashView("ADVERTISER");
+        })
+        .catch(() => {});
+    }
+    void load();
+  }, []);
  
    async function intent(campaignId: string) {
      setActionMsg("Creando intent...");

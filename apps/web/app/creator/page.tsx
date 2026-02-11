@@ -73,11 +73,47 @@
      }
    }
  
+  async function activateChannel(channelId: string) {
+    setStatus("Activando canal...");
+    const token = localStorage.getItem("token") ?? "";
+    if (!token) {
+      setStatus("Necesitas login como creador");
+      return;
+    }
+    if (!channelRef || !userRef) {
+      setStatus("Completa chat_id y tu user_id");
+      return;
+    }
+    try {
+      const res = await fetch(`${apiUrl}/channels/${channelId}/activate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ platform: verifyPlatform, channelRef, userRef }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setStatus(data.message ?? "Error activando canal");
+        return;
+      }
+      setCreated((prev) => prev.map((c) => (c.id === channelId ? { ...c, status: data.status } : c)));
+      setStatus(`Canal activado: ${data.name}`);
+    } catch {
+      setStatus("API no disponible");
+    }
+  }
+
   return (
     <main className="container">
       <section className="card reveal">
          <h1 className="title">Panel del Creador</h1>
         <p className="subtitle">Publica tu canal, define precios y verifica propiedad. Contenido de ejemplo: guía rápida para optimizar tu ficha y mejorar conversión.</p>
+        <div className="row" style={{ gap: "0.5rem", marginBottom: "0.75rem" }}>
+          <a className="btn btn-primary" href="/channels">Explorar canales</a>
+          <a className="btn" href="/campaigns/inbox">Ver mis campañas</a>
+        </div>
  
          <div className="grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
            <div>
@@ -153,7 +189,12 @@
                      <div>
                        <strong>{c.name}</strong> · {c.category} · {c.platform} · {c.audienceSize} suscr.
                      </div>
-                     <div className="badge">{c.status}</div>
+                    <div className="row" style={{ gap: "0.5rem" }}>
+                      <span className="badge">{c.status}</span>
+                      {c.status === "PENDING" && (
+                        <button className="btn btn-primary" onClick={() => activateChannel(c.id)}>Activar</button>
+                      )}
+                    </div>
                    </div>
                  </li>
                ))
