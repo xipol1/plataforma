@@ -1,142 +1,157 @@
-import HeroFX from "./components/HeroFX";
-import DashboardCTA from "./components/DashboardCTA";
-import CampaignExamples from "./components/CampaignExamples";
-
-async function getApiHealth() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-
-  try {
-    const response = await fetch(`${apiUrl}/health`, { cache: "no-store" });
-    if (!response.ok) {
-      return { status: "error", details: `API error ${response.status}` };
-    }
-
-    const data = await response.json();
-    return { status: "ok", details: `DB: ${data.db ? "up" : "down"}, latency: ${data.latency_ms}ms` };
-  } catch {
-    return { status: "error", details: "API unreachable" };
-  }
-}
-
-async function getProviders() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-
-  try {
-    const response = await fetch(`${apiUrl}/meta/providers`, { cache: "no-store" });
-    if (!response.ok) return [] as Array<{ name: string; capabilities: Record<string, boolean> }>;
-    const data = await response.json();
-    return data.providers as Array<{ name: string; capabilities: Record<string, boolean> }>;
-  } catch {
-    return [] as Array<{ name: string; capabilities: Record<string, boolean> }>;
-  }
-}
+import AppPreview from "./components/AppPreview";
+import TrustRow from "./components/TrustRow";
+import EscrowFlowSection from "./components/EscrowFlowSection";
+import MetricsSection from "./components/MetricsSection";
 
 export default async function HomePage() {
-  const [health] = await Promise.all([getApiHealth()]);
-
   return (
-    <>
+    <main>
       <section className="hero">
         <div className="hero-inner">
-          <div className="hero-top">
-            <div className="hero-marquee" aria-label="Acerca del proyecto">
-              <div className="hero-track marquee-anim">
-                {[
-                  "Acerca del proyecto",
-                  "Compra de espacios",
-                  "Pagos seguros",
-                  "Tracking verificado",
-                  "Telegram first",
-                  "Dashboard por rol",
-                ].map((t, i) => (
-                  <span key={i} className="brand-chip">{t}</span>
-                ))}
-                {[
-                  "Acerca del proyecto",
-                  "Compra de espacios",
-                  "Pagos seguros",
-                  "Tracking verificado",
-                  "Telegram first",
-                  "Dashboard por rol",
-                ].map((t, i) => (
-                  <span key={`dup-${i}`} className="brand-chip">{t}</span>
-                ))}
+          <div className="hero-split">
+            <div className="hero-top">
+              <h1 className="hero-title">La forma simple de anunciarte en comunidades.</h1>
+              <p className="hero-subtitle">Descubre canales reales. Publica con garantía. Mide el impacto.</p>
+              <div className="hero-ctas">
+                <a href="/channels" className="btn btn-primary cta-gradient">Explorar canales</a>
+                <a href="#como-funciona" className="btn">Cómo funciona</a>
               </div>
             </div>
-            <h1 className="hero-title">
-              <span className="text-gradient">AdFlow</span>: activa campañas en canales con confianza y escala
-            </h1>
-            <p className="hero-subtitle">
-              Plataforma de compra de espacios en canales privados: selección de audiencia, pagos seguros y publicación programada con tracking verificado.
-            </p>
-            <div className="hero-ctas">
-              <a href="/channels" className="btn btn-primary">Explorar canales</a>
-              <a href="/login" className="btn">Login/Register</a>
-              <DashboardCTA />
-            </div>
-          </div>
-          <div className="hero-grid">
-            <div className="feature-card">
-              <h3 className="feature-title">Audiencias reales</h3>
-              <p className="feature-desc">Canales verificados con segmentación por categoría e interés.</p>
-              <ul className="tick-list">
-                <li>Selección curada</li>
-                <li>Precios transparentes</li>
-                <li>Disponibilidad real</li>
-              </ul>
-            </div>
-            <div className="feature-card">
-              <h3 className="feature-title">Pagos y publicación</h3>
-              <p className="feature-desc">Flujo seguro con intents, scheduling y comprobaciones.</p>
-              <ul className="tick-list">
-                <li>Pagos seguros</li>
-                <li>Publicación programada</li>
-                <li>Revisión y estado</li>
-              </ul>
-            </div>
-            <div className="feature-card">
-              <h3 className="feature-title">Tracking verificado</h3>
-              <p className="feature-desc">Medición de impresiones y clics con validación antifraude.</p>
-              <ul className="tick-list">
-                <li>Métricas clave</li>
-                <li>CTR y ROAS</li>
-                <li>Logs de publicación</li>
-              </ul>
-            </div>
-          </div>
-          <section className="reveal">
-            <h2 className="title">Ejemplos de campañas</h2>
-            <p className="subtitle">Explora rendimiento y buenas prácticas en campañas reales.</p>
-            <CampaignExamples />
-          </section>
-          <div className="stat-bar">
-            <div className="stat">
-              <div className="label">Canales verificados</div>
-              <div className="value">120+</div>
-            </div>
-            <div className="stat">
-              <div className="label">Campañas activas</div>
-              <div className="value">45</div>
-            </div>
-            <div className="stat">
-              <div className="label">Conversión media</div>
-              <div className="value">2.4%</div>
+            <div className="hero-preview">
+              <AppPreview />
             </div>
           </div>
         </div>
       </section>
 
-      <main className="container grid">
-        <section className="card reveal">
-          <h2 className="title">Estado de la plataforma</h2>
-          <p className="subtitle">{health.status === "ok" ? health.details : "API no disponible"}</p>
-          <div className="row" style={{ gap: "0.5rem" }}>
-            <a className="btn btn-primary" href="/login">Login/Register</a>
-            <a className="btn" href="/about">About</a>
+      <TrustRow />
+
+      <EscrowFlowSection />
+
+      <MetricsSection />
+
+      <section className="container landing-section">
+        <div className="grid-12">
+          <div className="ad-left">
+            <h2 className="ad-title">Para anunciantes</h2>
+            <p className="ad-subtitle">Accede a comunidades reales y activa campañas con seguridad.</p>
+            <ul className="tick-list">
+              <li>Compra con garantía</li>
+              <li>Métricas verificadas</li>
+            </ul>
           </div>
-        </section>
-        <div className="footer">© AdFlow · Privacidad · Términos</div>
-      </main>
-    </>
+          <div className="ad-right">
+            <div className="ad-cards">
+              <div className="ad-card large">
+                <h3 className="feature-title">Encuentra comunidades relevantes</h3>
+                <p className="feature-desc">Descubre canales por categoría, tamaño y precio.</p>
+              </div>
+              <div className="ad-card">
+                <h3 className="feature-title">Compra segura</h3>
+                <p className="feature-desc">El pago se libera solo tras confirmación.</p>
+              </div>
+              <div className="ad-card">
+                <h3 className="feature-title">Mide el impacto</h3>
+                <p className="feature-desc">Clicks verificados y métricas claras.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="container landing-section">
+        <div className="stack-md">
+          <div>
+            <h2 className="title">Para canales</h2>
+            <p className="subtitle">Monetiza tu comunidad con transparencia.</p>
+          </div>
+          <div className="creator-grid">
+            <div className="creator-left">
+              <div className="feature-card">
+                <h3 className="feature-title">Registra tu canal</h3>
+                <p className="feature-desc">Verificación simple y categorías claras.</p>
+              </div>
+              <div className="feature-card">
+                <h3 className="feature-title">Acepta propuestas</h3>
+                <p className="feature-desc">Precio y timing definidos para cada campaña.</p>
+              </div>
+              <div className="feature-card">
+                <h3 className="feature-title">Publica y cobra</h3>
+                <p className="feature-desc">Pagos protegidos y estado verificable.</p>
+              </div>
+            </div>
+            <div className="creator-right">
+              <div className="creator-panel">
+                <h4 className="feature-title">Pagos protegidos</h4>
+                <p className="feature-desc">La plataforma retiene el pago y lo libera tras confirmar la publicación.</p>
+                <div className="row mt-sm" style={{ gap: "0.5rem" }}>
+                  <a className="btn btn-primary cta-gradient" href="/login?next=/app/creator/channels">Registrar mi canal</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="como-funciona" className="container timeline-section">
+        <div className="stack-md" style={{ maxWidth: "1152px", margin: "0 auto" }}>
+          <h2 className="timeline-title">Cómo funciona</h2>
+          <div className="timeline">
+            <div className="timeline-line" />
+            <div className="timeline-vline" />
+            <div className="timeline-step">
+              <div className="step-dot">1</div>
+              <div className="step-title">Elige</div>
+              <div className="step-desc">Explora canales por categoría y precio.</div>
+            </div>
+            <div className="timeline-step">
+              <div className="step-dot">2</div>
+              <div className="step-title">Activa</div>
+              <div className="step-desc">Define tu mensaje y confirma el pago seguro.</div>
+            </div>
+            <div className="timeline-step">
+              <div className="step-dot">3</div>
+              <div className="step-title">Mide</div>
+              <div className="step-desc">Publicación verificada y métricas visibles.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="container landing-section">
+        <div className="callout-card">
+          <div className="callout-inner">
+            <div>
+              <h2 className="callout-title">La atención ya existe.</h2>
+              <p className="callout-sub">Accede a ella de forma simple.</p>
+            </div>
+            <div className="callout-actions">
+              <a className="btn btn-primary cta-gradient" href="/channels">Explorar canales</a>
+              <a className="btn btn-secondary" href="/login">Registrarse</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" className="container landing-section">
+        <div className="stack-md">
+          <h2 className="title">FAQ</h2>
+          <div className="accordion">
+            <details className="accordion-item">
+              <summary>¿Cómo se verifica la propiedad de un canal?</summary>
+              <p>Mediante pruebas simples en la plataforma del canal y revisión manual cuando aplica.</p>
+            </details>
+            <details className="accordion-item">
+              <summary>¿Qué métodos de pago aceptáis?</summary>
+              <p>El pago seguro se gestiona mediante intents con tarjeta y otros métodos compatibles.</p>
+            </details>
+            <details className="accordion-item">
+              <summary>¿Qué métricas se reportan?</summary>
+              <p>Impresiones y clics verificados con claridad desde tu panel.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }

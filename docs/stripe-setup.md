@@ -3,6 +3,7 @@
 ## Variables de entorno
 - STRIPE_SECRET_KEY: clave secreta (sk_test_... en test).
 - STRIPE_WEBHOOK_SECRET: secreto del endpoint del webhook (whsec_...).
+- NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: publishable key para Stripe Elements (Web).
 - DATABASE_URL: conexión a Postgres en producción/staging.
 - ALLOWED_ORIGINS: lista separada por comas de orígenes permitidos para CORS.
 - PORT_API: puerto de la API (por defecto 4000).
@@ -20,6 +21,7 @@
    - POST /payments/intent
    - Recibir webhook payment_intent.succeeded
    - GET /payments/:campaignId
+   - (Web) Confirmar pago en `/campaigns/[id]` si `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` está configurada.
 6. Para refund y release, usa:
    - POST /payments/refund
    - POST /payments/release

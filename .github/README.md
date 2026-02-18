@@ -12,3 +12,4 @@ Toda la documentación funcional/técnica del MVP está ordenada en `.github/doc
 7. [07 - Tracking y stats](./docs/07-tracking.md)
 8. [08 - Troubleshooting](./docs/08-troubleshooting.md)
 9. [09 - Análisis de unión con xipol1/me](./docs/09-union-me-repo.md)
+10. [10 - UI y dashboards](./docs/10-ui-dashboards.md)

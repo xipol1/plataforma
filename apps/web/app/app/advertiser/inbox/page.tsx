@@ -1,3 +1,3 @@
  "use client";
  
- export { default } from "../../../campaigns/inbox/page";
+export { default } from "../../../campaigns/inbox/page";

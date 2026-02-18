@@ -77,7 +77,7 @@ import { useEffect, useRef, useState } from "react";
  export default function CampaignExamples() {
  const [open, setOpen] = useState<number | null>(null);
  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
- function fmtNumber(n: number) { return n.toLocaleString("en-US"); }
+ function fmtNumber(n: number) { return n.toLocaleString("es-ES"); }
  function fmtUSD(n: number) { return `USD ${n}`; }
  useEffect(() => {
    if (open !== null) {
@@ -89,20 +89,21 @@ import { useEffect, useRef, useState } from "react";
  }, [open]);
  
   return (
-    <div className="grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
+    <div className="grid-2">
       {examples.map((ex, i) => (
         <div key={ex.name} className="feature-card">
           <div className="spaced">
             <h3 className="feature-title">{ex.name}</h3>
           </div>
-          <p className="feature-desc">Pulsa “Ver campaña” o “Estadísticas” para explorar.</p>
-          <div className="row" style={{ marginTop: "0.35rem" }}>
+          <p className="feature-desc">Explora rendimiento real y decide con confianza.</p>
+          <div className="row mt-xs" style={{ marginTop: "0.35rem" }}>
             <span className="badge">CTR {ex.stats.ctr}%</span>
             <span className="badge">ROAS {ex.stats.roas}x</span>
             <span className="badge">CPC USD {ex.stats.cpc}</span>
           </div>
-          <div className="row" style={{ marginTop: "0.5rem", gap: "0.5rem" }}>
+          <div className="row mt-xs" style={{ marginTop: "0.5rem", gap: "0.5rem" }}>
             <button className="btn btn-primary" onClick={() => setOpen(i)}>Ver estadísticas</button>
+            <a className="btn btn-outline" href={ex.link}>Ver canal</a>
           </div>
           
           {/* per-card inline details removed; modal below */}

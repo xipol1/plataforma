@@ -1,3 +1,3 @@
  "use client";
  
- export { default } from "../../../campaigns/new/page";
+export { default } from "../../../campaigns/new/page";

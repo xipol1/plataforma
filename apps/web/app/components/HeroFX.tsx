@@ -1,8 +1,11 @@
  "use client";
  
  import { useEffect } from "react";
+ import { usePathname } from "next/navigation";
  
  export default function HeroFX() {
+   const pathname = usePathname();
+ 
    useEffect(() => {
      const root = document.documentElement;
  
@@ -40,7 +43,7 @@
        window.removeEventListener("scroll", onScroll);
        observer.disconnect();
      };
-   }, []);
+   }, [pathname]);
  
    return <div className="hero-bg" aria-hidden="true" />;
  }

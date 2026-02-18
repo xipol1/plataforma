@@ -15,3 +15,9 @@ Plataforma MVP manual-first para marketplace de anuncios en canales cerrados (Te
 ## Integraciones (base)
 - `GET /meta/providers`: capacidades por proveedor de canal.
 - `POST /campaigns/quote`: cotizador de comisión inspirado en la lógica externa.
+
+## Producto (UI)
+- Dashboard Advertiser: `/app/advertiser` (KPIs, rendimiento, facturación, actividad).
+- Dashboard Creator/Admin: `/app/creator` (Centro de monetización + gestión de solicitudes).
+- Detalle de campaña: `/campaigns/[id]` (pago/publicación/tracking).
+- El layout privado valida rol con `GET /me` y muestra un menú emergente con badges de pendientes.

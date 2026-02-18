@@ -8,6 +8,7 @@ const campaignStatusEnum = z.enum([
   "DRAFT",
   "READY_FOR_PAYMENT",
   "PAID",
+  "SUBMITTED",
   "READY",
   "PUBLISHED",
   "DISPUTED",

@@ -3,7 +3,7 @@ import jwt, { type JwtPayload, type SignOptions } from "jsonwebtoken";
 export type AuthTokenPayload = {
   sub: string;
   email: string;
-  role: "ADVERTISER" | "CHANNEL_ADMIN" | "OPS";
+  role: "ADVERTISER" | "CHANNEL_ADMIN" | "OPS" | "BLOG_ADMIN";
 };
 
 function getJwtSecret() {

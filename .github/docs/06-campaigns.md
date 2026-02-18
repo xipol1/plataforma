@@ -1,16 +1,19 @@
 # 06 - Campaigns (manual-first)
 
 ## Endpoints
-- `POST /campaigns`
-- `GET /campaigns`
-- `GET /inbox/campaigns`
-- `GET /campaigns/:id`
-- `GET /ops/campaigns`
-- `POST /campaigns/:id/submit`
-- `POST /ops/campaigns/:id/mark-paid`
-- `POST /campaigns/:id/confirm-published`
-- `POST /ops/campaigns/:id/complete`
-- `POST /campaigns/quote` (estimación de comisión por canal/tipo anuncio)
+- `POST /campaigns` (`ADVERTISER`) crea campaña (estado inicial `DRAFT`)
+- `GET /campaigns/:id` (`ADVERTISER`) detalle de campaña
+- `GET /campaigns/inbox?limit&offset&status?` (`ADVERTISER`) lista campañas propias (incluye datos del canal)
+- `POST /campaigns/:id/request-publish` (`ADVERTISER`) solicita publicación a OPS (requiere pago `SUCCEEDED`)
+
+### Pago (Stripe / mock dev)
+- `POST /payments/intent` (`ADVERTISER`) crea payment intent (idempotente)
+- `GET /payments/:campaignId` (`ADVERTISER`) estado del pago
+- Webhook: `POST /payments/webhook` (Stripe) cambia campaña a `SUBMITTED` al confirmar pago
+
+### OPS (operación)
+- `GET /campaigns/ops/requests` (`OPS`) lista solicitudes (audit log)
+- `PATCH /campaigns/:id/publish` (`OPS`) programa y publica (valida pago `SUCCEEDED`)
 
 Transiciones inválidas devuelven `409`.
 
@@ -18,3 +21,6 @@ Smoke:
 ```bash
 bash ./scripts/campaigns_check.sh
 ```
+
+## Estados
+`CampaignStatus`: `DRAFT`, `READY_FOR_PAYMENT`, `PAID`, `SUBMITTED`, `READY`, `PUBLISHED`, `DISPUTED`, `COMPLETED`, `REFUNDED`.

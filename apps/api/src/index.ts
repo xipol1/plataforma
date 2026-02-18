@@ -7,7 +7,11 @@ import channelsRouter from "./routes.channels.js";
 import campaignsRouter from "./routes.campaigns.js";
 import trackingRouter from "./routes.tracking.js";
 import integrationRouter from "./routes.integration.js";
+import chatRouter from "./routes.chat.js";
+import blogRouter from "./routes.blog.js";
 import { prisma } from "./lib/prisma.js";
+import { startCampaignPublisher } from "./campaigns.publisher.js";
+import { ensureDemoSeed } from "./demo.seed.js";
 
 dotenv.config({ path: "../../.env" });
 dotenv.config();
@@ -17,6 +21,14 @@ const port = Number(process.env.PORT_API ?? process.env.API_PORT ?? 4000);
 
 const allowed = (process.env.ALLOWED_ORIGINS ?? "").split(",").map((o) => o.trim()).filter(Boolean);
 app.use(
+  cors({
+    origin: allowed.length ? allowed : "*",
+    methods: ["GET", "POST", "PATCH"],
+    credentials: false,
+  }),
+);
+app.options(
+  "*",
   cors({
     origin: allowed.length ? allowed : "*",
     methods: ["GET", "POST", "PATCH"],
@@ -41,6 +53,8 @@ app.use(channelsRouter);
 app.use(campaignsRouter);
 app.use(trackingRouter);
 app.use(integrationRouter);
+app.use(chatRouter);
+app.use(blogRouter);
 
 app.get("/health", async (_req, res) => {
   const startedAt = Date.now();
@@ -58,6 +72,10 @@ app.get("/", (_req, res) => {
   res.json({ message: "Plataforma API running" });
 });
 
+void ensureDemoSeed();
+
 app.listen(port, () => {
   console.log(`API listening on http://localhost:${port}`);
 });
+
+startCampaignPublisher();

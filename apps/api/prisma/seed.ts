@@ -1,8 +1,14 @@
 import dotenv from "dotenv";
 import { Client } from "pg";
+import { hashPassword } from "../src/auth/password.js";
 
 dotenv.config({ path: "../../.env" });
 dotenv.config();
+
+if (process.env.NODE_ENV === "production") {
+  console.error("db:seed no debe ejecutarse en producción");
+  process.exit(1);
+}
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -13,7 +19,8 @@ if (!databaseUrl) {
 
 const client = new Client({ connectionString: databaseUrl });
 
-async function upsertUser(email: string, passwordHash: string, role: "OPS" | "ADVERTISER" | "CHANNEL_ADMIN") {
+async function upsertUser(email: string, password: string, role: "OPS" | "ADVERTISER" | "CHANNEL_ADMIN" | "BLOG_ADMIN") {
+  const passwordHash = await hashPassword(password);
   await client.query(
     `INSERT INTO "User"(email, "passwordHash", role)
      VALUES ($1, $2, $3::"UserRole")
@@ -26,11 +33,13 @@ async function upsertUser(email: string, passwordHash: string, role: "OPS" | "AD
 async function main() {
   await client.connect();
 
-  await upsertUser("ops@plataforma.local", "dummy_hash_ops", "OPS");
+  await upsertUser("ops@plataforma.local", "ops12345", "OPS");
 
-  await upsertUser("advertiser@plataforma.local", "dummy_hash_adv", "ADVERTISER");
+  await upsertUser("advertiser@plataforma.local", "advertiser123", "ADVERTISER");
 
-  await upsertUser("admin@plataforma.local", "dummy_hash_admin", "CHANNEL_ADMIN");
+  await upsertUser("admin@plataforma.local", "admin123", "CHANNEL_ADMIN");
+
+  await upsertUser("blog@plataforma.local", "blogadmin123", "BLOG_ADMIN");
 
   const advertiserUserIdRes = await client.query<{ id: string }>(
     `SELECT id::text AS id FROM "User" WHERE email = $1 LIMIT 1`,
@@ -80,7 +89,7 @@ async function main() {
       advertiserUserId,
       "11111111-1111-1111-1111-111111111111",
       "Prueba nuestra plataforma para lanzar anuncios en canales cerrados.",
-      "https://example.com/landing",
+      "http://localhost:3000",
     ],
   );
 

@@ -120,18 +120,7 @@ router.post("/payments/intent", authRequired, requireRole("ADVERTISER"), async (
   const { campaignId } = parsed.data;
   const currency = (parsed.data.currency ?? "USD").toLowerCase();
   const idempotencyKey = parsed.data.idempotencyKey ?? null;
-
-  if (process.env.USE_PGMEM === "1" && !process.env.STRIPE_SECRET_KEY) {
-    const providerRef = `pi_dev_mock_${campaignId.slice(0, 8)}`;
-    return res.status(200).json({
-      client_secret: null,
-      provider_ref: providerRef,
-      amount: 0,
-      currency: currency.toUpperCase(),
-      dev_mock: true,
-      fast_path: true,
-    });
-  }
+  const isProd = process.env.NODE_ENV === "production";
 
   try {
     const existing = await prisma.$queryRaw<{
@@ -141,7 +130,7 @@ router.post("/payments/intent", authRequired, requireRole("ADVERTISER"), async (
       status: "CREATED" | "REQUIRES_PAYMENT" | "SUCCEEDED" | "FAILED" | "RELEASED" | "REFUNDED";
       createdAt: string;
     }>`
-      SELECT "providerRef", amount, currency, status::text AS status, "createdAt"::text AS "createdAt"
+      SELECT "providerRef", amount, currency, status::text AS status, "createdAt" AS "createdAt"
       FROM "Payment"
       WHERE "campaignId" = ${campaignId}::uuid
       LIMIT 1
@@ -156,12 +145,22 @@ router.post("/payments/intent", authRequired, requireRole("ADVERTISER"), async (
         idempotent: true,
       });
     }
+    if (pay && pay.status === "SUCCEEDED") {
+      return res.status(200).json({
+        client_secret: null,
+        provider_ref: pay.providerRef,
+        amount: pay.amount,
+        currency: pay.currency,
+        idempotent: true,
+        confirmed: true,
+      });
+    }
 
     const campaignRes = await prisma.$queryRaw<{
       id: string;
       advertiserUserId: string;
       channelPrice: number;
-      status: "DRAFT" | "READY_FOR_PAYMENT" | "PAID" | "READY" | "PUBLISHED" | "DISPUTED" | "COMPLETED" | "REFUNDED";
+      status: "DRAFT" | "READY_FOR_PAYMENT" | "PAID" | "SUBMITTED" | "READY" | "PUBLISHED" | "DISPUTED" | "COMPLETED" | "REFUNDED";
     }>`
       SELECT
         c.id::text AS id,
@@ -188,12 +187,15 @@ router.post("/payments/intent", authRequired, requireRole("ADVERTISER"), async (
     const amount = campaign.channelPrice;
     const stripeKey = process.env.STRIPE_SECRET_KEY;
     if (!stripeKey) {
+      if (isProd) {
+        return res.status(500).json({ message: "Stripe no está configurado" });
+      }
       const providerRef = `pi_dev_mock_${campaignId.slice(0, 8)}`;
       let paymentId: string | null = null;
       try {
         await prisma.$queryRaw`
           INSERT INTO "Payment"("campaignId","provider","providerRef","amount","currency","status")
-          VALUES (${campaignId}::uuid, 'STRIPE'::"PaymentProvider", ${providerRef}, ${amount}, ${currency.toUpperCase()}, 'REQUIRES_PAYMENT'::"PaymentStatus")
+          VALUES (${campaignId}::uuid, 'STRIPE'::"PaymentProvider", ${providerRef}, ${amount}, ${currency.toUpperCase()}, 'SUCCEEDED'::"PaymentStatus")
           ON CONFLICT ("campaignId") DO UPDATE SET
             "providerRef" = EXCLUDED."providerRef",
             "amount" = EXCLUDED."amount",
@@ -209,16 +211,24 @@ router.post("/payments/intent", authRequired, requireRole("ADVERTISER"), async (
         try {
           await prisma.$queryRaw`
             INSERT INTO "AuditLog"("actorUserId","entityType","entityId","action","meta")
-            VALUES (${req.user!.id}::uuid, 'Payment', ${paymentId}::uuid, 'INTENT_CREATED', ${JSON.stringify({ provider: "STRIPE", providerRef, amount, currency: currency.toUpperCase(), dev_mock: true })})
+            VALUES (${req.user!.id}::uuid, 'Payment', ${paymentId}::uuid, 'INTENT_CREATED', ${JSON.stringify({ provider: "STRIPE", providerRef, amount, currency: currency.toUpperCase(), dev_mock: true, confirmed: true })})
           `;
         } catch {}
       }
-      if (campaign.status === "DRAFT") {
-        await prisma.$queryRaw`
-          UPDATE "Campaign" SET status = 'READY_FOR_PAYMENT'::"CampaignStatus" WHERE id = ${campaignId}::uuid
-        `;
-      }
-      return res.status(200).json({ client_secret: null, provider_ref: providerRef, amount, currency: currency.toUpperCase(), dev_mock: true });
+      await prisma.$queryRaw`
+        UPDATE "Campaign"
+        SET status = 'SUBMITTED'::"CampaignStatus"
+        WHERE id = ${campaignId}::uuid
+          AND status IN ('DRAFT'::"CampaignStatus", 'READY_FOR_PAYMENT'::"CampaignStatus")
+      `;
+      return res.status(200).json({
+        client_secret: null,
+        provider_ref: providerRef,
+        amount,
+        currency: currency.toUpperCase(),
+        dev_mock: true,
+        confirmed: true,
+      });
     }
 
     const body = new URLSearchParams();
@@ -338,7 +348,7 @@ router.post("/payments/webhook", express.raw({ type: "application/json" }), asyn
       } catch {}
       if (campaignId) {
         await prisma.$queryRaw`
-          UPDATE "Campaign" SET status = 'PAID'::"CampaignStatus" WHERE id = ${campaignId}::uuid
+          UPDATE "Campaign" SET status = 'SUBMITTED'::"CampaignStatus" WHERE id = ${campaignId}::uuid
         `;
       }
     } else if (type === "payment_intent.payment_failed") {
@@ -386,7 +396,7 @@ router.get("/payments/:campaignId", authRequired, async (req, res) => {
         amount,
         currency,
         status::text AS status,
-        "createdAt"::text
+        "createdAt"
       FROM "Payment"
       WHERE "campaignId" = ${campaignId}::uuid
       LIMIT 1
@@ -407,7 +417,7 @@ router.get("/payments/:campaignId", authRequired, async (req, res) => {
     return res.status(200).json(payment);
   } catch (e) {
     console.error("[payments/:campaignId] error", e);
-    if (process.env.USE_PGMEM === "1") {
+    if (process.env.NODE_ENV !== "production" && process.env.USE_PGMEM === "1") {
       const providerRef = `pi_dev_mock_${campaignId.slice(0, 8)}`;
       return res.status(200).json({
         client_secret: null,
@@ -418,6 +428,62 @@ router.get("/payments/:campaignId", authRequired, async (req, res) => {
         degraded: true,
       });
     }
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/billing/summary", authRequired, requireRole("ADVERTISER"), async (req, res) => {
+  const parsed = z
+    .object({
+      window_days: z.coerce.number().optional(),
+      limit: z.coerce.number().optional(),
+    })
+    .safeParse(req.query);
+  const windowDaysRaw = parsed.success ? parsed.data.window_days : undefined;
+  const window_days = windowDaysRaw === 7 || windowDaysRaw === 90 ? windowDaysRaw : 30;
+  const limitRaw = parsed.success ? parsed.data.limit : undefined;
+  const limit = Math.max(1, Math.min(10, Number(limitRaw ?? 5)));
+
+  try {
+    const spend = await prisma.$queryRaw<{ spend: string }>`
+      SELECT COALESCE(SUM(p.amount), 0)::text AS spend
+      FROM "Payment" p
+      JOIN "Campaign" c ON c.id = p."campaignId"
+      WHERE c."advertiserUserId" = ${req.user!.id}::uuid
+        AND p.status = 'SUCCEEDED'::"PaymentStatus"
+        AND p."createdAt" >= NOW() - (${window_days}::text || ' days')::interval
+    `;
+
+    const inv = await prisma.$queryRaw<{ id: string; amount: number; currency: string; status: string; createdAt: string }>`
+      SELECT
+        p.id::text AS id,
+        p.amount,
+        p.currency,
+        p.status::text AS status,
+        p."createdAt" AS "createdAt"
+      FROM "Payment" p
+      JOIN "Campaign" c ON c.id = p."campaignId"
+      WHERE c."advertiserUserId" = ${req.user!.id}::uuid
+      ORDER BY p."createdAt" DESC
+      LIMIT ${limit}
+    `;
+
+    const spendRow = spend.rows[0] ?? { spend: "0" };
+    const invoices = (inv.rows ?? []).map((r) => ({
+      code: `INV-${String(r.id ?? "").slice(0, 6).toUpperCase()}`,
+      amount: r.amount ?? 0,
+      currency: r.currency ?? "USD",
+      status: r.status ?? "UNKNOWN",
+      createdAt: r.createdAt ?? "",
+    }));
+
+    return res.status(200).json({
+      window_days,
+      credits_available: 0,
+      spend: Number(spendRow.spend ?? 0),
+      invoices,
+    });
+  } catch {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -507,7 +573,7 @@ router.post("/payments/release", authRequired, requireRole("OPS"), async (req, r
 
   try {
     const statusRes = await prisma.$queryRaw<{
-      campaignStatus: "DRAFT" | "READY_FOR_PAYMENT" | "PAID" | "READY" | "PUBLISHED" | "DISPUTED" | "COMPLETED" | "REFUNDED";
+      campaignStatus: "DRAFT" | "READY_FOR_PAYMENT" | "PAID" | "SUBMITTED" | "READY" | "PUBLISHED" | "DISPUTED" | "COMPLETED" | "REFUNDED";
       paymentStatus: "CREATED" | "REQUIRES_PAYMENT" | "SUCCEEDED" | "FAILED" | "RELEASED" | "REFUNDED" | null;
     }>`
       SELECT

@@ -1,24 +1,25 @@
  "use client";
  
- import { useState } from "react";
+  import { useState } from "react";
+import { apiFetch } from "../lib/api";
  
  export default function CreatorPage() {
    const [status, setStatus] = useState("");
    const [created, setCreated] = useState<Array<any>>([]);
  
-   const [platform] = useState<"TELEGRAM">("TELEGRAM");
+  const [platform, setPlatform] = useState<"TELEGRAM" | "DISCORD" | "WHATSAPP">("TELEGRAM");
    const [name, setName] = useState("Mi Canal Pro");
    const [category, setCategory] = useState("tecnología");
    const [audienceSize, setAudienceSize] = useState(5000);
    const [engagementHint, setEngagementHint] = useState("buen CTR en herramientas y tutoriales");
    const [pricePerPost, setPricePerPost] = useState(80);
  
-   const [verifyPlatform] = useState<"TELEGRAM">("TELEGRAM");
+  const [verifyPlatform, setVerifyPlatform] = useState<"TELEGRAM" | "DISCORD" | "WHATSAPP">("TELEGRAM");
    const [channelRef, setChannelRef] = useState("");
    const [userRef, setUserRef] = useState("");
    const [verifyMsg, setVerifyMsg] = useState("");
  
-   const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+ 
  
    async function createChannel(e: React.FormEvent) {
      e.preventDefault();
@@ -28,13 +29,12 @@
        setStatus("Necesitas login como creador");
        return;
      }
-     try {
-       const res = await fetch(`${apiUrl}/channels`, {
+    try {
+      const res = await apiFetch(`/channels`, {
          method: "POST",
-         headers: {
-           "Content-Type": "application/json",
-           Authorization: `Bearer ${token}`,
-         },
+        headers: {
+          "Content-Type": "application/json",
+        },
          body: JSON.stringify({ platform, name, category, audienceSize, engagementHint, pricePerPost }),
        });
        const data = await res.json();
@@ -57,13 +57,12 @@
        setVerifyMsg("Necesitas login como creador");
        return;
      }
-     try {
-       const res = await fetch(`${apiUrl}/channels/verify`, {
+    try {
+      const res = await apiFetch(`/channels/verify`, {
          method: "POST",
-         headers: {
-           "Content-Type": "application/json",
-           Authorization: `Bearer ${token}`,
-         },
+        headers: {
+          "Content-Type": "application/json",
+        },
          body: JSON.stringify({ platform: verifyPlatform, channelRef, userRef }),
        });
        const data = await res.json();
@@ -85,11 +84,10 @@
       return;
     }
     try {
-      const res = await fetch(`${apiUrl}/channels/${channelId}/activate`, {
+      const res = await apiFetch(`/channels/${channelId}/activate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ platform: verifyPlatform, channelRef, userRef }),
       });
@@ -109,7 +107,7 @@
     <main className="container">
       <section className="card reveal">
          <h1 className="title">Panel del Creador</h1>
-        <p className="subtitle">Publica tu canal, define precios y verifica propiedad. Contenido de ejemplo: guía rápida para optimizar tu ficha y mejorar conversión.</p>
+        <p className="subtitle">Publica tu canal, define precios y verifica propiedad. Recibe solicitudes y programa publicaciones con claridad.</p>
         <div className="row" style={{ gap: "0.5rem", marginBottom: "0.75rem" }}>
           <a className="btn btn-primary" href="/channels">Explorar canales</a>
           <a className="btn" href="/campaigns/inbox">Ver mis campañas</a>
@@ -119,12 +117,14 @@
            <div>
              <h2 className="title">Publicar canal</h2>
              <form onSubmit={createChannel} className="form">
-               <label className="label">
-                 Plataforma
-                 <select className="select" value={platform} disabled>
-                   <option value="TELEGRAM">Telegram</option>
-                 </select>
-               </label>
+              <label className="label">
+                Plataforma
+                <select className="select" value={platform} onChange={(e) => setPlatform(e.target.value as typeof platform)}>
+                  <option value="TELEGRAM">Telegram</option>
+                  <option value="DISCORD">Discord</option>
+                  <option value="WHATSAPP">WhatsApp</option>
+                </select>
+              </label>
                <label className="label">
                  Nombre
                  <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
@@ -147,19 +147,21 @@
                </label>
                <div className="row">
                  <button type="submit" className="btn btn-primary">Crear canal</button>
-                 {status && <span className="badge">{status}</span>}
+                 {status && <span className="badge" role="status" aria-live="polite">{status}</span>}
                </div>
              </form>
            </div>
  
            <div>
              <h2 className="title">Verificar propiedad</h2>
-             <form onSubmit={verifyOwnership} className="form">
+            <form onSubmit={verifyOwnership} className="form mt-sm">
                <label className="label">
-                 Plataforma
-                 <select className="select" value={verifyPlatform} disabled>
-                   <option value="TELEGRAM">Telegram</option>
-                 </select>
+                Plataforma para verificación
+                <select className="select" value={verifyPlatform} onChange={(e) => setVerifyPlatform(e.target.value as typeof verifyPlatform)}>
+                  <option value="TELEGRAM">Telegram</option>
+                  <option value="DISCORD">Discord</option>
+                  <option value="WHATSAPP">WhatsApp</option>
+                </select>
                </label>
                <label className="label">
                  Referencia del canal (chat_id)
@@ -171,7 +173,7 @@
                </label>
                <div className="row">
                  <button type="submit" className="btn">Verificar</button>
-                 {verifyMsg && <span className="badge">{verifyMsg}</span>}
+                 {verifyMsg && <span className="badge" role="status" aria-live="polite">{verifyMsg}</span>}
                </div>
              </form>
            </div>

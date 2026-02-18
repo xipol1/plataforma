@@ -12,10 +12,13 @@ enum UserRole {
   ADVERTISER
   CHANNEL_ADMIN
   OPS
+  BLOG_ADMIN
 }
 
 enum ChannelPlatform {
   TELEGRAM
+  DISCORD
+  WHATSAPP
 }
 
 enum ChannelStatus {
@@ -28,6 +31,7 @@ enum CampaignStatus {
   DRAFT
   READY_FOR_PAYMENT
   PAID
+  SUBMITTED
   READY
   PUBLISHED
   DISPUTED
@@ -55,6 +59,49 @@ enum TrackingInvalidReason {
   RATE_LIMIT
 }
 
+enum PayoutMethod {
+  BANK
+  STRIPE
+}
+
+enum ChatMessageStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  BLOCKED
+}
+
+enum BlogStatus {
+  DRAFT
+  PENDING_VERIFICATION
+  VERIFIED
+  REJECTED
+}
+
+enum BlogOfferType {
+  SPONSORED_POST
+  LINK_INSERTION
+  HOMEPAGE_MENTION
+}
+
+enum BlogOrderStatus {
+  REQUESTED
+  ACCEPTED
+  REJECTED
+  NEEDS_CHANGES
+  IN_ESCROW
+  PUBLISHED
+  VERIFIED
+  SETTLED
+  CANCELED
+}
+
+enum ProofStatus {
+  PENDING
+  VALID
+  INVALID
+}
+
 model User {
   id           String   @id @default(uuid()) @db.Uuid
   email        String   @unique
@@ -70,6 +117,8 @@ model Channel {
   id             String          @id @default(uuid()) @db.Uuid
   ownerUserId    String          @db.Uuid
   platform       ChannelPlatform
+  platformRef    String?
+  platformUserRef String?
   name           String
   category       String
   audienceSize   Int
@@ -122,6 +171,98 @@ model Payment {
   campaign Campaign @relation(fields: [campaignId], references: [id])
 }
 
+model BlogSite {
+  id              String      @id @default(uuid()) @db.Uuid
+  ownerUserId     String      @db.Uuid
+  name            String
+  domain          String
+  language        String
+  country         String?
+  categories      String
+  status          BlogStatus
+  monthlyTraffic  Int?
+  DR              Int?
+  DA              Int?
+  indexedPages    Int?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @default(now())
+
+  owner   User                  @relation(fields: [ownerUserId], references: [id])
+  offers  BlogPlacementOffer[]
+  orders  BlogOrderRequest[]
+
+  @@index([ownerUserId])
+  @@unique([domain])
+}
+
+model BlogPlacementOffer {
+  id             String         @id @default(uuid()) @db.Uuid
+  blogSiteId     String         @db.Uuid
+  type           BlogOfferType
+  basePrice      Int
+  currency       String
+  turnaroundDays Int
+  dofollow       Boolean
+  sponsoredLabel Boolean
+  constraints    String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @default(now())
+
+  blog BlogSite @relation(fields: [blogSiteId], references: [id])
+
+  @@index([blogSiteId])
+}
+
+model BlogOrderRequest {
+  id                         String          @id @default(uuid()) @db.Uuid
+  advertiserId               String          @db.Uuid
+  blogSiteId                 String          @db.Uuid
+  offerId                    String?         @db.Uuid
+  targetUrl                  String
+  anchorText                 String
+  contentBrief               String
+  contentProvidedBy          String
+  status                     BlogOrderStatus
+  proposedPrice              Int
+  finalPrice                 Int?
+  currency                   String
+  requestedPublishWindowStart DateTime?
+  requestedPublishWindowEnd  DateTime?
+  notes                      String?
+  createdAt                  DateTime        @default(now())
+  updatedAt                  DateTime        @default(now())
+
+  advertiser User        @relation("BlogAdvertiser", fields: [advertiserId], references: [id])
+  blog       BlogSite    @relation(fields: [blogSiteId], references: [id])
+  offer      BlogPlacementOffer? @relation(fields: [offerId], references: [id])
+  proof      BlogPublicationProof?
+  metrics    BlogMetricsSnapshot?
+
+  @@index([blogSiteId])
+  @@index([advertiserId])
+  @@index([status])
+}
+
+model BlogPublicationProof {
+  id            String    @id @default(uuid()) @db.Uuid
+  orderId       String    @unique @db.Uuid
+  publishedUrl  String
+  publishedAt   DateTime
+  proofStatus   ProofStatus
+  lastCheckedAt DateTime?
+  notes         String?
+
+  order BlogOrderRequest @relation(fields: [orderId], references: [id])
+}
+
+model BlogMetricsSnapshot {
+  orderId    String   @id @db.Uuid
+  clicks     Int?
+  impressions Int?
+  createdAt  DateTime @default(now())
+
+  order BlogOrderRequest @relation(fields: [orderId], references: [id])
+}
 model TrackingClick {
   id        String   @id @default(uuid()) @db.Uuid
   campaignId String  @db.Uuid
@@ -136,4 +277,83 @@ model TrackingClick {
 
   @@index([campaignId])
   @@index([ts])
+}
+
+model TrackingEvent {
+  id        String   @id @default(uuid()) @db.Uuid
+  campaignId String  @db.Uuid
+  clickId   String?  @db.Uuid
+  type      String
+  value     Decimal?
+  currency  String?
+  meta      String?
+  ts        DateTime @default(now())
+  ip        String
+  userAgent String
+  referrer  String?
+
+  campaign Campaign      @relation(fields: [campaignId], references: [id])
+  click    TrackingClick? @relation(fields: [clickId], references: [id])
+
+  @@index([campaignId])
+  @@index([clickId])
+  @@index([ts])
+  @@index([campaignId, type, ts])
+}
+
+model AuditLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  actorUserId  String?  @db.Uuid
+  entityType   String
+  entityId     String?  @db.Uuid
+  action       String
+  ts           DateTime @default(now())
+  meta         String?
+
+  @@index([entityType])
+  @@index([entityId])
+  @@index([ts])
+}
+
+model PayoutConfig {
+  userId     String       @id @db.Uuid
+  method     PayoutMethod
+  identifier String
+  updatedAt  DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model ChatConversation {
+  id              String   @id @default(uuid()) @db.Uuid
+  campaignId      String   @unique @db.Uuid
+  advertiserUserId String  @db.Uuid
+  ownerUserId     String   @db.Uuid
+  createdAt       DateTime @default(now())
+
+  campaign  Campaign @relation(fields: [campaignId], references: [id])
+  advertiser User    @relation("ChatAdvertiser", fields: [advertiserUserId], references: [id])
+  owner      User    @relation("ChatOwner", fields: [ownerUserId], references: [id])
+  messages   ChatMessage[]
+
+  @@index([advertiserUserId])
+  @@index([ownerUserId])
+}
+
+model ChatMessage {
+  id             String            @id @default(uuid()) @db.Uuid
+  conversationId String            @db.Uuid
+  senderUserId   String            @db.Uuid
+  body           String
+  status         ChatMessageStatus
+  createdAt      DateTime          @default(now())
+  reviewedByUserId String?         @db.Uuid
+  reviewedAt     DateTime?
+  rejectionReason String?
+  flags          String?
+
+  conversation ChatConversation @relation(fields: [conversationId], references: [id])
+
+  @@index([conversationId, createdAt])
+  @@index([status, createdAt])
 }

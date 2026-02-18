@@ -14,6 +14,7 @@ Acceso rápido:
 7. [Tracking y stats](file:///c:/Users/maria/OneDrive/Escritorio/AdFlow/plataforma/.github/docs/07-tracking.md)
 8. [Troubleshooting](file:///c:/Users/maria/OneDrive/Escritorio/AdFlow/plataforma/.github/docs/08-troubleshooting.md)
 9. [Análisis de unión](file:///c:/Users/maria/OneDrive/Escritorio/AdFlow/plataforma/.github/docs/09-union-me-repo.md)
+10. [UI y dashboards](file:///c:/Users/maria/OneDrive/Escritorio/AdFlow/plataforma/.github/docs/10-ui-dashboards.md)
 
 Inicio rápido
 

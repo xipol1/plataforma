@@ -1,0 +1,2 @@
+ALTER TABLE "Channel" ADD COLUMN IF NOT EXISTS "platformRef" TEXT;
+ALTER TABLE "Channel" ADD COLUMN IF NOT EXISTS "platformUserRef" TEXT;

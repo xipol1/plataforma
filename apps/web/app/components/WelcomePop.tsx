@@ -39,7 +39,7 @@
          <div className="grid" style={{ gap: "0.75rem" }}>
            <p className="feature-desc">Para continuar, inicia sesión o regístrate. Tras acceso verás las herramientas según tu perfil.</p>
            <div className="row" style={{ gap: "0.5rem" }}>
-             <a className="btn btn-primary" href="/login">Login/Register</a>
+            <a className="btn btn-primary" href="/login?next=/app/advertiser">Login/Register</a>
            </div>
          </div>
        </div>
