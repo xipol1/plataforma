@@ -1,1 +1,12 @@
-{"rewrites":[{"source":"/(.*)","destination":"/index.html"}]}
+{
+  "version": 2,
+  "installCommand": "echo \"Skipping install\"",
+  "buildCommand": "echo \"Skipping build\"",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

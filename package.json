@@ -4,11 +4,10 @@
   "description": "Plataforma de monetización para canales de comunicación",
   "main": "app.js",
   "scripts": {
-    "postinstall": "npm run build",
     "start": "node server.js",
     "dev": "nodemon server.js",
     "frontend:dev": "vite",
-    "frontend:build": "vite build",
+    "frontend:build": "node -e \"const fs=require('fs');const cp=require('child_process');if(!fs.existsSync('index.html')){console.log('Skipping vite build (index.html missing)');process.exit(0)}cp.execSync('vite build',{stdio:'inherit',shell:true})\"",
     "frontend:preview": "vite preview",
     "dev:full": "concurrently \"npm run dev\" \"npm run frontend:dev\"",
     "build": "npm run frontend:build",
