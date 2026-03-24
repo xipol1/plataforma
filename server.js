@@ -10,7 +10,7 @@ const path = require('path');
 
 async function startServer() {
   try {
-    const PORT = Number(process.env.PORT) || 5000;
+    const PORT = process.env.PORT || 5000;
     const ENV = process.env.NODE_ENV || 'development';
     const fatalPath = path.join(__dirname, '_server_fatal.log');
 
@@ -26,16 +26,9 @@ async function startServer() {
     process.on('unhandledRejection', logFatal);
 
     // 2. Iniciar la escucha del servidor
-    const server = app.listen(PORT, () => {
-      console.log(`
-🚀 Servidor iniciado exitosamente
-📡 Puerto: ${PORT}
-🌍 Entorno: ${ENV}
-⏱️  Tiempo: ${new Date().toLocaleString()}
-      `);
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
     });
-    server.on('error', logFatal);
-    setInterval(() => {}, 1 << 30);
 
     const databaseConfig = (() => {
       try {
@@ -54,22 +47,8 @@ async function startServer() {
         });
     }
 
-    // 4. Manejo de cierre gracioso (Graceful Shutdown)
-    process.on('SIGTERM', () => {
-      console.log('SIGTERM recibido. Cerrando servidor HTTP...');
-      server.close(() => {
-        console.log('Servidor HTTP cerrado.');
-        if (databaseConfig?.desconectar) {
-          databaseConfig.desconectar().then(() => process.exit(0));
-          return;
-        }
-        process.exit(0);
-      });
-    });
-
   } catch (error) {
     console.error('❌ Error fatal durante el inicio del servidor:', error);
-    process.exit(1);
   }
 }
 
