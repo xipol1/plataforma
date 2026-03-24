@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "postinstall": "npm run build",
-    "start": "node app.js",
-    "dev": "nodemon app.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
     "frontend:dev": "vite",
     "frontend:build": "vite build",
     "frontend:preview": "vite preview",
