@@ -48,28 +48,28 @@
 | Controlador | Estado |
 |---|---|
 | `authController` | Existe (`controllers/authController.js`) |
-| `anuncioController` | Falta |
-| `canalController` | Falta |
-| `campaignController` | Falta |
-| `channelsController` | Falta |
-| `estadisticaController` | Falta |
-| `fileController` | Falta |
-| `channelListController` | Falta |
-| `notificationController` | Falta |
-| `transaccionController` | Falta |
+| `anuncioController` | Existe (stub 501) |
+| `canalController` | Existe (stub 501) |
+| `campaignController` | Existe (stub 501) |
+| `channelsController` | Existe (stub 501) |
+| `estadisticaController` | Existe (stub 501) |
+| `fileController` | Existe (stub 501) |
+| `channelListController` | Existe (stub 501) |
+| `notificationController` | Existe (stub 501) |
+| `transaccionController` | Existe (stub 501) |
 
 ### Modelos
 
 | Modelo | Estado |
 |---|---|
 | `Usuario` | Existe (`models/Usuario.js`) |
-| `Canal` | Falta |
-| `Anuncio` | Falta |
-| `Notificacion` | Falta |
-| `Archivo` | Falta |
-| `Estadistica` | Falta |
-| `ChannelList` | Falta |
-| `Partner` | Falta |
+| `Canal` | Existe (`models/Canal.js`) |
+| `Anuncio` | Existe (`models/Anuncio.js`) |
+| `Notificacion` | Existe (`models/Notificacion.js`) |
+| `Archivo` | Existe (`models/Archivo.js`) |
+| `Estadistica` | Existe (`models/Estadistica.js`) |
+| `ChannelList` | Existe (`models/ChannelList.js`) |
+| `Partner` | Existe (`models/Partner.js`) |
 
 ## Rutas operativas vs no operativas
 
@@ -131,8 +131,10 @@ Todas las rutas bajo los prefijos siguientes devuelven 501 JSON uniforme:
 - `services/SocialSyncService.js` → `../models/Canal`, `../models/Anuncio`, `../models/Estadistica`
 
 **services → integraciones faltantes**
-- `services/SocialSyncService.js` → `../integraciones/telegram`, `../integraciones/whatsapp`, `../integraciones/discord`
-- `services/publicationService.js` → `../integraciones/telegram`, `../integraciones/whatsapp`, `../integraciones/discord`
+**integraciones**
+- `integraciones/telegram.js` existe
+- `integraciones/whatsapp.js` existe
+- `integraciones/discord.js` existe
 
 ### Exports usados pero no definidos (previo)
 
