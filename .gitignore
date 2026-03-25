@@ -3,6 +3,7 @@ node_modules/
 .env.*
 !.env.example
 dist/
+*.zip
 .vercel/
 _server_fatal.log
 npm-debug.log*

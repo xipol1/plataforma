@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const Usuario = require('../models/Usuario');
 const AuthService = require('../services/authService');
 const config = require('../config/config');
@@ -28,13 +29,14 @@ const login = async (req, res) => {
 
   try {
     console.log('LOGIN: request', { email });
+    console.log('LOGIN INPUT:', email);
 
     if (!process.env.MONGODB_URI) {
       console.warn('LOGIN: MONGODB_URI no definida');
       return res.status(503).json({
         success: false,
         message: 'Servicio no disponible',
-        ...(isDev ? { error: 'MONGODB_URI no definida' } : {})
+        error: 'MONGODB_URI no definida'
       });
     }
 
@@ -46,7 +48,7 @@ const login = async (req, res) => {
         return res.status(503).json({
           success: false,
           message: 'Servicio no disponible',
-          ...(isDev && last ? { error: last.message || String(last) } : {})
+          ...(last ? { error: last.message || String(last) } : {})
         });
       }
     }
@@ -58,8 +60,23 @@ const login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Credenciales inválidas' });
     }
 
-    const passwordOk = await AuthService.compararPassword(String(req.body?.password || ''), usuario.password);
-    if (!passwordOk) {
+    const safeUser = usuario?.toObject ? usuario.toObject() : usuario;
+    if (safeUser && typeof safeUser === 'object') delete safeUser.password;
+    console.log('USER ENCONTRADO:', safeUser);
+    console.log(
+      'PASSWORD GUARDADA:',
+      usuario?.password ? `${String(usuario.password).slice(0, 10)}... (len=${String(usuario.password).length})` : null
+    );
+
+    const passwordRaw = String(req.body?.password || '');
+    const passwordTrimmed = passwordRaw.trim();
+    let isMatch = await bcrypt.compare(passwordRaw, usuario.password);
+    if (!isMatch && passwordTrimmed !== passwordRaw) {
+      isMatch = await bcrypt.compare(passwordTrimmed, usuario.password);
+    }
+    console.log('PASSWORD MATCH:', isMatch);
+
+    if (!isMatch) {
       console.log('LOGIN: password mismatch', { userId: usuario._id.toString() });
       return res.status(401).json({ success: false, message: 'Credenciales inválidas' });
     }
@@ -80,7 +97,7 @@ const login = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Servicio no disponible',
-      ...(isDev ? { error: error?.message || String(error) } : {})
+      error: error?.message || String(error)
     });
   }
 };
@@ -90,13 +107,16 @@ const registro = async (req, res) => {
 
   try {
     console.log('REGISTER: request', { email });
+    const registerInput = { ...(req.body || {}) };
+    if (Object.prototype.hasOwnProperty.call(registerInput, 'password')) registerInput.password = '[REDACTED]';
+    console.log('REGISTER INPUT:', registerInput);
 
     if (!process.env.MONGODB_URI) {
       console.warn('REGISTER: MONGODB_URI no definida');
       return res.status(503).json({
         success: false,
         message: 'Servicio no disponible',
-        ...(isDev ? { error: 'MONGODB_URI no definida' } : {})
+        error: 'MONGODB_URI no definida'
       });
     }
 
@@ -108,7 +128,7 @@ const registro = async (req, res) => {
         return res.status(503).json({
           success: false,
           message: 'Servicio no disponible',
-          ...(isDev && last ? { error: last.message || String(last) } : {})
+          ...(last ? { error: last.message || String(last) } : {})
         });
       }
     }
@@ -124,10 +144,12 @@ const registro = async (req, res) => {
     const apellido = String(req.body?.apellido || '');
     const role = String(req.body?.role || '');
 
-    const hashed = await AuthService.hashPassword(password);
-    const usuario = await Usuario.create({
+    const passwordTrimmed = password.trim();
+    const hashedPassword = await bcrypt.hash(passwordTrimmed, 10);
+    console.log('CREANDO USUARIO...');
+    const user = await Usuario.create({
       email,
-      password: hashed,
+      password: hashedPassword,
       nombre,
       apellido,
       rol: role || 'advertiser',
@@ -135,13 +157,17 @@ const registro = async (req, res) => {
       activo: true
     });
 
-    console.log('REGISTER: user created', { userId: usuario._id.toString() });
-    const tokens = await AuthService.generarTokens(usuario);
-    console.log('REGISTER: tokens generated', { userId: usuario._id.toString() });
+    const safeUser = user?.toObject ? user.toObject() : user;
+    if (safeUser && typeof safeUser === 'object') delete safeUser.password;
+    console.log('USUARIO GUARDADO:', safeUser);
+
+    console.log('REGISTER: user created', { userId: user._id.toString() });
+    const tokens = await AuthService.generarTokens(user);
+    console.log('REGISTER: tokens generated', { userId: user._id.toString() });
 
     return res.status(201).json({
       success: true,
-      user: buildUserResponse(usuario),
+      user: buildUserResponse(user),
       token: tokens.tokenAcceso,
       refreshToken: tokens.tokenRefresco,
       expiresIn: tokens.expiresIn
@@ -151,7 +177,7 @@ const registro = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Servicio no disponible',
-      ...(isDev ? { error: error?.message || String(error) } : {})
+      error: error?.message || String(error)
     });
   }
 };

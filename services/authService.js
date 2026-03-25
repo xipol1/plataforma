@@ -33,7 +33,7 @@ class AuthService {
       );
     } catch (error) {
       console.error('Error al generar token de acceso:', error);
-      throw new Error('Error al generar token de acceso');
+      throw error;
     }
   }
 
@@ -61,7 +61,7 @@ class AuthService {
       );
     } catch (error) {
       console.error('Error al generar token de refresco:', error);
-      throw new Error('Error al generar token de refresco');
+      throw error;
     }
   }
 
@@ -150,7 +150,7 @@ class AuthService {
       };
     } catch (error) {
       console.error('Error al generar tokens:', error);
-      throw new Error('Error al generar tokens de autenticación');
+      throw error;
     }
   }
 
