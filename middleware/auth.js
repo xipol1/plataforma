@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 
-=======
 const normalizeRoles = (inputRoles) => {
   if (inputRoles.length === 1 && Array.isArray(inputRoles[0])) {
     return inputRoles[0];
   }
->>>>>>> pr-4
+  return inputRoles;
+};
 
 const autenticar = (req, res, next) => {
   const authHeader = req.headers?.authorization || '';
