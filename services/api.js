@@ -107,35 +107,10 @@ class ApiService {
    * Iniciar sesión
    */
   async login(credentials) {
-    console.log("LOGIN REQUEST", credentials);
-    const API_URL = "https://adflow-2pf7.onrender.com";
-    
-    return fetch(`${API_URL}/api/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(credentials)
-    })
-    .then(async response => {
-      const text = await response.text();
-      let parsed = null;
-      if (text) {
-        try {
-          parsed = JSON.parse(text);
-        } catch (e) {
-          console.error("LOGIN PARSE ERROR FRONT:", e);
-        }
-      }
-      
-      if (response.ok) {
-        return parsed || { success: true };
-      }
-      return parsed || { success: false, message: text || 'Error del servidor', status: response.status };
-    })
-    .catch(err => {
-      console.error("LOGIN ERROR FRONT:", err);
-      return { success: false, message: 'No se pudo conectar con el servidor', error: err?.message };
+    return this.request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+      auth: false,
     });
   }
 
