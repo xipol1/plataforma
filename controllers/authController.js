@@ -103,13 +103,19 @@ const login = async (req, res) => {
 };
 
 const registro = async (req, res) => {
+  console.log('REGISTER BODY:', req.body);
   const email = normalizeEmail(req.body?.email);
 
   try {
     console.log('REGISTER: request', { email });
-    const registerInput = { ...(req.body || {}) };
-    if (Object.prototype.hasOwnProperty.call(registerInput, 'password')) registerInput.password = '[REDACTED]';
-    console.log('REGISTER INPUT:', registerInput);
+    const password = String(req.body?.password || '');
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email y password requeridos'
+      });
+    }
 
     if (!process.env.MONGODB_URI) {
       console.warn('REGISTER: MONGODB_URI no definida');
@@ -139,27 +145,17 @@ const registro = async (req, res) => {
       return res.status(400).json({ success: false, message: 'El email ya está registrado' });
     }
 
-    const password = String(req.body?.password || '');
-    const nombre = String(req.body?.nombre || '');
-    const apellido = String(req.body?.apellido || '');
-    const role = String(req.body?.role || '');
+    console.log('ANTES DE CREAR USUARIO');
+    const hashedPassword = await bcrypt.hash(password.trim(), 10);
 
-    const passwordTrimmed = password.trim();
-    const hashedPassword = await bcrypt.hash(passwordTrimmed, 10);
-    console.log('CREANDO USUARIO...');
     const user = await Usuario.create({
-      email,
-      password: hashedPassword,
-      nombre,
-      apellido,
-      rol: role || 'advertiser',
-      emailVerificado: false,
-      activo: true
+      email: email.trim().toLowerCase(),
+      password: hashedPassword
     });
 
-    const safeUser = user?.toObject ? user.toObject() : user;
-    if (safeUser && typeof safeUser === 'object') delete safeUser.password;
-    console.log('USUARIO GUARDADO:', safeUser);
+    console.log('USUARIO CREADO:', user);
+    const check = await Usuario.findOne({ email });
+    console.log('VERIFICACIÓN EN DB:', check);
 
     console.log('REGISTER: user created', { userId: user._id.toString() });
     const tokens = await AuthService.generarTokens(user);
@@ -176,8 +172,8 @@ const registro = async (req, res) => {
     console.error('REGISTER ERROR:', error);
     return res.status(500).json({
       success: false,
-      message: 'Servicio no disponible',
-      error: error?.message || String(error)
+      message: 'Error en registro',
+      error: error.message
     });
   }
 };

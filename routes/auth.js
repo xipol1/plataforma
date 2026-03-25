@@ -17,12 +17,14 @@ const validacionesRegistro = [
     .isLength({ min: 6 })
     .withMessage('La contraseña debe tener al menos 6 caracteres'),
   body('nombre')
+    .optional()
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('El nombre debe tener entre 2 y 50 caracteres')
     .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
     .withMessage('El nombre solo puede contener letras y espacios'),
   body('apellido')
+    .optional()
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('El apellido debe tener entre 2 y 50 caracteres')
@@ -33,6 +35,7 @@ const validacionesRegistro = [
     .isMobilePhone('any')
     .withMessage('Número de teléfono inválido'),
   body('role')
+    .optional()
     .isIn(['creator', 'advertiser'])
     .withMessage('Rol inválido. Debe ser creator o advertiser'),
   
