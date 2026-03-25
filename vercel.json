@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "installCommand": "echo \"Skipping install\"",
-  "buildCommand": "echo \"Skipping build\"",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
     {
