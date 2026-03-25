@@ -1,63 +1,44 @@
 import React from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from '../ui/routing/ProtectedRoute'
+import AppLayout from '../ui/layouts/AppLayout'
+import LoginPage from '../ui/pages/auth/LoginPage'
+import RegisterPage from '../ui/pages/auth/RegisterPage'
+import LandingPage from '../ui/pages/landing/LandingPage'
 import DashboardPage from '../ui/pages/dashboard/DashboardPage'
 import { useAuth } from '../auth/AuthContext'
-import AuthPage from '../legacy/AuthPage'
-import LandingPage from '../legacy/LandingPage'
-import AdminDashboard from '../legacy/AdminDashboard'
-import AdvertiserDashboard from '../legacy/AdvertiserDashboard'
-import CreatorDashboard from '../legacy/CreatorDashboard'
 
 export default function AppRoutes() {
   const { isAuthenticated } = useAuth()
 
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<AppLayout />}>
+        <Route index element={<LandingPage />} />
+        <Route
+          path="auth"
+          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/auth/login" replace />}
+        />
+        <Route
+          path="auth/login"
+          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />}
+        />
+        <Route
+          path="auth/register"
+          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />}
+        />
 
-      <Route path="/auth" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
-      <Route path="/auth/login" element={<Navigate to="/auth" replace />} />
-      <Route path="/auth/register" element={<Navigate to="/auth" replace />} />
-
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/creator/*"
-        element={
-          <ProtectedRoute allowedRoles={['creador']}>
-            <CreatorDashboard />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/advertiser/*"
-        element={
-          <ProtectedRoute allowedRoles={['anunciante']}>
-            <AdvertiserDashboard />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/admin/*"
-        element={
-          <ProtectedRoute allowedRoles={['admin']}>
-            <AdminDashboard />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
-

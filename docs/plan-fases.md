@@ -1,30 +1,24 @@
-# Plan por fases
+# Plan por fases para poner la plataforma a punto
 
-## Fase 2: modelos + controladores core (backend)
+## Fase 2 — Backend de dominio mínimo viable
+1. Crear modelos Mongoose: `Canal`, `Anuncio`, `Campana`, `Transaccion`, `Notificacion`.
+2. Implementar controladores mínimos:
+   - Canales: crear/listar público/listar propios.
+   - Campañas: crear/listar/cambiar estado.
+   - Transacciones: crear + webhook básico.
+3. Reemplazar 501 en módulos implementados.
 
-- Normalizar `User/Usuario` (schema, responses, tokens, conexión DB)
-- Implementar modelos mínimos: `Channel`, `Campaign`, `Transaction`, `TrackingEvent`
-- Implementar controladores mínimos: `channelController`, `campaignController`, `transactionController`, `trackingController`
-- Implementar rutas reales y retirar 501 módulo por módulo
-- Unificar respuesta API a `{ success: true, data: ... }` para endpoints implementados
+## Fase 3 — Frontend marketplace real
+1. Rutas reales para explorar canales, crear campañas, detalle de campaña, pagos.
+2. Conectar `services/api.js` a endpoints reales (sin mocks/TODO).
+3. Dashboard por rol con datos de API.
 
-## Fase 3: frontend marketplace real
+## Fase 4 — Calidad y CI
+1. Configurar ESLint base del repo (`.eslintrc*`).
+2. Agregar smoke tests (health + auth login/register básico con supertest).
+3. Ajustar `npm test` para pasar en CI.
 
-- Eliminar mocks en consumo API y apuntar a backend real
-- Vistas mínimas: Login/Register, Dashboard, Listado/Crear Canal, Crear Campaña
-- Arreglar rutas en `src/routes/AppRoutes.jsx`
-- Revisar estructura/alias Vite y mover código fuera de `src/` a una ubicación consistente
-
-## Fase 4: tests + CI
-
-- Tests mínimos backend: auth (registro/login), health, contratos de error
-- Tests mínimos frontend: navegación y autenticación (smoke)
-- Configurar CI (lint + test + build)
-
-## Fase 5: hardening + deploy
-
-- Endurecer CORS/orígenes por entorno
-- Rate limiting real por IP/usuario
-- Sanitización/validación de inputs end-to-end
-- Observabilidad mínima (logs estructurados, requestId)
-- Deploy (Render/Vercel) con variables de entorno coherentes
+## Fase 5 — Hardening y despliegue
+1. Endurecer validación de entrada y límites por endpoint crítico.
+2. Revisar secretos/env para producción.
+3. Checklist de release + monitoreo básico.

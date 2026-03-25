@@ -1,92 +1,87 @@
-const Canal = require('../models/Canal');
-const { ensureDb } = require('../lib/ensureDb');
+const sampleChannels = [
+  {
+    id: 'demo-ch-crypto-alpha-signals',
+    nombre: 'Crypto Alpha Signals',
+    plataforma: 'telegram',
+    categoria: 'cripto',
+    audiencia: 120000,
+    precio: 450,
+    moneda: 'EUR',
+    verificado: true,
+    url: 'https://t.me/cryptoalphasignals'
+  },
+  {
+    id: 'demo-ch-gaming-deals-hub',
+    nombre: 'Gaming Deals Hub',
+    plataforma: 'discord',
+    categoria: 'gaming',
+    audiencia: 150000,
+    precio: 650,
+    moneda: 'EUR',
+    verificado: false,
+    url: 'https://discord.gg/gamingdeals'
+  },
+  {
+    id: 'demo-ch-ecom-growth-es',
+    nombre: 'Ecom Growth ES',
+    plataforma: 'whatsapp',
+    categoria: 'negocios',
+    audiencia: 80000,
+    precio: 390,
+    moneda: 'EUR',
+    verificado: true,
+    url: 'https://wa.me/00000000000'
+  }
+];
 
-const parseIntOr = (value, fallback) => {
-  const n = Number.parseInt(String(value), 10);
-  return Number.isFinite(n) ? n : fallback;
+const normalizeBool = (value) => {
+  if (value === true || value === 'true') return true;
+  if (value === false || value === 'false') return false;
+  return null;
 };
 
 const listChannels = async (req, res) => {
-  const ok = await ensureDb();
-  if (!ok) {
-    return res.status(503).json({ success: false, message: 'Servicio no disponible' });
-  }
+  const pagina = Number(req.query?.pagina || 1);
+  const limite = Number(req.query?.limite || 20);
+  const plataforma = req.query?.plataforma ? String(req.query.plataforma).toLowerCase() : '';
+  const verificado = normalizeBool(req.query?.verificado);
 
-  const pagina = Math.max(1, parseIntOr(req.query?.pagina, 1));
-  const limite = Math.min(60, Math.max(1, parseIntOr(req.query?.limite, 20)));
+  let items = sampleChannels.slice();
 
-  const filtro = { estado: { $in: ['activo'] } };
+  if (plataforma) items = items.filter((channel) => channel.plataforma === plataforma);
+  if (verificado !== null) items = items.filter((channel) => channel.verificado === verificado);
 
-  if (req.query?.plataforma) filtro.plataforma = String(req.query.plataforma).toLowerCase();
-  if (req.query?.categoria) filtro.categoria = String(req.query.categoria).toLowerCase();
-
-  const [items, total] = await Promise.all([
-    Canal.find(filtro)
-      .sort({ createdAt: -1 })
-      .skip((pagina - 1) * limite)
-      .limit(limite)
-      .lean(),
-    Canal.countDocuments(filtro)
-  ]);
+  const total = items.length;
+  const start = (Math.max(pagina, 1) - 1) * Math.max(limite, 1);
+  const paginados = items.slice(start, start + Math.max(limite, 1));
 
   return res.json({
     success: true,
-    data: {
-      items,
+    data: paginados,
+    pagination: {
       pagina,
       limite,
-      total
+      total,
+      totalPaginas: Math.max(1, Math.ceil(total / Math.max(limite, 1)))
     }
   });
 };
 
-const getMyChannels = async (req, res) => {
-  const ok = await ensureDb();
-  if (!ok) {
-    return res.status(503).json({ success: false, message: 'Servicio no disponible' });
+const getChannelById = async (req, res) => {
+  const { id } = req.params;
+  const channel = sampleChannels.find((item) => item.id === id);
+
+  if (!channel) {
+    return res.status(404).json({
+      success: false,
+      message: 'Canal no encontrado'
+    });
   }
 
-  const userId = req.usuario?.id;
-  if (!userId) return res.status(401).json({ success: false, message: 'No autorizado' });
-
-  const items = await Canal.find({ propietario: userId }).sort({ createdAt: -1 }).lean();
-  return res.json({ success: true, data: { items } });
-};
-
-const createChannel = async (req, res) => {
-  const ok = await ensureDb();
-  if (!ok) {
-    return res.status(503).json({ success: false, message: 'Servicio no disponible' });
-  }
-
-  const userId = req.usuario?.id;
-  if (!userId) return res.status(401).json({ success: false, message: 'No autorizado' });
-
-  const plataforma = String(req.body?.plataforma || '').trim().toLowerCase();
-  const identificadorCanal = String(req.body?.identificadorCanal || '').trim();
-  const nombreCanal = String(req.body?.nombreCanal || '').trim();
-  const categoria = String(req.body?.categoria || '').trim().toLowerCase();
-  const descripcion = String(req.body?.descripcion || '').trim();
-
-  if (!plataforma || !identificadorCanal) {
-    return res.status(400).json({ success: false, message: 'plataforma e identificadorCanal requeridos' });
-  }
-
-  const canal = await Canal.create({
-    propietario: userId,
-    plataforma,
-    identificadorCanal,
-    nombreCanal,
-    categoria,
-    descripcion,
-    estado: 'pendiente_verificacion'
-  });
-
-  return res.status(201).json({ success: true, data: canal });
+  return res.json({ success: true, data: channel });
 };
 
 module.exports = {
   listChannels,
-  getMyChannels,
-  createChannel
+  getChannelById
 };

@@ -1,180 +1,79 @@
-# Estado real (Paso 1)
+# Estado real del repositorio
 
-## Inventario
-
-### Backend
-
-**routes/**
-- `routes/anuncios.js`
-- `routes/auth.js`
-- `routes/campaigns.js`
-- `routes/canales.js`
-- `routes/channels.js`
-- `routes/estadisticas.js`
-- `routes/files.js`
-- `routes/lists.js`
-- `routes/notifications.js`
-- `routes/transacciones.js`
-
-**controllers/**
-- `controllers/authController.js`
-
-**models/**
-- `models/Usuario.js`
-
-**services/**
-- `services/SocialSyncService.js`
-- `services/api.js`
-- `services/authService.js`
-- `services/campaignOptimizerService.js`
-- `services/channelListService.js`
-- `services/channelPerformanceService.js`
-- `services/channelPricingService.js`
-- `services/channelRankingService.js`
-- `services/channelScoring.js`
-- `services/channelService.js`
-- `services/demoData.js`
-- `services/emailService.js`
-- `services/fileService.js`
-- `services/launchCampaignService.js`
-- `services/notificationService.js`
-- `services/publicationService.js`
-- `services/webhookService.js`
-
-## Existe / Falta
+## 1) Auditoría estructural
 
 ### Controladores
-
-| Controlador | Estado |
+| Componente | Estado |
 |---|---|
-| `authController` | Existe (`controllers/authController.js`) |
-| `anuncioController` | Existe (stub 501) |
-| `canalController` | Existe (stub 501) |
-| `campaignController` | Existe (stub 501) |
-| `channelsController` | Existe (stub 501) |
-| `estadisticaController` | Existe (stub 501) |
-| `fileController` | Existe (stub 501) |
-| `channelListController` | Existe (stub 501) |
-| `notificationController` | Existe (stub 501) |
-| `transaccionController` | Existe (stub 501) |
+| `controllers/authController.js` | ✅ Existe |
+| `anuncioController` | ❌ Falta |
+| `canalController` | ❌ Falta |
+| `transaccionController` | ❌ Falta |
+| `notificationController` | ❌ Falta |
+| `fileController` | ❌ Falta |
+| `estadisticaController` | ❌ Falta |
+| `campaignController` | ❌ Falta |
+| `channelListController` | ❌ Falta |
+| `controllers/channelsController.js` | ✅ Existe (API demo) |
 
 ### Modelos
-
 | Modelo | Estado |
 |---|---|
-| `Usuario` | Existe (`models/Usuario.js`) |
-| `Canal` | Existe (`models/Canal.js`) |
-| `Anuncio` | Existe (`models/Anuncio.js`) |
-| `Notificacion` | Existe (`models/Notificacion.js`) |
-| `Archivo` | Existe (`models/Archivo.js`) |
-| `Estadistica` | Existe (`models/Estadistica.js`) |
-| `ChannelList` | Existe (`models/ChannelList.js`) |
-| `Partner` | Existe (`models/Partner.js`) |
+| `models/Usuario.js` | ✅ Existe |
+| `Canal` | ❌ Falta |
+| `Anuncio` | ❌ Falta |
+| `Transaccion` | ❌ Falta |
+| `Notificacion` | ❌ Falta |
+| `Campana` | ❌ Falta |
 
-## Rutas operativas vs no operativas
+### Servicios
+Servicios presentes en `services/`: auth/email/file/channel/campaign optimizer, etc. No hay evidencia de integración completa con controladores de dominio (canales/anuncios/transacciones).
+
+## 2) Rutas operativas vs no operativas
 
 ### Operativas
+- `/health`
+- `/api/health`
+- `/api/auth/*`
+- `/auth/*`
+- `/api/channels/*`
+- `/channels/*`
 
-| Ruta | Estado |
-|---|---|
-| `GET /health` | 200 |
-| `GET /api/health` | 200 |
-| `/api/auth/*` | Montada desde `routes/auth.js` |
-| `/auth/*` | Montada desde `routes/auth.js` |
-| `/api/channels/*` | Operativa (MVP canales) |
-| `/api/canales/*` | Alias de `/api/channels/*` |
-| `/channels/*` | Alias de `/api/channels/*` |
+### No operativas (respuesta uniforme `501`)
+- `/api/canales/*`
+- `/api/anuncios/*`
+- `/api/transacciones/*`
+- `/api/notifications/*`
+- `/api/files/*`
+- `/api/estadisticas/*`
+- `/api/campaigns/*`
+- `/api/lists/*`
+- `/campaigns/*`
 
-### No operativas (deshabilitadas explícitamente)
-
-Todas las rutas bajo los prefijos siguientes devuelven 501 JSON uniforme:
-
+Formato uniforme:
 ```json
-{ "success": false, "code": "NOT_IMPLEMENTED", "module": "<modulo>", "message": "Módulo pendiente" }
+{
+  "success": false,
+  "code": "NOT_IMPLEMENTED",
+  "module": "<modulo>",
+  "message": "Módulo pendiente"
+}
 ```
 
-| Prefijo | Módulo |
-|---|---|
-| `/api/canales` | `canales` |
-| `/api/anuncios` | `anuncios` |
-| `/api/transacciones` | `transacciones` |
-| `/api/notifications` | `notifications` |
-| `/api/files` | `files` |
-| `/api/estadisticas` | `estadisticas` |
-| `/api/campaigns` | `campaigns` |
-| `/api/lists` | `lists` |
-| `/campaigns` | `campaigns` |
+## 3) Variables de entorno requeridas (mínimas)
+- `MONGODB_URI`
+- `JWT_SECRET`
+- Recomendadas para auth completa: `JWT_REFRESH_SECRET`, `JWT_EXPIRES_IN`, `JWT_REFRESH_EXPIRES_IN`
+- Para pagos: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
 
-## Roturas detectadas (previas al saneamiento)
-
-### Imports a archivos inexistentes
-
-**routes → controllers faltantes**
-- `routes/anuncios.js` → `../controllers/anuncioController`
-- `routes/canales.js` → `../controllers/canalController`
-- `routes/campaigns.js` → `../controllers/campaignController`
-- `routes/channels.js` → `../controllers/channelsController`
-- `routes/estadisticas.js` → `../controllers/estadisticaController`
-- `routes/files.js` → `../controllers/fileController`
-- `routes/lists.js` → `../controllers/channelListController`
-- `routes/notifications.js` → `../controllers/notificationController`
-- `routes/transacciones.js` → `../controllers/transaccionController`
-
-**services → models faltantes**
-- `services/notificationService.js` → `../models/Notificacion`
-- `services/fileService.js` → `../models/Archivo`
-- `services/launchCampaignService.js` → `../models/Anuncio`, `../models/Canal`, `../models/Partner`
-- `services/campaignOptimizerService.js` → `../models/Canal`, `../models/ChannelList`
-- `services/channelListService.js` → `../models/ChannelList`
-- `services/channelRankingService.js` → `../models/Canal`, `../models/Anuncio`
-- `services/channelService.js` → `../models/Canal`
-- `services/channelPerformanceService.js` → `../models/Anuncio`, `../models/Canal`
-- `services/SocialSyncService.js` → `../models/Canal`, `../models/Anuncio`, `../models/Estadistica`
-
-**services → integraciones faltantes**
-**integraciones**
-- `integraciones/telegram.js` existe
-- `integraciones/whatsapp.js` existe
-- `integraciones/discord.js` existe
-
-### Exports usados pero no definidos (previo)
-
-**middleware/auth.js**
-- Se importaban `autorizarRoles`, `requiereEmailVerificado`, `verificarPropietario` pero no existían.
-
-**middleware/rateLimiter.js**
-- Se importaban `limitadorAPI` y `limitadorEndpoint` pero no existían.
-
-**middleware/validarCampos.js**
-- Se importaba `validarPaginacion` pero no existía.
-
-## Variables de entorno requeridas (estado real)
-
-### Backend
-
-| Variable | Uso | Obligatoria |
-|---|---|---|
-| `MONGODB_URI` | Conexión a MongoDB (auth) | Sí, para login/registro |
-| `JWT_SECRET` | Firma JWT (auth) | Sí, para endpoints protegidos |
-| `PORT` | Puerto servidor | No (default 5000) |
-| `NODE_ENV` | Logging/errores | No |
-
-### Frontend
-
-| Variable | Uso | Obligatoria |
-|---|---|---|
-| `NEXT_PUBLIC_API_URL` o `VITE_API_URL` | Base URL API | No (default `/api`) |
-
-## Riesgos críticos
+## 4) Riesgos críticos
 
 ### P0
-- La mayoría de módulos backend core no existen (controllers/models) y estaban rompiendo carga de rutas.
-- Dependencias a `integraciones/*` ausentes rompen servicios si se llegan a requerir.
-- Variables de entorno en documento objetivo (`DATABASE_URL`) no coinciden con implementación actual (Mongo + `MONGODB_URI`).
+1. Falta de controladores/modelos de dominio (marketplace no funcional de extremo a extremo).
 
 ### P1
-- Código legacy backend estaba acoplado a modelos no presentes; se aisló para evitar fallos al arrancar.
-- Frontend legacy importa paths inexistentes (`src/legacy/*/services/api`).
+1. Desalineación documentación vs estado real (README/todo pueden inducir a error).
+2. Dependencia de respuestas 501 para gran parte de la API.
 
 ### P2
-- Existe mezcla de código frontend en `services/api.js` fuera de `src/` y con ESM; requiere saneamiento de estructura en fases posteriores.
+1. Frontend avanzado pendiente para flujos completos de marketplace (más allá de auth + dashboard base).

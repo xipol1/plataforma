@@ -161,7 +161,7 @@ const validacionesActualizarPerfil = [
 // Rate limiting específico para autenticación
 const limitarLogin = limitarIntentos({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 1000000,
+  max: 10,
   message: {
     success: false,
     message: 'Demasiados intentos de login. Intenta de nuevo en 15 minutos.'
@@ -172,7 +172,7 @@ const limitarLogin = limitarIntentos({
 
 const limitarRegistro = limitarIntentos({
   windowMs: 60 * 60 * 1000, // 1 hora
-  max: 1000000,
+  max: 5,
   message: {
     success: false,
     message: 'Demasiados registros desde esta IP. Intenta de nuevo en 1 hora.'
@@ -181,7 +181,7 @@ const limitarRegistro = limitarIntentos({
 
 const limitarRestablecimiento = limitarIntentos({
   windowMs: 60 * 60 * 1000, // 1 hora
-  max: 1000000,
+  max: 5,
   message: {
     success: false,
     message: 'Demasiadas solicitudes de restablecimiento. Intenta de nuevo en 1 hora.'
