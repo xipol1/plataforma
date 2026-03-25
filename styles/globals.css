@@ -73,7 +73,7 @@
 /* Estilos base personalizados */
 @layer base {
   html {
-    font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
   }
   
   body {
