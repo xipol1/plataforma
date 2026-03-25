@@ -131,7 +131,10 @@ npm test
 npm run lint
 ```
 
-> Nota: actualmente `npm test` y `npm run lint` no pasan por falta de tests/configuración ESLint.
+Notas:
+- Se agregó una base de ESLint (`.eslintrc.cjs`) para validar código del MVP.
+- Se agregaron smoke tests en `tests/smoke.test.js` para `health` y `channels`.
+- Checklist de release: `docs/release-checklist.md`.
 
 ---
 
