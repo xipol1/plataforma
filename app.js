@@ -5,6 +5,7 @@ const compression = require('compression');
 const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
+const { notImplementedModule } = require('./middleware/notImplemented');
 
 const app = express();
 
@@ -56,20 +57,30 @@ const safeMount = (mountPath, modulePath) => {
   });
 };
 
-safeMount('/api/auth', './routes/auth');
-safeMount('/api/canales', './routes/canales');
-safeMount('/api/anuncios', './routes/anuncios');
-safeMount('/api/transacciones', './routes/transacciones');
-safeMount('/api/notifications', './routes/notifications');
-safeMount('/api/files', './routes/files');
-safeMount('/api/estadisticas', './routes/estadisticas');
-safeMount('/api/campaigns', './routes/campaigns');
-safeMount('/api/lists', './routes/lists');
-safeMount('/api/channels', './routes/channels');
+const enabledRoutes = [
+  ['/api/auth', './routes/auth'],
+  ['/auth', './routes/auth'],
+  ['/api/channels', './routes/channels'],
+  ['/channels', './routes/channels']
+];
 
-safeMount('/auth', './routes/auth');
-safeMount('/channels', './routes/channels');
-safeMount('/campaigns', './routes/campaigns');
+enabledRoutes.forEach(([mountPath, modulePath]) => safeMount(mountPath, modulePath));
+
+const disabledModules = [
+  { module: 'canales', paths: ['/api/canales'] },
+  { module: 'anuncios', paths: ['/api/anuncios'] },
+  { module: 'transacciones', paths: ['/api/transacciones'] },
+  { module: 'notifications', paths: ['/api/notifications'] },
+  { module: 'files', paths: ['/api/files'] },
+  { module: 'estadisticas', paths: ['/api/estadisticas'] },
+  { module: 'campaigns', paths: ['/api/campaigns', '/campaigns'] },
+  { module: 'lists', paths: ['/api/lists'] }
+];
+
+disabledModules.forEach(({ module, paths }) => {
+  const handler = notImplementedModule(module);
+  paths.forEach((mountPath) => app.use(mountPath, handler));
+});
 
 const distPath = path.join(__dirname, 'dist');
 const distIndex = path.join(distPath, 'index.html');
