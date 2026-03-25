@@ -5,6 +5,29 @@ let lastConnectionError = null;
 let connectPromise = null;
 let listenersAttached = false;
 
+const redactMongoUriForLog = (value) => {
+  if (!value) return '';
+  const raw = String(value);
+  try {
+    const url = new URL(raw);
+    const username = url.username ? decodeURIComponent(url.username) : '';
+    const hasPassword = Boolean(url.password);
+    const auth = username ? `${username}${hasPassword ? ':***' : ''}@` : '';
+    const host = url.host || '';
+    const path = url.pathname || '';
+    const dbName = path && path !== '/' ? path : '';
+    return `${url.protocol}//${auth}${host}${dbName}${url.search ? '?…' : ''}`;
+  } catch {
+    return raw.substring(0, 20) + (raw.length > 20 ? '...' : '');
+  }
+};
+
+const isValidMongoScheme = (value) => {
+  if (!value) return false;
+  const v = String(value);
+  return v.startsWith('mongodb://') || v.startsWith('mongodb+srv://');
+};
+
 const attachListenersOnce = () => {
   if (listenersAttached) return;
   listenersAttached = true;
@@ -42,8 +65,14 @@ const conectar = async () => {
     return Promise.resolve(false);
   }
 
-  if (!String(uri).trim().toLowerCase().startsWith('mongodb')) {
-    console.warn('⚠️ URI de base de datos no parece MongoDB (mongoose puede fallar)');
+  console.log(`MONGODB_URI detectada: ${redactMongoUriForLog(uri)}`);
+
+  if (!isValidMongoScheme(uri)) {
+    const err = new Error("Invalid scheme, expected connection string to start with 'mongodb://' or 'mongodb+srv://'");
+    lastConnectionError = err;
+    console.error(`❌ MONGODB_URI inválida: ${redactMongoUriForLog(uri)}`);
+    console.error(`❌ Error conectando a MongoDB: ${err.message}`);
+    return Promise.resolve(false);
   }
 
   console.log('Intentando conectar a MongoDB...');
