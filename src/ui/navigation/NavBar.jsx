@@ -2,110 +2,97 @@ import React from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthContext'
 
+const S = {
+  nav: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '0 48px', height: '72px',
+    background: 'rgba(13,13,13,0.92)',
+    borderBottom: '1px solid var(--border)',
+    position: 'sticky', top: 0, zIndex: 100,
+    backdropFilter: 'blur(16px)',
+  },
+  logo: {
+    fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: '22px',
+    letterSpacing: '-0.5px', textDecoration: 'none', color: 'var(--text)',
+  },
+  logoAccent: { color: 'var(--green)' },
+  search: {
+    display: 'flex', alignItems: 'center',
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: '8px', overflow: 'hidden', flex: 1, maxWidth: '480px',
+    margin: '0 32px',
+  },
+  searchInput: {
+    flex: 1, background: 'transparent', border: 'none', outline: 'none',
+    padding: '10px 16px', color: 'var(--text)', fontFamily: "'DM Sans', sans-serif",
+    fontSize: '14px',
+  },
+  searchBtn: {
+    background: 'var(--green)', border: 'none', padding: '10px 18px',
+    cursor: 'pointer', color: '#fff', fontSize: '15px', transition: 'background .2s',
+  },
+  links: { display: 'flex', alignItems: 'center', gap: '24px', fontSize: '14px' },
+  linkMuted: { color: 'var(--muted)', transition: 'color .2s', textDecoration: 'none' },
+  btnOutline: {
+    border: '1px solid var(--border)', borderRadius: '6px', padding: '7px 16px',
+    transition: 'border-color .2s, color .2s', color: 'var(--muted)',
+    background: 'transparent', cursor: 'pointer', fontSize: '14px',
+    textDecoration: 'none',
+  },
+  btnGreen: {
+    background: 'var(--green)', borderRadius: '6px', padding: '7px 18px',
+    color: '#fff', fontWeight: 500, transition: 'background .2s',
+    border: 'none', cursor: 'pointer', fontSize: '14px', textDecoration: 'none',
+  },
+}
+
 export default function NavBar({ theme = 'dark', onToggleTheme = () => {} }) {
   const { isAuthenticated, user, logout } = useAuth()
   const navigate = useNavigate()
-  const isDark = theme === 'dark'
 
-  const onLogout = () => {
-    logout()
-    navigate('/auth/login')
-  }
+  const onLogout = () => { logout(); navigate('/auth/login') }
 
   return (
-    <header className={isDark ? 'sticky top-0 z-50 border-b border-white/10 bg-[#0d0d0d]/95 backdrop-blur' : 'sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur'}>
-      <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-4 px-4 py-3">
-        <Link to="/" className={isDark ? "font-['Sora'] text-2xl font-extrabold tracking-tight text-white" : "font-['Sora'] text-2xl font-extrabold tracking-tight text-slate-900"}>
-          Ad<span className="text-emerald-500">flow</span>
-        </Link>
+    <header style={S.nav}>
+      <Link to="/" style={S.logo}>
+        Ad<span style={S.logoAccent}>flow</span>
+      </Link>
 
-        {/* Secondary search — reduced width, lower opacity */}
-        <div
-          style={{ opacity: 0.7 }}
-          className={isDark
-            ? 'hidden w-64 flex-shrink-0 items-center overflow-hidden rounded-lg border border-white/10 bg-[#1f1f1f] md:flex'
-            : 'hidden w-64 flex-shrink-0 items-center overflow-hidden rounded-lg border border-slate-200 bg-slate-100 md:flex'}
-        >
-          <input
-            type="text"
-            readOnly
-            placeholder="Buscar audiencias, canales o temáticas..."
-            className={isDark
-              ? 'h-9 w-full bg-transparent px-3 text-xs text-gray-200 placeholder:text-gray-500 outline-none'
-              : 'h-9 w-full bg-transparent px-3 text-xs text-slate-700 placeholder:text-slate-400 outline-none'}
-          />
-          <button type="button" className="h-9 bg-emerald-500 px-3 text-xs font-semibold text-white">
-            🔍
-          </button>
-        </div>
-
-        <nav className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={onToggleTheme}
-            className={isDark
-              ? 'rounded-md border border-white/20 px-2.5 py-1 text-xs text-gray-200 hover:border-emerald-400'
-              : 'rounded-md border border-slate-300 px-2.5 py-1 text-xs text-slate-700 hover:border-emerald-500'}
-          >
-            {isDark ? '☀️ Light' : '🌙 Dark'}
-          </button>
-          {isAuthenticated ? (
-            <>
-              <NavLink
-                to="/dashboard"
-                className={({ isActive }) =>
-                  `text-sm ${isActive ? 'text-emerald-400' : isDark ? 'text-gray-300' : 'text-slate-700'}`
-                }
-              >
-                Dashboard
-              </NavLink>
-              <span className={isDark ? 'hidden text-sm text-gray-500 md:inline' : 'hidden text-sm text-slate-500 md:inline'}>{user?.email}</span>
-              <button
-                type="button"
-                onClick={onLogout}
-                className={isDark
-                  ? 'rounded-md border border-white/15 px-3 py-1.5 text-sm text-gray-300 hover:border-emerald-500 hover:text-emerald-400'
-                  : 'rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:border-emerald-500 hover:text-emerald-600'}
-              >
-                Salir
-              </button>
-            </>
-          ) : (
-            <>
-              <NavLink
-                to="/#categories"
-                className={isDark
-                  ? 'hidden text-sm text-gray-400 transition hover:text-gray-100 md:inline'
-                  : 'hidden text-sm text-slate-500 transition hover:text-slate-900 md:inline'}
-              >
-                Explorar
-              </NavLink>
-              <NavLink
-                to="/auth/register"
-                className={isDark
-                  ? 'hidden text-sm text-gray-400 transition hover:text-gray-100 md:inline'
-                  : 'hidden text-sm text-slate-500 transition hover:text-slate-900 md:inline'}
-              >
-                Vender
-              </NavLink>
-              <NavLink
-                to="/auth/login"
-                className={isDark
-                  ? 'rounded-md border border-white/15 px-3 py-1.5 text-sm text-gray-300 hover:border-emerald-500 hover:text-emerald-400'
-                  : 'rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:border-emerald-500 hover:text-emerald-600'}
-              >
-                Entrar
-              </NavLink>
-              <NavLink
-                to="/auth/register"
-                className="rounded-md bg-emerald-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-600"
-              >
-                Registrarse
-              </NavLink>
-            </>
-          )}
-        </nav>
+      <div style={S.search}>
+        <input
+          type="text"
+          placeholder="Buscar audiencias, canales o temáticas..."
+          style={S.searchInput}
+          readOnly
+        />
+        <button type="button" style={S.searchBtn}>🔍</button>
       </div>
+
+      <nav style={S.links}>
+        {isAuthenticated ? (
+          <>
+            <NavLink to="/dashboard" style={({ isActive }) => ({ ...S.linkMuted, color: isActive ? 'var(--green)' : 'var(--muted)' })}>
+              Dashboard
+            </NavLink>
+            <span style={{ ...S.linkMuted, fontSize: '13px' }}>{user?.email}</span>
+            <button type="button" onClick={onLogout} style={S.btnOutline}>Salir</button>
+          </>
+        ) : (
+          <>
+            <NavLink to="/#categories" style={S.linkMuted}>Explorar</NavLink>
+            <NavLink to="/auth/register" style={S.linkMuted}>Vender</NavLink>
+            <NavLink to="/auth/login" style={S.btnOutline}>Entrar</NavLink>
+            <NavLink to="/auth/register" style={S.btnGreen}>Registrarse</NavLink>
+          </>
+        )}
+        <button
+          type="button"
+          onClick={onToggleTheme}
+          style={{ ...S.btnOutline, padding: '5px 10px', fontSize: '12px' }}
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
+      </nav>
     </header>
   )
 }

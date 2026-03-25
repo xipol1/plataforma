@@ -1,311 +1,393 @@
 import React, { useState } from 'react'
-import { Link, useOutletContext } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
-const products = [
-  {
-    title: 'Canales verificados',
-    description: 'Compra espacios en comunidades auditadas con métricas reales y riesgo reducido.',
-    icon: '🛡️'
-  },
-  {
-    title: 'Pagos protegidos',
-    description: 'Checkout seguro con liberación escalonada y trazabilidad por campaña.',
-    icon: '💳'
-  },
-  {
-    title: 'Analítica en vivo',
-    description: 'Mide ROI, CPA y rendimiento por canal desde un panel unificado.',
-    icon: '📊'
-  }
+/* ─── DATA ──────────────────────────────────────────────── */
+const HERO_CARDS = [
+  { icon: '📱', bg: 'rgba(42,171,238,0.15)', color: 'var(--tg)', platform: 'Telegram', name: 'Tech Audience ES', members: '8.2K miembros', price: '€450/post', cls: 'animate-float' },
+  { icon: '🎮', bg: 'rgba(88,101,242,0.15)', color: 'var(--dc)', platform: 'Discord', name: 'Gaming Community Pro', members: '4.5K miembros', price: '€280/post', cls: 'animate-float-2', marginLeft: '24px' },
+  { icon: '🛒', bg: 'rgba(37,211,102,0.15)', color: 'var(--wa)', platform: 'WhatsApp', name: 'Ecommerce Growth Hub', members: '1.2K miembros', price: '€320/post', cls: 'animate-float-3' },
 ]
 
-const listings = [
-  { name: 'Tech Audience ES', platform: 'Telegram', members: '120k audiencia', rating: '4.9', price: '€450 / post' },
-  { name: 'Ecommerce Growth Hub', platform: 'Discord', members: '150k audiencia', rating: '4.8', price: '€650 / post' },
-  { name: 'Gaming Community Pro', platform: 'WhatsApp', members: '80k audiencia', rating: '5.0', price: '€390 / post' }
+const TRUST_PLATFORMS = ['✈️ Telegram', '🎮 Discord', '💬 WhatsApp', '▶️ YouTube', '📸 Instagram', '🎵 TikTok', '📡 Twitch', '🔔 Patreon']
+
+const CATEGORIES = [
+  { icon: '📈', name: 'Marketing Digital', count: '2.340 canales' },
+  { icon: '🛒', name: 'Ecommerce', count: '3.180 canales' },
+  { icon: '💪', name: 'Fitness & Salud', count: '1.205 canales' },
+  { icon: '🎮', name: 'Gaming', count: '1.890 canales' },
+  { icon: '🤖', name: 'Inteligencia Artificial', count: '870 canales' },
+  { icon: '🎨', name: 'Arte & Diseño', count: '640 canales' },
+  { icon: '📚', name: 'Educación', count: '520 canales' },
+  { icon: '🌍', name: 'Lifestyle', count: '430 canales' },
 ]
 
-const categories = ['Telegram', 'Discord', 'Ecommerce', 'Educación', 'Gaming', 'IA']
+const LISTINGS = [
+  { thumb: '📱', thumbBg: 'linear-gradient(135deg,#0e3f5c,#1a6fa8)', platCls: 'tg', platLabel: '✈️ Telegram', badge: '⭐ TOP', seller: 'techpro', sellerBg: '#2aabee', sellerInitials: 'TP', isPro: true, title: 'Audiencia tech hispanohablante con alta tasa de engagement y conversión', rating: '4.9', reviews: 312, members: '8.200 seguidores', price: '€450', unit: '/post' },
+  { thumb: '🎮', thumbBg: 'linear-gradient(135deg,#1e2359,#3b42a3)', platCls: 'dc', platLabel: '🎮 Discord', badge: '🔥 Hot', seller: 'gamermk', sellerBg: '#5865f2', sellerInitials: 'GM', isPro: false, title: 'Servidor gaming con comunidad activa, torneos semanales y alto engagement', rating: '4.8', reviews: 189, members: '4.500 seguidores', price: '€280', unit: '/post' },
+  { thumb: '🛒', thumbBg: 'linear-gradient(135deg,#063d25,#1a7a47)', platCls: 'wa', platLabel: '💬 WhatsApp', badge: null, seller: 'ecomhub', sellerBg: '#25d366', sellerInitials: 'EH', isPro: true, title: 'Comunidad de compradores activos en ecommerce con alto poder adquisitivo', rating: '5.0', reviews: 97, members: '1.200 seguidores', price: '€320', unit: '/post' },
+  { thumb: '▶️', thumbBg: 'linear-gradient(135deg,#3d0000,#a31a1a)', platCls: 'yt', platLabel: '▶️ YouTube', badge: '🆕 Nuevo', seller: 'edtech_es', sellerBg: '#ff0000', sellerInitials: 'ET', isPro: false, title: 'Canal educativo con audiencia premium y alta receptividad a productos digitales', rating: '4.7', reviews: 54, members: '780 seguidores', price: '€190', unit: '/post' },
+  { thumb: '🤖', thumbBg: 'linear-gradient(135deg,#2d1b4e,#6b2fa0)', platCls: 'cr', platLabel: '🎮 Discord', badge: '⭐ TOP', seller: 'ai_labs_co', sellerBg: '#a855f7', sellerInitials: 'AI', isPro: true, title: 'Comunidad IA: prompts, herramientas, automatizaciones y novedades del sector', rating: '4.9', reviews: 421, members: '11.000 seguidores', price: '€220', unit: '/post' },
+  { thumb: '💡', thumbBg: 'linear-gradient(135deg,#3d1a0a,#a34a1a)', platCls: 'in', platLabel: '✈️ Telegram', badge: null, seller: 'lifestyle_co', sellerBg: '#f97316', sellerInitials: 'LS', isPro: false, title: 'Audiencia lifestyle con interés en moda, viajes y tendencias de consumo', rating: '4.8', reviews: 138, members: '3.400 seguidores', price: '€150', unit: '/post' },
+]
 
-const chips = ['Telegram', 'Discord', 'Ecommerce', 'Educación', 'Gaming']
+const STEPS = [
+  { n: '01', title: 'Encuentra tu audiencia', desc: 'Explora más de 12.000 canales verificados por categoría, plataforma o precio. Usa filtros para dar con tu comunidad perfecta.' },
+  { n: '02', title: 'Pago protegido', desc: 'Paga con tarjeta o transferencia. Todos los pagos están custodiados. Si el canal no publica, te devolvemos el dinero.' },
+  { n: '03', title: 'Campaña publicada', desc: 'El canal publica tu anuncio en el tiempo acordado. Recibes confirmación y métricas de rendimiento en tu panel.' },
+  { n: '04', title: 'Métricas reales', desc: 'Controla clicks, alcance y conversiones desde tu dashboard. Repite con los canales que mejor rendimiento ofrecen.' },
+]
 
+const SELLERS = [
+  { initials: 'TP', grad: 'linear-gradient(135deg,#2aabee,#0e6fa8)', name: 'techpro', niche: 'Marketing · Telegram', stars: '★★★★★', rating: '4.9', reviews: 312, badge: '⭐ Top Canal' },
+  { initials: 'EH', grad: 'linear-gradient(135deg,#25d366,#15803d)', name: 'ecomhub', niche: 'Ecommerce · WhatsApp', stars: '★★★★★', rating: '4.9', reviews: 421, badge: '⭐ Top Canal' },
+  { initials: 'FT', grad: 'linear-gradient(135deg,#25d366,#15803d)', name: 'fitcoach_lu', niche: 'Fitness · WhatsApp', stars: '★★★★★', rating: '5.0', reviews: 97, badge: '✅ Verificado' },
+  { initials: 'GM', grad: 'linear-gradient(135deg,#5865f2,#3730a3)', name: 'gamermk', niche: 'Gaming · Discord', stars: '★★★★☆', rating: '4.8', reviews: 189, badge: '🔥 Trending' },
+  { initials: 'AI', grad: 'linear-gradient(135deg,#f97316,#b45309)', name: 'ai_labs_co', niche: 'IA · Discord', stars: '★★★★☆', rating: '4.8', reviews: 138, badge: '🆕 Emergente' },
+]
+
+const PLAT_COLORS = {
+  tg: { bg: 'rgba(42,171,238,0.2)', color: 'var(--tg)', border: 'rgba(42,171,238,.3)' },
+  dc: { bg: 'rgba(88,101,242,0.2)', color: 'var(--dc)', border: 'rgba(88,101,242,.3)' },
+  wa: { bg: 'rgba(37,211,102,0.2)', color: 'var(--wa)', border: 'rgba(37,211,102,.3)' },
+  yt: { bg: 'rgba(255,0,0,0.2)', color: 'var(--yt)', border: 'rgba(255,0,0,.3)' },
+  cr: { bg: 'rgba(149,0,255,0.2)', color: '#a855f7', border: 'rgba(149,0,255,.3)' },
+  in: { bg: 'rgba(255,100,0,0.2)', color: '#f97316', border: 'rgba(255,100,0,.3)' },
+}
+
+/* ─── COMPONENT ─────────────────────────────────────────── */
 export default function LandingPage() {
-  const { theme = 'dark' } = useOutletContext() || {}
-  const isDark = theme === 'dark'
-  const [searchValue, setSearchValue] = useState('')
+  const [hoveredCat, setHoveredCat] = useState(null)
+  const [hoveredCard, setHoveredCard] = useState(null)
+  const [hoveredSeller, setHoveredSeller] = useState(null)
 
   return (
-    <div className={isDark ? 'relative overflow-hidden bg-[#0a0a12] text-white' : 'relative overflow-hidden bg-slate-50 text-slate-900'}>
-      {/* Background glows */}
-      <div className={isDark
-        ? 'pointer-events-none absolute -left-24 top-20 h-96 w-96 rounded-full bg-fuchsia-500/20 blur-3xl'
-        : 'pointer-events-none absolute -left-24 top-20 h-96 w-96 rounded-full bg-fuchsia-200/50 blur-3xl'} />
-      <div className={isDark
-        ? 'pointer-events-none absolute right-0 top-40 h-[28rem] w-[28rem] rounded-full bg-emerald-500/20 blur-3xl'
-        : 'pointer-events-none absolute right-0 top-40 h-[28rem] w-[28rem] rounded-full bg-emerald-300/40 blur-3xl'} />
+    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: "'DM Sans', sans-serif" }}>
 
-      {/* Announcement banner */}
-      <section className={isDark
-        ? 'border-b border-white/10 bg-white/[0.02] px-4 py-3 text-center text-xs text-indigo-100 md:text-sm'
-        : 'border-b border-slate-200 bg-white px-4 py-3 text-center text-xs text-slate-600 md:text-sm'}>
-        Nuevo: <span className={isDark ? 'font-semibold text-white' : 'font-semibold text-slate-900'}>Adflow Premium</span> para anunciantes con alto volumen
-      </section>
+      {/* ── ANNOUNCEMENT ── */}
+      <div style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg2)', padding: '10px 48px', textAlign: 'center', fontSize: '14px', color: 'var(--muted)' }}>
+        Nuevo: <strong style={{ color: 'var(--text)' }}>Adflow Premium</strong> para anunciantes con alto volumen
+      </div>
 
       {/* ── HERO ── */}
-      <section className="relative mx-auto grid w-full max-w-[1240px] gap-12 px-4 pt-[120px] pb-16 md:px-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+      <section style={{ position: 'relative', minHeight: '560px', display: 'flex', alignItems: 'center', padding: '80px 48px', overflow: 'hidden' }}>
+        {/* bg gradients */}
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 0,
+          background: 'radial-gradient(ellipse 60% 50% at 70% 50%, rgba(29,191,115,0.12) 0%, transparent 60%), radial-gradient(ellipse 40% 60% at 10% 80%, rgba(88,101,242,0.08) 0%, transparent 50%), linear-gradient(135deg,#0d0d0d 0%,#111 100%)',
+        }} />
+        {/* grid */}
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 0,
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px), linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)',
+          backgroundSize: '48px 48px',
+          WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 70% 50%,black 0%,transparent 70%)',
+          maskImage: 'radial-gradient(ellipse 80% 80% at 70% 50%,black 0%,transparent 70%)',
+        }} />
 
-        {/* LEFT — Main content */}
-        <div>
-          <span className="inline-flex items-center rounded-full border border-emerald-300/40 bg-emerald-400/10 px-3 py-1 text-xs font-semibold tracking-wide text-emerald-400">
-            Marketplace Adflow
-          </span>
+        {/* left content */}
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: '580px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(29,191,115,0.1)', border: '1px solid rgba(29,191,115,0.25)', borderRadius: '100px', padding: '5px 14px', fontSize: '13px', color: 'var(--green)', marginBottom: '24px', fontWeight: 500 }}>
+            <span className="animate-pulse-dot" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
+            +12.400 canales verificados
+          </div>
 
-          <h1
-            className="mt-6 font-['Sora'] font-bold tracking-tight"
-            style={{ fontSize: '48px', lineHeight: '1.1' }}
-          >
-            Compra espacios publicitarios en comunidades reales
+          <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: 'clamp(38px,5vw,58px)', fontWeight: 800, lineHeight: 1.05, letterSpacing: '-1.5px', marginBottom: '20px' }}>
+            Compra espacios en las mejores <em style={{ fontStyle: 'normal', color: 'var(--green)' }}>comunidades</em> privadas
           </h1>
 
-          <p className={isDark
-            ? 'mt-6 max-w-xl text-base leading-7 text-indigo-100/80 md:text-lg'
-            : 'mt-6 max-w-xl text-base leading-7 text-slate-600 md:text-lg'}>
-            Accede a audiencias activas en canales privados y ejecuta campañas con pago protegido y métricas verificables.
+          <p style={{ fontSize: '17px', color: 'var(--muted)', lineHeight: 1.7, maxWidth: '460px', marginBottom: '36px', fontWeight: 300 }}>
+            Accede a audiencias activas en canales verificados de Telegram, Discord y más. Pago protegido y métricas reales en cada campaña.
           </p>
 
-          {/* Audience intro */}
-          <div className="mt-6" style={{ marginTop: '24px' }}>
-            <p className={isDark ? 'text-sm font-semibold text-white' : 'text-sm font-semibold text-slate-900'}>
-              Encuentra tus audiencias
-            </p>
-            <p className={isDark ? 'mt-1 text-xs text-indigo-100/60' : 'mt-1 text-xs text-slate-500'}>
-              Segmentadas por intereses, comportamiento y contexto
-            </p>
-          </div>
-
-          {/* ── SEARCH BAR ── */}
-          <div
-            className="flex overflow-hidden"
-            style={{
-              marginTop: '32px',
-              width: '100%',
-              maxWidth: '720px',
-              height: '60px',
-              borderRadius: '12px',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-              border: isDark ? '1px solid rgba(255,255,255,0.12)' : '1px solid #e2e8f0',
-              background: isDark ? '#13131f' : '#ffffff'
-            }}
-          >
-            <input
-              type="text"
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              placeholder="Buscar audiencias, canales o temáticas..."
-              style={{
-                flex: 1,
-                height: '100%',
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-                padding: '0 16px',
-                fontSize: '15px',
-                color: isDark ? '#e5e7eb' : '#1e293b'
-              }}
-            />
-            <button
-              type="button"
-              style={{
-                height: '100%',
-                padding: '0 24px',
-                background: '#10b981',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#ffffff',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                transition: 'transform 0.15s ease, background 0.15s ease',
-                flexShrink: 0
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.background = '#059669' }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = '#10b981' }}
-            >
-              <span style={{ fontSize: '16px' }}>🔍</span>
-              Buscar
-            </button>
-          </div>
-
-          {/* ── CHIPS ── */}
-          <div className="mt-4 flex flex-wrap gap-2">
-            {chips.map((chip) => (
-              <button
-                key={chip}
-                type="button"
-                onClick={() => setSearchValue(chip)}
-                style={{
-                  borderRadius: '999px',
-                  padding: '6px 12px',
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  border: isDark ? '1px solid rgba(255,255,255,0.12)' : '1px solid #e2e8f0',
-                  background: isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9',
-                  color: isDark ? '#d1d5db' : '#475569',
-                  cursor: 'pointer',
-                  transition: 'background 0.15s ease, color 0.15s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.12)' : '#e2e8f0'
-                  e.currentTarget.style.color = isDark ? '#ffffff' : '#1e293b'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9'
-                  e.currentTarget.style.color = isDark ? '#d1d5db' : '#475569'
-                }}
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
-
-          {/* CTA buttons */}
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <a
               href="#categories"
-              className="rounded-lg bg-emerald-500 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-600 transition"
+              style={{ background: 'var(--green)', color: '#fff', padding: '14px 28px', borderRadius: '8px', fontWeight: 600, fontSize: '15px', transition: 'background .2s, transform .15s', display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--green-dark)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--green)'; e.currentTarget.style.transform = 'none' }}
             >
-              Explorar canales
+              🔍 Explorar canales
             </a>
             <Link
               to="/auth/register"
-              className={isDark
-                ? 'rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10 transition'
-                : 'rounded-lg border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 transition'}
+              style={{ color: 'var(--muted)', fontSize: '14px', display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none', transition: 'color .2s' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--text)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--muted)'}
             >
-              Empezar campaña
+              Empezar campaña →
             </Link>
           </div>
 
-          {/* Metrics */}
-          <div className="mt-10 grid max-w-xl grid-cols-3 gap-3">
-            {[
-              ['12.4K', 'Canales verificados'],
-              ['98.7%', 'Satisfacción'],
-              ['€84M', 'Volumen anual']
-            ].map(([value, label]) => (
-              <div
-                key={label}
-                className={isDark
-                  ? 'rounded-xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur'
-                  : 'rounded-xl border border-slate-200 bg-white p-4 shadow-sm'}
-              >
-                <p className="font-['Sora'] text-2xl font-extrabold">{value}</p>
-                <p className={isDark ? 'mt-1 text-xs text-indigo-100/70' : 'mt-1 text-xs text-slate-500'}>{label}</p>
+          <div style={{ display: 'flex', gap: '40px', marginTop: '48px', paddingTop: '40px', borderTop: '1px solid var(--border)' }}>
+            {[['12.4K', 'Canales verificados'], ['98.7%', 'Satisfacción'], ['340K+', 'Anunciantes']].map(([v, l]) => (
+              <div key={l}>
+                <strong style={{ fontFamily: "'Syne', sans-serif", fontSize: '26px', fontWeight: 800, display: 'block', color: 'var(--text)' }}>{v}</strong>
+                <span style={{ fontSize: '13px', color: 'var(--muted)' }}>{l}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* RIGHT PANEL — reduced prominence */}
-        <div
-          style={{ opacity: 0.9 }}
-          className={isDark
-            ? 'rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.08] to-white/[0.03] p-4 shadow-xl backdrop-blur-xl'
-            : 'rounded-3xl border border-slate-200 bg-white/80 p-4 shadow-lg backdrop-blur-sm'}
-        >
-          <div className={isDark
-            ? 'mb-4 flex items-center justify-between border-b border-white/10 pb-4'
-            : 'mb-4 flex items-center justify-between border-b border-slate-200 pb-4'}>
-            <p className="font-['Sora'] text-base font-bold">Canales destacados hoy</p>
-            <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-xs text-emerald-400">En vivo</span>
-          </div>
-          <div className="space-y-3">
-            {listings.map((channel) => (
-              <article
-                key={channel.name}
-                className={isDark
-                  ? 'rounded-xl border border-white/10 bg-[#101626] p-3.5 transition hover:border-emerald-400/60'
-                  : 'rounded-xl border border-slate-200 bg-slate-50 p-3.5 transition hover:border-emerald-400'}
+        {/* right floating cards */}
+        <div style={{ position: 'absolute', right: '48px', top: '50%', transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', gap: '16px', zIndex: 1 }}>
+          {HERO_CARDS.map((card, i) => (
+            <div
+              key={card.name}
+              className={card.cls}
+              style={{
+                background: 'var(--surface)', border: '1px solid var(--border)',
+                borderRadius: '12px', padding: '16px 20px', width: '240px',
+                display: 'flex', alignItems: 'center', gap: '14px',
+                backdropFilter: 'blur(8px)',
+                ...(card.marginLeft ? { marginLeft: card.marginLeft } : {}),
+              }}
+            >
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0, background: card.bg, color: card.color }}>
+                {card.icon}
+              </div>
+              <div style={{ flex: 1 }}>
+                <strong style={{ display: 'block', fontSize: '13px', fontWeight: 500 }}>{card.name}</strong>
+                <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{card.platform} · {card.members}</span>
+              </div>
+              <span style={{ color: 'var(--green)', fontWeight: 600, fontSize: '13px', flexShrink: 0 }}>{card.price}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── TRUST BAR ── */}
+      <div style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '18px 48px', display: 'flex', alignItems: 'center', gap: '48px', overflowX: 'auto', background: 'var(--bg2)' }}>
+        <span style={{ fontSize: '12px', color: 'var(--muted2)', whiteSpace: 'nowrap', fontWeight: 500, letterSpacing: '.5px', textTransform: 'uppercase' }}>Plataformas</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '32px', flex: 1 }}>
+          {TRUST_PLATFORMS.map(p => (
+            <span key={p} style={{ fontFamily: "'Syne', sans-serif", fontSize: '15px', fontWeight: 700, color: 'var(--muted2)', whiteSpace: 'nowrap' }}>{p}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── CATEGORIES ── */}
+      <section id="categories" style={{ padding: '72px 48px' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '32px' }}>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '28px', fontWeight: 800, letterSpacing: '-.5px' }}>Explorar por categoría</h2>
+          <a href="#listings" style={{ fontSize: '14px', color: 'var(--green)' }}>Ver todas →</a>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px' }}>
+          {CATEGORIES.map((cat, i) => (
+            <div
+              key={cat.name}
+              onMouseEnter={() => setHoveredCat(i)}
+              onMouseLeave={() => setHoveredCat(null)}
+              style={{
+                background: hoveredCat === i ? 'var(--surface2)' : 'var(--surface)',
+                border: `1px solid ${hoveredCat === i ? 'var(--green)' : 'var(--border)'}`,
+                borderRadius: '12px', padding: '20px 18px', cursor: 'pointer',
+                transition: 'border-color .2s, transform .2s, background .2s',
+                display: 'flex', flexDirection: 'column', gap: '10px',
+                transform: hoveredCat === i ? 'translateY(-3px)' : 'none',
+              }}
+            >
+              <div style={{ fontSize: '28px' }}>{cat.icon}</div>
+              <strong style={{ fontSize: '14px', fontWeight: 600, fontFamily: "'Syne', sans-serif" }}>{cat.name}</strong>
+              <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{cat.count}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FEATURED LISTINGS ── */}
+      <section id="listings" style={{ padding: '72px 48px', background: 'var(--bg2)' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '32px' }}>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '28px', fontWeight: 800, letterSpacing: '-.5px' }}>Canales destacados</h2>
+          <a href="#" style={{ fontSize: '14px', color: 'var(--green)' }}>Ver todos →</a>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+          {LISTINGS.map((l, i) => {
+            const pc = PLAT_COLORS[l.platCls]
+            return (
+              <div
+                key={l.seller + i}
+                onMouseEnter={() => setHoveredCard(i)}
+                onMouseLeave={() => setHoveredCard(null)}
+                style={{
+                  background: 'var(--surface)', border: `1px solid ${hoveredCard === i ? 'var(--green)' : 'var(--border)'}`,
+                  borderRadius: '14px', overflow: 'hidden', cursor: 'pointer',
+                  transition: 'border-color .2s, transform .2s, box-shadow .2s',
+                  transform: hoveredCard === i ? 'translateY(-4px)' : 'none',
+                  boxShadow: hoveredCard === i ? '0 16px 40px rgba(0,0,0,.4)' : 'none',
+                }}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className={isDark ? 'text-sm font-semibold text-white' : 'text-sm font-semibold text-slate-900'}>{channel.name}</h3>
-                    <p className={isDark ? 'text-xs text-indigo-100/60' : 'text-xs text-slate-500'}>{channel.platform} · {channel.members}</p>
+                {/* thumbnail */}
+                <div style={{ height: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px', position: 'relative', overflow: 'hidden', background: l.thumbBg }}>
+                  <span style={{ position: 'relative', zIndex: 1 }}>{l.thumb}</span>
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.15)' }} />
+                  <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 1, borderRadius: '6px', padding: '3px 8px', fontSize: '11px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', background: pc.bg, color: pc.color, border: `1px solid ${pc.border}` }}>
+                    {l.platLabel}
                   </div>
-                  <span className={isDark ? 'rounded-md bg-white/10 px-2 py-1 text-xs text-indigo-100' : 'rounded-md bg-slate-200 px-2 py-1 text-xs text-slate-700'}>★ {channel.rating}</span>
+                  {l.badge && (
+                    <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 1, background: 'rgba(251,191,36,.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,.3)', borderRadius: '6px', padding: '2px 8px', fontSize: '10px', fontWeight: 700, letterSpacing: '.3px' }}>
+                      {l.badge}
+                    </div>
+                  )}
                 </div>
-                <div className={isDark
-                  ? 'mt-3 flex items-center justify-between border-t border-white/10 pt-3'
-                  : 'mt-3 flex items-center justify-between border-t border-slate-200 pt-3'}>
-                  <p className="font-['Sora'] text-lg font-bold">{channel.price}</p>
-                  <Link to="/auth/login" className="rounded-md bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600">Ver canal</Link>
+
+                {/* body */}
+                <div style={{ padding: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: l.sellerBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff', flexShrink: 0 }}>
+                      {l.sellerInitials}
+                    </div>
+                    <span style={{ fontSize: '13px', fontWeight: 500 }}>
+                      {l.seller}
+                      {l.isPro && <span style={{ fontSize: '10px', background: 'rgba(29,191,115,.15)', color: 'var(--green)', borderRadius: '4px', padding: '1px 6px', fontWeight: 600, marginLeft: '4px' }}>PRO</span>}
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: '14px', lineHeight: 1.5, marginBottom: '10px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {l.title}
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '12px', color: 'var(--muted)', marginBottom: '12px' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#fbbf24' }}>
+                      ★ {l.rating} <span style={{ color: 'var(--muted)' }}>({l.reviews})</span>
+                    </span>
+                    <span>{l.members}</span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
+                    <div>
+                      <span style={{ fontFamily: "'Syne', sans-serif", fontSize: '16px', fontWeight: 700 }}>{l.price}</span>
+                      <span style={{ fontSize: '11px', fontWeight: 400, color: 'var(--muted)' }}>{l.unit}</span>
+                    </div>
+                    <Link
+                      to="/auth/login"
+                      style={{ background: 'var(--green)', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 14px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', transition: 'background .2s', textDecoration: 'none' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--green-dark)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'var(--green)'}
+                    >
+                      Ver canal
+                    </Link>
+                  </div>
                 </div>
-              </article>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ── */}
+      <section style={{ padding: '72px 48px' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '32px' }}>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '28px', fontWeight: 800, letterSpacing: '-.5px' }}>¿Cómo funciona?</h2>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '32px' }}>
+          {STEPS.map(s => (
+            <div key={s.n} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--surface)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Syne', sans-serif", fontSize: '20px', fontWeight: 800, color: 'var(--green)' }}>
+                {s.n}
+              </div>
+              <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: '17px', fontWeight: 700 }}>{s.title}</h3>
+              <p style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.65 }}>{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── PROMO BANNER ── */}
+      <div style={{ margin: '0 48px 72px', borderRadius: '20px', background: 'linear-gradient(135deg,#0a2e1a 0%,#0d1f2d 50%,#0e0e2e 100%)', border: '1px solid rgba(29,191,115,.2)', padding: '64px', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '32px', flexWrap: 'wrap' }}>
+        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(29,191,115,.15) 0%,transparent 70%)', pointerEvents: 'none' }} />
+        <div>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '32px', fontWeight: 800, letterSpacing: '-.5px', marginBottom: '12px' }}>
+            ¿Tienes un canal privado?<br />Empieza a monetizarlo hoy
+          </h2>
+          <p style={{ fontSize: '15px', color: 'var(--muted)', maxWidth: '420px', lineHeight: 1.7 }}>
+            Únete a más de 4.200 creadores que ya generan ingresos recurrentes vendiendo espacios publicitarios en sus comunidades en Adflow.
+          </p>
+        </div>
+        <Link
+          to="/auth/register"
+          style={{ background: 'var(--green)', color: '#fff', padding: '14px 32px', borderRadius: '8px', fontWeight: 600, fontSize: '15px', whiteSpace: 'nowrap', flexShrink: 0, transition: 'background .2s, transform .15s', display: 'inline-block', textDecoration: 'none' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--green-dark)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'var(--green)'; e.currentTarget.style.transform = 'none' }}
+        >
+          Vender espacios →
+        </Link>
+      </div>
+
+      {/* ── TOP SELLERS ── */}
+      <section style={{ padding: '72px 48px', background: 'var(--bg2)' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '32px' }}>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '28px', fontWeight: 800, letterSpacing: '-.5px' }}>Canales mejor valorados</h2>
+          <a href="#" style={{ fontSize: '14px', color: 'var(--green)' }}>Ver todos →</a>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
+          {SELLERS.map((s, i) => (
+            <div
+              key={s.name}
+              onMouseEnter={() => setHoveredSeller(i)}
+              onMouseLeave={() => setHoveredSeller(null)}
+              style={{
+                background: 'var(--surface)', border: `1px solid ${hoveredSeller === i ? 'var(--green)' : 'var(--border)'}`,
+                borderRadius: '14px', padding: '24px 20px', textAlign: 'center', cursor: 'pointer',
+                transition: 'border-color .2s, transform .2s',
+                transform: hoveredSeller === i ? 'translateY(-3px)' : 'none',
+              }}
+            >
+              <div style={{ width: '60px', height: '60px', borderRadius: '50%', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', fontWeight: 800, color: '#fff', fontFamily: "'Syne', sans-serif", background: s.grad }}>
+                {s.initials}
+              </div>
+              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '15px', fontWeight: 700, marginBottom: '4px' }}>{s.name}</div>
+              <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '10px' }}>{s.niche}</div>
+              <div style={{ color: '#fbbf24', fontSize: '13px', marginBottom: '6px' }}>{s.stars} {s.rating}</div>
+              <div style={{ fontSize: '12px', color: 'var(--muted2)' }}>{s.reviews} reseñas</div>
+              <span style={{ marginTop: '12px', display: 'inline-block', background: 'rgba(29,191,115,.1)', border: '1px solid rgba(29,191,115,.2)', color: 'var(--green)', borderRadius: '20px', padding: '3px 12px', fontSize: '11px', fontWeight: 600 }}>
+                {s.badge}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer style={{ background: 'var(--bg2)', borderTop: '1px solid var(--border)', padding: '56px 48px 32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '48px', marginBottom: '48px' }}>
+          <div>
+            <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: '24px', display: 'block', marginBottom: '12px' }}>
+              Ad<span style={{ color: 'var(--green)' }}>flow</span>
+            </span>
+            <p style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.7, maxWidth: '260px' }}>
+              El marketplace líder de publicidad en canales privados. Conecta anunciantes con las mejores comunidades.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+              {['✈️', '🐦', '📸', '▶️'].map(s => (
+                <a key={s} href="#" style={{ width: '34px', height: '34px', borderRadius: '8px', background: 'var(--surface)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>{s}</a>
+              ))}
+            </div>
+          </div>
+          {[
+            { title: 'Plataformas', links: ['Telegram', 'Discord', 'WhatsApp', 'YouTube', 'TikTok'] },
+            { title: 'Categorías', links: ['Ecommerce', 'Gaming', 'Fitness', 'Educación', 'IA & Tech'] },
+            { title: 'Empresa', links: ['Sobre nosotros', 'Blog', 'Afiliados', 'Soporte', 'Privacidad'] },
+          ].map(col => (
+            <div key={col.title}>
+              <h4 style={{ fontFamily: "'Syne', sans-serif", fontSize: '13px', fontWeight: 700, letterSpacing: '.5px', textTransform: 'uppercase', color: 'var(--muted2)', marginBottom: '16px' }}>{col.title}</h4>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {col.links.map(l => (
+                  <li key={l}><a href="#" style={{ fontSize: '14px', color: 'var(--muted)', textDecoration: 'none', transition: 'color .2s' }}>{l}</a></li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div style={{ borderTop: '1px solid var(--border)', paddingTop: '28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '13px', color: 'var(--muted2)', flexWrap: 'wrap', gap: '12px' }}>
+          <span>© 2025 Adflow. Todos los derechos reservados.</span>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {[['✈️ Telegram', 'rgba(42,171,238,.12)', 'var(--tg)'], ['🎮 Discord', 'rgba(88,101,242,.12)', 'var(--dc)'], ['💬 WhatsApp', 'rgba(37,211,102,.12)', 'var(--wa)']].map(([label, bg, color]) => (
+              <span key={label} style={{ borderRadius: '20px', padding: '3px 10px', fontSize: '11px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', background: bg, color }}>{label}</span>
             ))}
           </div>
         </div>
-      </section>
+      </footer>
 
-      {/* Product features */}
-      <section className="mx-auto w-full max-w-[1240px] px-4 pb-8 md:px-10">
-        <div className="grid gap-4 md:grid-cols-3">
-          {products.map((item) => (
-            <article
-              key={item.title}
-              className={isDark
-                ? 'rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur'
-                : 'rounded-2xl border border-slate-200 bg-white p-6 shadow-sm'}
-            >
-              <div className="mb-3 inline-grid h-11 w-11 place-items-center rounded-lg bg-white/10 text-2xl">{item.icon}</div>
-              <h3 className="font-['Sora'] text-lg font-bold">{item.title}</h3>
-              <p className={isDark ? 'mt-2 text-sm leading-6 text-indigo-100/75' : 'mt-2 text-sm leading-6 text-slate-600'}>{item.description}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {/* Categories */}
-      <section id="categories" className="mx-auto w-full max-w-[1240px] px-4 py-12 md:px-10 md:py-16">
-        <div className="mb-6 flex items-end justify-between">
-          <h2 className="font-['Sora'] text-3xl font-extrabold">Categorías premium</h2>
-          <a href="#featured" className={isDark ? 'text-sm text-emerald-400 hover:text-emerald-300' : 'text-sm text-emerald-600 hover:text-emerald-700'}>Ver todas →</a>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          {categories.map((category) => (
-            <article
-              key={category}
-              className={isDark
-                ? 'rounded-xl border border-white/10 bg-[#111827]/70 p-4 text-center transition hover:-translate-y-1 hover:border-emerald-400/70 cursor-pointer'
-                : 'rounded-xl border border-slate-200 bg-white p-4 text-center transition hover:-translate-y-1 hover:border-emerald-400 cursor-pointer shadow-sm'}
-            >
-              <h3 className="font-['Sora'] text-base font-bold">{category}</h3>
-              <p className={isDark ? 'mt-1 text-xs text-indigo-100/70' : 'mt-1 text-xs text-slate-500'}>Canales verificados</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA banner */}
-      <section id="featured" className="mx-auto w-full max-w-[1240px] px-4 pb-16 md:px-10 md:pb-24">
-        <div className="rounded-3xl border border-indigo-300/20 bg-gradient-to-r from-[#1a1f3f] via-[#14243d] to-[#143829] p-8 md:p-12">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-200/80">Adflow Premium</p>
-          <h2 className="mt-3 font-['Sora'] text-3xl font-extrabold md:text-4xl">Tu operación de campañas como una fintech de marketing</h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-indigo-100/80 md:text-base">
-            Workflows aprobatorios, gestión multi-equipo, presupuesto por unidad de negocio y soporte prioritario con
-            SLA dedicado para agencias y marcas enterprise.
-          </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Link to="/auth/register" className="rounded-lg bg-white px-6 py-3 text-sm font-semibold text-[#111827] hover:bg-gray-100 transition">
-              Solicitar demo enterprise
-            </Link>
-            <Link to="/auth/login" className="rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10 transition">
-              Entrar al panel
-            </Link>
-          </div>
-        </div>
-      </section>
     </div>
   )
 }
