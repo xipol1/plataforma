@@ -5,14 +5,25 @@ const compression = require('compression');
 const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
+const { notImplementedModule } = require('./middleware/notImplemented');
 
 const app = express();
 
 const ENV = process.env.NODE_ENV || 'development';
 const MAX_REQUEST_SIZE = process.env.MAX_REQUEST_SIZE || '10mb';
+const FRONTEND_URL = process.env.FRONTEND_URL || '';
 
 app.use(helmet({ crossOriginEmbedderPolicy: false }));
-app.use(cors({ origin: '*', credentials: false }));
+app.set('trust proxy', 1);
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);
+    if (ENV !== 'production') return cb(null, true);
+    if (FRONTEND_URL && origin === FRONTEND_URL) return cb(null, true);
+    return cb(new Error('Origin no permitido por CORS'));
+  },
+  credentials: false
+}));
 app.use(compression());
 app.use(morgan(ENV === 'development' ? 'dev' : 'combined'));
 app.use(express.json({ limit: MAX_REQUEST_SIZE }));
@@ -56,20 +67,31 @@ const safeMount = (mountPath, modulePath) => {
   });
 };
 
-safeMount('/api/auth', './routes/auth');
-safeMount('/api/canales', './routes/canales');
-safeMount('/api/anuncios', './routes/anuncios');
-safeMount('/api/transacciones', './routes/transacciones');
-safeMount('/api/notifications', './routes/notifications');
-safeMount('/api/files', './routes/files');
-safeMount('/api/estadisticas', './routes/estadisticas');
-safeMount('/api/campaigns', './routes/campaigns');
-safeMount('/api/lists', './routes/lists');
-safeMount('/api/channels', './routes/channels');
+const enabledRoutes = [
+  ['/api/auth', './routes/auth'],
+  ['/auth', './routes/auth'],
+  ['/api/channels', './routes/channels'],
+  ['/channels', './routes/channels'],
+  ['/api/campaigns', './routes/campaigns'],
+  ['/campaigns', './routes/campaigns'],
+  ['/api/transacciones', './routes/transacciones']
+];
 
-safeMount('/auth', './routes/auth');
-safeMount('/channels', './routes/channels');
-safeMount('/campaigns', './routes/campaigns');
+enabledRoutes.forEach(([mountPath, modulePath]) => safeMount(mountPath, modulePath));
+
+const disabledModules = [
+  { module: 'canales', paths: ['/api/canales'] },
+  { module: 'anuncios', paths: ['/api/anuncios'] },
+  { module: 'notifications', paths: ['/api/notifications'] },
+  { module: 'files', paths: ['/api/files'] },
+  { module: 'estadisticas', paths: ['/api/estadisticas'] },
+  { module: 'lists', paths: ['/api/lists'] }
+];
+
+disabledModules.forEach(({ module, paths }) => {
+  const handler = notImplementedModule(module);
+  paths.forEach((mountPath) => app.use(mountPath, handler));
+});
 
 const distPath = path.join(__dirname, 'dist');
 const distIndex = path.join(distPath, 'index.html');
