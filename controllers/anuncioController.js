@@ -106,5 +106,20 @@ module.exports = {
   createAnuncio,
   getAnuncioById,
   updateAnuncio,
-  deleteAnuncio
+  deleteAnuncio,
+  // Add missing placeholders from main
+  crearAnuncio: createAnuncio,
+  trackClick: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  trackConversion: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  obtenerMisAnuncios: listAnuncios,
+  obtenerAnunciosParaCreador: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  obtenerEstadisticas: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  obtenerAnuncio: getAnuncioById,
+  actualizarAnuncio: updateAnuncio,
+  eliminarAnuncio: deleteAnuncio,
+  enviarParaAprobacion: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  responderAprobacion: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  activarAnuncio: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  completarAnuncio: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  buscarAnuncios: listAnuncios
 };

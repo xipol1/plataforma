@@ -79,5 +79,13 @@ const stripeWebhook = async (req, res) => {
 module.exports = {
   listTransacciones,
   crearTransaccion,
-  stripeWebhook
+  stripeWebhook,
+  // stubs from main
+  obtenerMisTransacciones: listTransacciones,
+  obtenerEstadisticasFinancieras: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  obtenerTransaccion: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  procesarPagoAnuncio: crearTransaccion,
+  liberarPagoCreador: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  procesarReembolso: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  obtenerTransaccionesAdmin: listTransacciones
 };

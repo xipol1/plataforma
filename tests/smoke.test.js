@@ -11,7 +11,6 @@ describe('Smoke API checks', () => {
     process.env.JWT_SECRET,
     { issuer: 'plataforma-monetizacion', audience: 'plataforma-monetizacion', expiresIn: '30m' }
   );
-
   test('GET /health responde 200', async () => {
     const res = await request(app).get('/health');
 
@@ -34,6 +33,7 @@ describe('Smoke API checks', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
     expect(res.body.data.length).toBeGreaterThan(0);
   });
+<<<<<<< HEAD
 
   test('POST /api/auth/registro valida fortaleza de contraseña', async () => {
     const res = await request(app).post('/api/auth/registro').send({

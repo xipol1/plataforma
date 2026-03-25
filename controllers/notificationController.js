@@ -47,5 +47,18 @@ const markAsRead = async (req, res) => {
 module.exports = {
   listNotifications,
   createNotification,
-  markAsRead
+  markAsRead,
+  obtenerNotificaciones: listNotifications,
+  contarNoLeidas: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  buscarNotificaciones: listNotifications,
+  obtenerEstadisticas: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  obtenerNotificacion: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  marcarTodasComoLeidas: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  marcarComoLeida: markAsRead,
+  archivarNotificacion: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  eliminarNotificacion: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  crearNotificacion: createNotification,
+  enviarNotificacionMasiva: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  limpiarExpiradas: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  limpiarAntiguas: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' })
 };

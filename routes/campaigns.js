@@ -1,79 +1,45 @@
 const express = require('express');
-const router = express.Router();
+const { body, param } = require('express-validator');
+const { autenticar } = require('../middleware/auth');
+const { validarCampos } = require('../middleware/validarCampos');
 const campaignController = require('../controllers/campaignController');
-const { autenticar, autorizarRoles } = require('../middleware/auth');
 
-/**
- * @route   POST /api/campaigns/optimize
- * @desc    Automatically optimize campaign allocation across channels
- * @access  Private (Advertiser only)
- */
-router.post('/optimize',
+const router = express.Router();
+
+const allowedStatus = ['DRAFT', 'PAID', 'PUBLISHED', 'COMPLETED', 'CANCELLED'];
+
+router.get('/', autenticar, campaignController.getCampaigns);
+
+router.get(
+  '/:id',
   autenticar,
-  autorizarRoles('advertiser'),
-  campaignController.optimize
+  [param('id').isMongoId().withMessage('ID inválido')],
+  validarCampos,
+  campaignController.getCampaignById
 );
 
-/**
- * @route   POST /api/campaigns/launch-auto
- * @desc    Automatically optimize and launch a campaign across channels
- * @access  Private (Advertiser only)
- */
-router.post('/launch-auto',
+router.post(
+  '/',
   autenticar,
-  autorizarRoles('advertiser'),
-  campaignController.launchAutoCampaign
-);
-
-/**
- * @swagger
- * /campaigns:
- *   get:
- *     summary: Obtiene campañas del usuario actual
- *     tags: [Campaigns]
- *     security:
- *       - BearerAuth: []
- *     responses:
- *       200:
- *         description: Lista de campañas
- */
-router.get('/',
-  autenticar,
-  campaignController.getCampaigns
-);
-
-/**
- * @swagger
- * /campaigns:
- *   post:
- *     summary: Crea una nueva campaña
- *     tags: [Campaigns]
- *     security:
- *       - BearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               titulo:
- *                 type: string
- *               descripcion:
- *                 type: string
- *               canalId:
- *                 type: string
- *               tipoAnuncio:
- *                 type: string
- *               presupuesto:
- *                 type: number
- *     responses:
- *       201:
- *         description: Campaña creada
- */
-router.post('/',
-  autenticar,
+  [
+    body('channel').isMongoId().withMessage('channel inválido'),
+    body('content').isString().notEmpty().trim(),
+    body('targetUrl').isString().notEmpty().trim(),
+    body('price').isFloat().toFloat()
+  ],
+  validarCampos,
   campaignController.createCampaign
+);
+
+router.patch(
+  '/:id/status',
+  autenticar,
+  [
+    param('id').isMongoId().withMessage('ID inválido'),
+    body('status').isIn(allowedStatus).withMessage('status inválido')
+  ],
+  validarCampos,
+  campaignController.updateCampaignStatus
 );
 
 module.exports = router;

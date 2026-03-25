@@ -8,7 +8,9 @@ import CreatorDashboard from './CreatorDashboard'
 const dashboardByRole = {
   admin: AdminDashboard,
   advertiser: AdvertiserDashboard,
-  creator: CreatorDashboard
+  anunciante: AdvertiserDashboard,
+  creator: CreatorDashboard,
+  creador: CreatorDashboard
 }
 
 export default function DashboardPage() {

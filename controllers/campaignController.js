@@ -136,5 +136,8 @@ module.exports = {
   getCampaigns,
   createCampaign,
   optimize,
-  launchAutoCampaign
+  launchAutoCampaign,
+  // stubs from main
+  getCampaignById: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' }),
+  updateCampaignStatus: (req, res) => res.status(501).json({ success: false, message: 'Not implemented' })
 };

@@ -102,7 +102,6 @@ const registro = async (req, res) => {
 
   try {
     logDev('REGISTER: request', { email });
-
     if (!email || !password) {
       return res.status(400).json({
         success: false,
