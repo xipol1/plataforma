@@ -13,4 +13,27 @@ const limitarIntentos = (options = {}) => {
   });
 };
 
-module.exports = { limitarIntentos };
+const limitadorAPI = limitarIntentos({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  message: { success: false, message: 'Demasiadas solicitudes a la API. Intenta más tarde.' }
+});
+
+const limitadorGeneral = limitarIntentos({
+  windowMs: 15 * 60 * 1000,
+  max: 120,
+  message: { success: false, message: 'Límite temporal alcanzado. Intenta nuevamente.' }
+});
+
+const limitadorEndpoint = {
+  crearCanal: limitarIntentos({ windowMs: 60 * 60 * 1000, max: 20 }),
+  crearAnuncio: limitarIntentos({ windowMs: 60 * 60 * 1000, max: 40 }),
+  crearTransaccion: limitarIntentos({ windowMs: 60 * 60 * 1000, max: 30 })
+};
+
+module.exports = {
+  limitarIntentos,
+  limitadorAPI,
+  limitadorGeneral,
+  limitadorEndpoint
+};

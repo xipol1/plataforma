@@ -4,12 +4,15 @@ import AppLayout from '../ui/layouts/AppLayout'
 import ProtectedRoute from '../ui/routing/ProtectedRoute'
 import LoginPage from '../ui/pages/auth/LoginPage'
 import RegisterPage from '../ui/pages/auth/RegisterPage'
+import LandingPage from '../ui/pages/landing/LandingPage'
 import DashboardPage from '../ui/pages/dashboard/DashboardPage'
 
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<AppLayout />}>
+        <Route index element={<LandingPage />} />
+      </Route>
 
       <Route path="/auth" element={<AppLayout />}>
         <Route path="login" element={<LoginPage />} />
@@ -31,4 +34,3 @@ export default function AppRoutes() {
     </Routes>
   )
 }
-
