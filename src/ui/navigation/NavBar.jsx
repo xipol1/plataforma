@@ -15,14 +15,14 @@ export default function NavBar({ theme = 'dark', onToggleTheme = () => {} }) {
   return (
     <header className={isDark ? 'sticky top-0 z-50 border-b border-white/10 bg-[#0d0d0d]/95 backdrop-blur' : 'sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur'}>
       <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-4 px-4 py-3">
-        <Link to="/" className={isDark ? "font-['Syne'] text-2xl font-extrabold tracking-tight text-white" : "font-['Syne'] text-2xl font-extrabold tracking-tight text-slate-900"}>
+        <Link to="/" className={isDark ? "font-['Sora'] text-2xl font-bold tracking-tight text-white" : "font-['Sora'] text-2xl font-bold tracking-tight text-slate-900"}>
           Ad<span className="text-emerald-500">flow</span>
         </Link>
-        <div className={isDark ? 'hidden flex-1 items-center overflow-hidden rounded-lg border border-white/10 bg-[#1f1f1f] md:flex' : 'hidden flex-1 items-center overflow-hidden rounded-lg border border-slate-200 bg-slate-100 md:flex'}>
+        <div className={isDark ? 'hidden w-full max-w-[360px] items-center overflow-hidden rounded-lg border border-white/10 bg-[#1f1f1f] opacity-70 md:flex' : 'hidden w-full max-w-[360px] items-center overflow-hidden rounded-lg border border-slate-200 bg-slate-100 opacity-70 md:flex'}>
           <input
             type="text"
             readOnly
-            placeholder="Busca canales de cripto, fitness, trading…"
+            placeholder="Buscar audiencias, canales o temáticas..."
             className={isDark ? 'h-10 w-full bg-transparent px-4 text-sm text-gray-200 placeholder:text-gray-500 outline-none' : 'h-10 w-full bg-transparent px-4 text-sm text-slate-700 placeholder:text-slate-400 outline-none'}
           />
           <button type="button" className="h-10 bg-emerald-500 px-4 text-sm font-semibold text-white">
