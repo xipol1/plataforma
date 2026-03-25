@@ -67,13 +67,12 @@ app.use('/api/transacciones', notImplementedRouter('transacciones'));
 app.use('/api/notifications', notImplementedRouter('notifications'));
 app.use('/api/files', notImplementedRouter('files'));
 app.use('/api/estadisticas', notImplementedRouter('estadisticas'));
-app.use('/api/campaigns', notImplementedRouter('campaigns'));
+safeMount('/api/campaigns', './routes/campaigns');
 app.use('/api/lists', notImplementedRouter('lists'));
 
 safeMount('/api/channels', './routes/channels');
 
 safeMount('/channels', './routes/channels');
-app.use('/campaigns', notImplementedRouter('campaigns'));
 
 const distPath = path.join(__dirname, 'dist');
 const distIndex = path.join(distPath, 'index.html');
