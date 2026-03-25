@@ -77,10 +77,13 @@ const login = async (req, res) => {
 
     return res.json({
       success: true,
-      user: buildUserResponse(user),
+      user: {
+        id: user._id,
+        email: user.email,
+        role: user.rol
+      },
       token: tokens.tokenAcceso,
-      refreshToken: tokens.tokenRefresco,
-      expiresIn: tokens.expiresIn
+      refreshToken: tokens.tokenRefresco
     });
   } catch (error) {
     console.error("LOGIN ERROR REAL:", error);
