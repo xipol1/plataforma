@@ -12,27 +12,38 @@ export default function NavBar() {
   }
 
   return (
-    <header className="border-b border-gray-200 bg-white">
-      <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-3">
-        <Link to="/" className="text-lg font-semibold text-gray-900">
-          AdFlow
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0d0d0d]/95 backdrop-blur">
+      <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-4 px-4 py-3">
+        <Link to="/" className="font-['Syne'] text-2xl font-extrabold tracking-tight text-white">
+          Ad<span className="text-emerald-500">flow</span>
         </Link>
+        <div className="hidden flex-1 items-center overflow-hidden rounded-lg border border-white/10 bg-[#1f1f1f] md:flex">
+          <input
+            type="text"
+            readOnly
+            placeholder="Busca canales de cripto, fitness, trading…"
+            className="h-10 w-full bg-transparent px-4 text-sm text-gray-200 placeholder:text-gray-500 outline-none"
+          />
+          <button type="button" className="h-10 bg-emerald-500 px-4 text-sm font-semibold text-white">
+            🔍
+          </button>
+        </div>
         <nav className="flex items-center gap-4">
           {isAuthenticated ? (
             <>
               <NavLink
                 to="/dashboard"
                 className={({ isActive }) =>
-                  `text-sm ${isActive ? 'text-primary-700' : 'text-gray-700'}`
+                  `text-sm ${isActive ? 'text-emerald-400' : 'text-gray-300'}`
                 }
               >
                 Dashboard
               </NavLink>
-              <span className="text-sm text-gray-600">{user?.email}</span>
+              <span className="hidden text-sm text-gray-500 md:inline">{user?.email}</span>
               <button
                 type="button"
                 onClick={onLogout}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700"
+                className="rounded-md border border-white/15 px-3 py-1.5 text-sm text-gray-300 hover:border-emerald-500 hover:text-emerald-400"
               >
                 Salir
               </button>
@@ -40,20 +51,28 @@ export default function NavBar() {
           ) : (
             <>
               <NavLink
-                to="/auth/login"
-                className={({ isActive }) =>
-                  `text-sm ${isActive ? 'text-primary-700' : 'text-gray-700'}`
-                }
+                to="/"
+                className="hidden text-sm text-gray-400 transition hover:text-gray-100 md:inline"
               >
-                Login
+                Explorar
               </NavLink>
               <NavLink
                 to="/auth/register"
-                className={({ isActive }) =>
-                  `text-sm ${isActive ? 'text-primary-700' : 'text-gray-700'}`
-                }
+                className="hidden text-sm text-gray-400 transition hover:text-gray-100 md:inline"
               >
-                Registro
+                Vender
+              </NavLink>
+              <NavLink
+                to="/auth/login"
+                className="rounded-md border border-white/15 px-3 py-1.5 text-sm text-gray-300 hover:border-emerald-500 hover:text-emerald-400"
+              >
+                Entrar
+              </NavLink>
+              <NavLink
+                to="/auth/register"
+                className="rounded-md bg-emerald-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-600"
+              >
+                Registrarse
               </NavLink>
             </>
           )}
@@ -62,4 +81,3 @@ export default function NavBar() {
     </header>
   )
 }
-
