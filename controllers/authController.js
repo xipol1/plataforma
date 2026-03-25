@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Usuario = require('../models/Usuario');
 const AuthService = require('../services/authService');
@@ -12,6 +11,11 @@ const logDev = (...args) => {
 };
 
 const errorPayload = (error) => (isDev ? { error: error?.message } : {});
+const serviceUnavailablePayload = (message, error) => ({
+  success: false,
+  message,
+  ...errorPayload(error)
+});
 
 const normalizeEmail = (value) => {
   if (!value) return '';
@@ -31,17 +35,17 @@ const buildUserResponse = (usuario) => {
 
 const login = async (req, res) => {
   const email = normalizeEmail(req.body?.email);
+  const password = String(req.body?.password || '');
 
   try {
     logDev('LOGIN: request', { email });
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Email y password requeridos' });
+    }
 
-    if (!process.env.MONGODB_URI) {
+    if (!config.database?.uri) {
       console.warn('LOGIN: MONGODB_URI no definida');
-      return res.status(503).json({
-        success: false,
-        message: 'Servicio no disponible',
-        error: 'MONGODB_URI no definida'
-      });
+      return res.status(503).json(serviceUnavailablePayload('Servicio no disponible'));
     }
 
     if (!database.estaConectado()) {
@@ -49,11 +53,7 @@ const login = async (req, res) => {
       const ok = await database.conectar();
       if (!ok) {
         const last = database.getLastConnectionError?.();
-        return res.status(503).json({
-          success: false,
-          message: 'Servicio no disponible',
-          ...(last ? { error: last.message || String(last) } : {})
-        });
+        return res.status(503).json(serviceUnavailablePayload('Servicio no disponible', last));
       }
     }
 
@@ -64,7 +64,6 @@ const login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Credenciales inválidas' });
     }
 
-    const password = String(req.body?.password || '');
     const isMatch = await bcrypt.compare(password, user.password);
     logDev('LOGIN: password match', isMatch);
 
@@ -84,7 +83,8 @@ const login = async (req, res) => {
         role: user.rol
       },
       token: tokens.tokenAcceso,
-      refreshToken: tokens.tokenRefresco
+      refreshToken: tokens.tokenRefresco,
+      expiresIn: tokens.expiresIn
     });
   } catch (error) {
     console.error('LOGIN ERROR:', error?.message || error);
@@ -98,10 +98,10 @@ const login = async (req, res) => {
 
 const registro = async (req, res) => {
   const email = normalizeEmail(req.body?.email);
+  const password = String(req.body?.password || '');
 
   try {
     logDev('REGISTER: request', { email });
-    const password = String(req.body?.password || '');
 
     if (!email || !password) {
       return res.status(400).json({
@@ -110,13 +110,16 @@ const registro = async (req, res) => {
       });
     }
 
-    if (!process.env.MONGODB_URI) {
-      console.warn('REGISTER: MONGODB_URI no definida');
-      return res.status(503).json({
+    if (password.length < 8) {
+      return res.status(400).json({
         success: false,
-        message: 'Servicio no disponible',
-        error: 'MONGODB_URI no definida'
+        message: 'La contraseña debe tener al menos 8 caracteres'
       });
+    }
+
+    if (!config.database?.uri) {
+      console.warn('REGISTER: MONGODB_URI no definida');
+      return res.status(503).json(serviceUnavailablePayload('Servicio no disponible'));
     }
 
     if (!database.estaConectado()) {
@@ -124,11 +127,7 @@ const registro = async (req, res) => {
       const ok = await database.conectar();
       if (!ok) {
         const last = database.getLastConnectionError?.();
-        return res.status(503).json({
-          success: false,
-          message: 'Servicio no disponible',
-          ...(last ? { error: last.message || String(last) } : {})
-        });
+        return res.status(503).json(serviceUnavailablePayload('Servicio no disponible', last));
       }
     }
 
@@ -138,7 +137,8 @@ const registro = async (req, res) => {
       return res.status(400).json({ success: false, message: 'El email ya está registrado' });
     }
 
-    const hashedPassword = await bcrypt.hash(password.trim(), 10);
+    const bcryptRounds = Number(config.security?.bcryptRounds) || 10;
+    const hashedPassword = await bcrypt.hash(password.trim(), bcryptRounds);
 
     const user = await Usuario.create({
       email: email.trim().toLowerCase(),
@@ -157,6 +157,13 @@ const registro = async (req, res) => {
       expiresIn: tokens.expiresIn
     });
   } catch (error) {
+    if (error?.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'El email ya está registrado'
+      });
+    }
+
     console.error('REGISTER ERROR:', error);
     return res.status(500).json({
       success: false,
