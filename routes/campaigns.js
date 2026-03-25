@@ -25,7 +25,7 @@ router.post(
     body('channel').isMongoId().withMessage('channel inválido'),
     body('content').isString().notEmpty().trim(),
     body('targetUrl').isString().notEmpty().trim(),
-    body('price').isFloat().toFloat()
+    body('price').isFloat({ min: 0 }).toFloat()
   ],
   validarCampos,
   campaignController.createCampaign
@@ -40,6 +40,31 @@ router.patch(
   ],
   validarCampos,
   campaignController.updateCampaignStatus
+);
+
+// Action-based state transitions
+router.post(
+  '/:id/pay',
+  autenticar,
+  [param('id').isMongoId().withMessage('ID inválido')],
+  validarCampos,
+  campaignController.payCampaign
+);
+
+router.post(
+  '/:id/confirm',
+  autenticar,
+  [param('id').isMongoId().withMessage('ID inválido')],
+  validarCampos,
+  campaignController.confirmCampaign
+);
+
+router.post(
+  '/:id/complete',
+  autenticar,
+  [param('id').isMongoId().withMessage('ID inválido')],
+  validarCampos,
+  campaignController.completeCampaign
 );
 
 module.exports = router;

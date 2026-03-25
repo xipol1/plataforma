@@ -5,7 +5,6 @@ const compression = require('compression');
 const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
-const { notImplementedModule } = require('./middleware/notImplemented');
 
 const app = express();
 
@@ -45,6 +44,59 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
+// Tracking redirect: GET /r/:campaignId
+app.get('/r/:campaignId', async (req, res) => {
+  const campaignId = req.params.campaignId;
+
+  // Fire-and-forget click recording
+  setImmediate(async () => {
+    try {
+      const { ensureDb } = require('./lib/ensureDb');
+      const ok = await ensureDb();
+      if (!ok) return;
+
+      const Campaign = require('./models/Campaign');
+      const Tracking = require('./models/Tracking');
+
+      const campaign = await Campaign.findById(campaignId).select('targetUrl status').lean();
+      if (!campaign) return;
+
+      const ip = req.ip || req.headers['x-forwarded-for'] || '';
+
+      // Deduplication: same IP within 1 hour
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      const recent = await Tracking.exists({
+        campaign: campaign._id,
+        ip,
+        timestamp: { $gte: oneHourAgo }
+      });
+
+      if (!recent) {
+        await Tracking.create({ campaign: campaign._id, ip, timestamp: new Date() });
+      }
+    } catch (_) {
+      // Silent fail — tracking must never break the redirect
+    }
+  });
+
+  // Resolve target URL then redirect
+  try {
+    const { ensureDb } = require('./lib/ensureDb');
+    const ok = await ensureDb();
+    if (ok) {
+      const Campaign = require('./models/Campaign');
+      const campaign = await Campaign.findById(campaignId).select('targetUrl').lean();
+      if (campaign?.targetUrl) {
+        return res.redirect(302, campaign.targetUrl);
+      }
+    }
+  } catch (_) {
+    // Fall through to 404
+  }
+
+  return res.status(404).json({ success: false, message: 'Campaña no encontrada' });
+});
+
 const safeMount = (mountPath, modulePath) => {
   let mountError = null;
   try {
@@ -71,26 +123,16 @@ const enabledRoutes = [
   ['/api/auth', './routes/auth'],
   ['/auth', './routes/auth'],
   ['/api/channels', './routes/channels'],
-  ['/channels', './routes/channels']
+  ['/channels', './routes/channels'],
+  ['/api/canales', './routes/canales'],
+  ['/api/campaigns', './routes/campaigns'],
+  ['/campaigns', './routes/campaigns'],
+  ['/api/transacciones', './routes/transacciones'],
+  ['/api/estadisticas', './routes/estadisticas'],
+  ['/api/lists', './routes/lists']
 ];
 
 enabledRoutes.forEach(([mountPath, modulePath]) => safeMount(mountPath, modulePath));
-
-const disabledModules = [
-  { module: 'canales', paths: ['/api/canales'] },
-  { module: 'anuncios', paths: ['/api/anuncios'] },
-  { module: 'transacciones', paths: ['/api/transacciones'] },
-  { module: 'notifications', paths: ['/api/notifications'] },
-  { module: 'files', paths: ['/api/files'] },
-  { module: 'estadisticas', paths: ['/api/estadisticas'] },
-  { module: 'campaigns', paths: ['/api/campaigns', '/campaigns'] },
-  { module: 'lists', paths: ['/api/lists'] }
-];
-
-disabledModules.forEach(({ module, paths }) => {
-  const handler = notImplementedModule(module);
-  paths.forEach((mountPath) => app.use(mountPath, handler));
-});
 
 const distPath = path.join(__dirname, 'dist');
 const distIndex = path.join(distPath, 'index.html');
