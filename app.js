@@ -6,6 +6,8 @@ const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
 
+const { notImplementedRouter } = require('./lib/notImplemented');
+
 const app = express();
 
 const ENV = process.env.NODE_ENV || 'development';
@@ -57,19 +59,20 @@ const safeMount = (mountPath, modulePath) => {
 };
 
 safeMount('/api/auth', './routes/auth');
-safeMount('/api/canales', './routes/canales');
-safeMount('/api/anuncios', './routes/anuncios');
-safeMount('/api/transacciones', './routes/transacciones');
-safeMount('/api/notifications', './routes/notifications');
-safeMount('/api/files', './routes/files');
-safeMount('/api/estadisticas', './routes/estadisticas');
-safeMount('/api/campaigns', './routes/campaigns');
-safeMount('/api/lists', './routes/lists');
-safeMount('/api/channels', './routes/channels');
-
 safeMount('/auth', './routes/auth');
-safeMount('/channels', './routes/channels');
-safeMount('/campaigns', './routes/campaigns');
+
+app.use('/api/canales', notImplementedRouter('canales'));
+app.use('/api/anuncios', notImplementedRouter('anuncios'));
+app.use('/api/transacciones', notImplementedRouter('transacciones'));
+app.use('/api/notifications', notImplementedRouter('notifications'));
+app.use('/api/files', notImplementedRouter('files'));
+app.use('/api/estadisticas', notImplementedRouter('estadisticas'));
+app.use('/api/campaigns', notImplementedRouter('campaigns'));
+app.use('/api/lists', notImplementedRouter('lists'));
+app.use('/api/channels', notImplementedRouter('channels'));
+
+app.use('/channels', notImplementedRouter('channels'));
+app.use('/campaigns', notImplementedRouter('campaigns'));
 
 const distPath = path.join(__dirname, 'dist');
 const distIndex = path.join(distPath, 'index.html');

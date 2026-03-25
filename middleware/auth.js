@@ -1,6 +1,17 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 
+const notImplemented = (name) => {
+  return (req, res) => {
+    res.status(501).json({
+      success: false,
+      code: 'NOT_IMPLEMENTED',
+      module: 'auth',
+      message: 'Módulo pendiente'
+    });
+  };
+};
+
 const autenticar = (req, res, next) => {
   const authHeader = req.headers?.authorization || '';
   const [type, token] = authHeader.split(' ');
@@ -28,4 +39,13 @@ const autenticar = (req, res, next) => {
   }
 };
 
-module.exports = { autenticar };
+const autorizarRoles = () => notImplemented('autorizarRoles');
+const requiereEmailVerificado = notImplemented('requiereEmailVerificado');
+const verificarPropietario = () => notImplemented('verificarPropietario');
+
+module.exports = {
+  autenticar,
+  autorizarRoles,
+  requiereEmailVerificado,
+  verificarPropietario
+};

@@ -13,4 +13,18 @@ const limitarIntentos = (options = {}) => {
   });
 };
 
-module.exports = { limitarIntentos };
+const limitadorAPI = limitarIntentos({
+  windowMs: 15 * 60 * 1000,
+  max: 1000000,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const limitadorEndpoint = {
+  crearCanal: limitarIntentos({ windowMs: 60 * 60 * 1000, max: 1000000 }),
+  crearAnuncio: limitarIntentos({ windowMs: 60 * 60 * 1000, max: 1000000 }),
+  crearCampania: limitarIntentos({ windowMs: 60 * 60 * 1000, max: 1000000 }),
+  procesarPago: limitarIntentos({ windowMs: 15 * 60 * 1000, max: 1000000 })
+};
+
+module.exports = { limitarIntentos, limitadorAPI, limitadorEndpoint };
