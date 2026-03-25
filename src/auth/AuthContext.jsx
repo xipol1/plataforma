@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useState } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import apiService from '../../services/api'
 
 const AuthContext = createContext(null)
@@ -17,20 +17,87 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem('token') || '')
   const [refreshToken, setRefreshToken] = useState(() => localStorage.getItem('refreshToken') || '')
   const [user, setUser] = useState(() => readJson('user', null))
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   const isAuthenticated = Boolean(token)
 
-  const login = async ({ email, password }) => {
-    const res = await apiService.login({ email, password })
-    if (res && res.success && res.token && res.user) {
-      localStorage.setItem('token', res.token)
-      localStorage.setItem('refreshToken', res.refreshToken || '')
-      localStorage.setItem('user', JSON.stringify(res.user))
-      setToken(res.token)
-      setRefreshToken(res.refreshToken || '')
-      setUser(res.user)
+  useEffect(() => {
+    let mounted = true
+
+    const verify = async () => {
+      try {
+        if (!token) {
+          if (mounted) setLoading(false)
+          return
+        }
+        const res = await apiService.verifyToken()
+        if (mounted && res?.success && res?.user) {
+          localStorage.setItem('user', JSON.stringify(res.user))
+          setUser(res.user)
+        }
+        if (mounted && res?.success === false) {
+          localStorage.removeItem('token')
+          localStorage.removeItem('refreshToken')
+          localStorage.removeItem('user')
+          setToken('')
+          setRefreshToken('')
+          setUser(null)
+        }
+      } catch {
+      } finally {
+        if (mounted) setLoading(false)
+      }
     }
-    return res
+
+    verify()
+    return () => {
+      mounted = false
+    }
+  }, [token])
+
+  const login = async ({ email, password }) => {
+    setError('')
+    setLoading(true)
+    try {
+      const res = await apiService.login({ email, password })
+      if (res && res.success && res.token && res.user) {
+        localStorage.setItem('token', res.token)
+        localStorage.setItem('refreshToken', res.refreshToken || '')
+        localStorage.setItem('user', JSON.stringify(res.user))
+        setToken(res.token)
+        setRefreshToken(res.refreshToken || '')
+        setUser(res.user)
+      }
+      return res
+    } catch (e) {
+      setError(e?.message || 'No se pudo iniciar sesión')
+      return { success: false, message: e?.message || 'No se pudo iniciar sesión' }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const register = async (userData) => {
+    setError('')
+    setLoading(true)
+    try {
+      const res = await apiService.register(userData)
+      if (res && res.success && res.token && res.user) {
+        localStorage.setItem('token', res.token)
+        localStorage.setItem('refreshToken', res.refreshToken || '')
+        localStorage.setItem('user', JSON.stringify(res.user))
+        setToken(res.token)
+        setRefreshToken(res.refreshToken || '')
+        setUser(res.user)
+      }
+      return res
+    } catch (e) {
+      setError(e?.message || 'No se pudo registrar')
+      return { success: false, message: e?.message || 'No se pudo registrar' }
+    } finally {
+      setLoading(false)
+    }
   }
 
   const logout = () => {
@@ -40,11 +107,28 @@ export function AuthProvider({ children }) {
     setToken('')
     setRefreshToken('')
     setUser(null)
+    setError('')
   }
 
   const value = useMemo(() => {
-    return { token, refreshToken, user, isAuthenticated, login, logout }
-  }, [token, refreshToken, user, isAuthenticated])
+    const rol = user?.rol || user?.role || ''
+    return {
+      token,
+      refreshToken,
+      user,
+      rol,
+      loading,
+      error,
+      isAuthenticated,
+      login,
+      register,
+      logout,
+      clearError: () => setError(''),
+      isAnunciante: rol === 'anunciante',
+      isCreador: rol === 'creador',
+      isAdmin: rol === 'admin',
+    }
+  }, [token, refreshToken, user, loading, error, isAuthenticated])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

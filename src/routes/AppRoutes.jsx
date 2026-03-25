@@ -1,31 +1,60 @@
 import React from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import AppLayout from '../ui/layouts/AppLayout'
 import ProtectedRoute from '../ui/routing/ProtectedRoute'
-import LoginPage from '../ui/pages/auth/LoginPage'
-import RegisterPage from '../ui/pages/auth/RegisterPage'
 import DashboardPage from '../ui/pages/dashboard/DashboardPage'
+import { useAuth } from '../auth/AuthContext'
+import AuthPage from '../legacy/AuthPage'
+import LandingPage from '../legacy/LandingPage'
+import AdminDashboard from '../legacy/AdminDashboard'
+import AdvertiserDashboard from '../legacy/AdvertiserDashboard'
+import CreatorDashboard from '../legacy/CreatorDashboard'
 
 export default function AppRoutes() {
+  const { isAuthenticated } = useAuth()
+
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<LandingPage />} />
 
-      <Route path="/auth" element={<AppLayout />}>
-        <Route path="login" element={<LoginPage />} />
-        <Route path="register" element={<RegisterPage />} />
-      </Route>
+      <Route path="/auth" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
+      <Route path="/auth/login" element={<Navigate to="/auth" replace />} />
+      <Route path="/auth/register" element={<Navigate to="/auth" replace />} />
 
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <AppLayout />
+            <DashboardPage />
           </ProtectedRoute>
         }
-      >
-        <Route index element={<DashboardPage />} />
-      </Route>
+      />
+
+      <Route
+        path="/creator/*"
+        element={
+          <ProtectedRoute allowedRoles={['creador']}>
+            <CreatorDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/advertiser/*"
+        element={
+          <ProtectedRoute allowedRoles={['anunciante']}>
+            <AdvertiserDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/*"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
