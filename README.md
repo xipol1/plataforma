@@ -95,7 +95,10 @@ Una plataforma completa para la monetización de canales de comunicación como T
    Editar el archivo `.env` con tus configuraciones:
    ```env
    # Base de datos
-   MONGODB_URI=mongodb://localhost:27017/plataforma_monetizacion
+Mongo atlas
+
+rafaferrer43_db_user
+kv6aSA5xL9WEPF9z
    
    # JWT
    JWT_SECRET=tu_jwt_secret_muy_seguro
