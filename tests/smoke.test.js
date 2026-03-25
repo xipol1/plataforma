@@ -24,4 +24,24 @@ describe('Smoke API checks', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
     expect(res.body.data.length).toBeGreaterThan(0);
   });
+
+  test('POST /api/auth/registro valida fortaleza de contraseña', async () => {
+    const res = await request(app).post('/api/auth/registro').send({
+      email: 'test@example.com',
+      password: 'weakpass1'
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('success', false);
+  });
+
+  test('POST /api/auth/login valida campos requeridos', async () => {
+    const res = await request(app).post('/api/auth/login').send({
+      email: '',
+      password: ''
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('success', false);
+  });
 });

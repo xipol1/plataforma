@@ -101,6 +101,7 @@ npm run build
 - `POST /api/auth/registro`
 - `POST /api/auth/login`
 - Otros endpoints de auth existen pero varios aún están en implementación parcial.
+- Política de password actual para registro/reset: mínimo 8 caracteres, con mayúscula, minúscula y número.
 
 ### Channels (módulo demo/temporal)
 - `GET /api/channels`
