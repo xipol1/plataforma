@@ -1,3 +1,5 @@
+const { readCollection, writeCollection } = require('../services/persistentStore');
+
 const demoChannels = [
   { id: 'demo-ch-crypto-alpha-signals', nombre: 'Crypto Alpha Signals', plataforma: 'telegram', engagement: 2.9, ctr: 3.2, precio: 450 },
   { id: 'demo-ch-gaming-deals-hub', nombre: 'Gaming Deals Hub', plataforma: 'discord', engagement: 4.1, ctr: 3.9, precio: 650 },
@@ -5,12 +7,15 @@ const demoChannels = [
   { id: 'demo-ch-startup-weekly', nombre: 'Startup Weekly', plataforma: 'newsletter', engagement: 3.6, ctr: 2.7, precio: 220 }
 ];
 
-const campaigns = [];
+const COLLECTION = 'campaigns';
 
 const normalizeBudget = (value) => {
   const n = Number(value);
   return Number.isFinite(n) && n > 0 ? n : 0;
 };
+
+const readCampaigns = () => readCollection(COLLECTION, []);
+const saveCampaigns = (items) => writeCollection(COLLECTION, items);
 
 const buildCampaign = (payload, userId) => {
   const now = new Date();
@@ -28,8 +33,8 @@ const buildCampaign = (payload, userId) => {
 
 const ensureAdvertiser = (req, res) => {
   const role = req.usuario?.rol || req.usuario?.role;
-  if (role !== 'advertiser') {
-    res.status(403).json({ success: false, message: 'Solo anunciantes pueden gestionar campañas' });
+  if (role !== 'advertiser' && role !== 'admin') {
+    res.status(403).json({ success: false, message: 'Solo anunciantes o admins pueden gestionar campañas' });
     return false;
   }
   return true;
@@ -38,6 +43,7 @@ const ensureAdvertiser = (req, res) => {
 const getCampaigns = async (req, res) => {
   if (!ensureAdvertiser(req, res)) return;
   const userId = req.usuario?.id || req.usuario?._id || req.usuario?.sub;
+  const campaigns = readCampaigns();
   const data = campaigns.filter((item) => item.ownerId === userId);
   res.json({ success: true, data });
 };
@@ -51,8 +57,10 @@ const createCampaign = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Presupuesto inválido' });
   }
 
+  const campaigns = readCampaigns();
   const campaign = buildCampaign(req.body || {}, userId);
   campaigns.push(campaign);
+  saveCampaigns(campaigns);
 
   return res.status(201).json({ success: true, data: campaign });
 };
@@ -111,7 +119,9 @@ const launchAutoCampaign = async (req, res) => {
     canales: optimizedChannels.map((channel) => channel.id)
   };
 
+  const campaigns = readCampaigns();
   campaigns.push(newCampaign);
+  saveCampaigns(campaigns);
 
   return res.status(201).json({
     success: true,

@@ -2,7 +2,7 @@
 
 ## 1) Resumen ejecutivo
 
-Repositorio **activo y en transición**: el MVP backend+frontend funciona para `health`, `auth`, `channels`, `campaigns` y `transacciones`, mientras varios módulos de dominio siguen en modo placeholder `501 NOT_IMPLEMENTED`.
+Repositorio **activo y en transición**: el MVP backend+frontend funciona para `health`, `auth`, `channels`, `campaigns`, `transacciones`, `anuncios` y `notifications`, mientras varios módulos de dominio siguen en modo placeholder `501 NOT_IMPLEMENTED`.
 
 ## 2) Backend (estado por módulos)
 
@@ -13,11 +13,11 @@ Repositorio **activo y en transición**: el MVP backend+frontend funciona para `
 - `/api/channels/*` y `/channels/*`
 - `/api/campaigns/*` y `/campaigns/*`
 - `/api/transacciones/*`
+- `/api/anuncios/*`
+- `/api/notifications/*`
 
 ### Parcial / pendiente (placeholder 501 uniforme)
 - `/api/canales/*`
-- `/api/anuncios/*`
-- `/api/notifications/*`
 - `/api/files/*`
 - `/api/estadisticas/*`
 - `/api/lists/*`
@@ -65,7 +65,7 @@ Recomendadas:
 
 ### P0
 1. Faltan modelos/controladores de dominio para módulos que hoy responden 501.
-2. Persistencia real de negocio todavía incompleta (parte del MVP usa datos demo).
+2. Persistencia implementada en JSON local para MVP; falta migración total a DB por módulo.
 
 ### P1
 1. Endurecer observabilidad y trazabilidad para producción.

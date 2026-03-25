@@ -28,8 +28,8 @@ Este repositorio contiene backend (Node/Express) + frontend (React/Vite) para un
 - Landing page con tema oscuro/claro y navegación principal.
 
 ### ⚠️ Parcial / pendiente
-- La mayoría de módulos de dominio siguen en modo placeholder (`501 NOT_IMPLEMENTED`):
-  - `canales`, `anuncios`, `notifications`, `files`, `estadisticas`, `lists`.
+- Módulos aún en placeholder (`501 NOT_IMPLEMENTED`): `canales`, `files`, `estadisticas`, `lists`.
+- Módulos MVP nuevos: `anuncios` (CRUD mínimo) y `notifications` (list/create/mark-read).
 - Suite smoke de tests activa (`tests/smoke.test.js`).
 - ESLint base activo (`npm run lint` operativo).
 - Workflow de CI activo para `lint + test + build` en push/PR.
@@ -37,6 +37,7 @@ Este repositorio contiene backend (Node/Express) + frontend (React/Vite) para un
 Para detalle completo, revisar:
 - `docs/estado-real.md`
 - `docs/plan-fases.md`
+- `docs/api-contrato.md`
 - `.github/workflows/ci.yml`
 
 ---

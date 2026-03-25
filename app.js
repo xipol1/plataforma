@@ -74,15 +74,15 @@ const enabledRoutes = [
   ['/channels', './routes/channels'],
   ['/api/campaigns', './routes/campaigns'],
   ['/campaigns', './routes/campaigns'],
-  ['/api/transacciones', './routes/transacciones']
+  ['/api/transacciones', './routes/transacciones'],
+  ['/api/anuncios', './routes/anuncios'],
+  ['/api/notifications', './routes/notifications']
 ];
 
 enabledRoutes.forEach(([mountPath, modulePath]) => safeMount(mountPath, modulePath));
 
 const disabledModules = [
   { module: 'canales', paths: ['/api/canales'] },
-  { module: 'anuncios', paths: ['/api/anuncios'] },
-  { module: 'notifications', paths: ['/api/notifications'] },
   { module: 'files', paths: ['/api/files'] },
   { module: 'estadisticas', paths: ['/api/estadisticas'] },
   { module: 'lists', paths: ['/api/lists'] }
