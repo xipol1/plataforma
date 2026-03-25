@@ -16,13 +16,18 @@ Este repositorio contiene backend (Node/Express) + frontend (React/Vite) para un
 - Módulo `channels` mínimo operativo:
   - `GET /api/channels`
   - `GET /api/channels/:id`
+- Módulo `campaigns` mínimo operativo (requiere auth advertiser):
+  - `GET /api/campaigns`
+  - `POST /api/campaigns`
+  - `POST /api/campaigns/optimize`
+  - `POST /api/campaigns/launch-auto`
 - Landing page con tema oscuro/claro y navegación principal.
 
 ### ⚠️ Parcial / pendiente
 - La mayoría de módulos de dominio siguen en modo placeholder (`501 NOT_IMPLEMENTED`):
-  - `canales`, `anuncios`, `transacciones`, `notifications`, `files`, `estadisticas`, `campaigns`, `lists`.
-- No hay suite de tests activa.
-- ESLint no tiene configuración en el repo (el script existe, pero falla por config faltante).
+  - `canales`, `anuncios`, `transacciones`, `notifications`, `files`, `estadisticas`, `lists`.
+- Suite smoke de tests activa (`tests/smoke.test.js`).
+- ESLint base activo (`npm run lint` operativo).
 
 Para detalle completo, revisar:
 - `docs/estado-real.md`

@@ -1,7 +1,17 @@
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
+process.env.JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'test-refresh-secret';
+
 const request = require('supertest');
+const jwt = require('jsonwebtoken');
 const app = require('../app');
 
 describe('Smoke API checks', () => {
+  const advertiserToken = jwt.sign(
+    { id: 'test-adv-1', email: 'adv@example.com', rol: 'advertiser', emailVerificado: true },
+    process.env.JWT_SECRET,
+    { issuer: 'plataforma-monetizacion', audience: 'plataforma-monetizacion', expiresIn: '30m' }
+  );
+
   test('GET /health responde 200', async () => {
     const res = await request(app).get('/health');
 
@@ -43,5 +53,31 @@ describe('Smoke API checks', () => {
 
     expect(res.status).toBe(400);
     expect(res.body).toHaveProperty('success', false);
+  });
+
+  test('GET /api/campaigns sin token devuelve 401', async () => {
+    const res = await request(app).get('/api/campaigns');
+    expect(res.status).toBe(401);
+  });
+
+  test('POST /api/campaigns con anunciante crea campaña', async () => {
+    const res = await request(app)
+      .post('/api/campaigns')
+      .set('Authorization', `Bearer ${advertiserToken}`)
+      .send({ titulo: 'Campaña Q2', presupuesto: 500 });
+
+    expect(res.status).toBe(201);
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body.data).toHaveProperty('estado', 'draft');
+  });
+
+  test('GET /api/campaigns con anunciante lista campañas', async () => {
+    const res = await request(app)
+      .get('/api/campaigns')
+      .set('Authorization', `Bearer ${advertiserToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+    expect(Array.isArray(res.body.data)).toBe(true);
   });
 });

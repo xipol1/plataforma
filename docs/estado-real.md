@@ -38,6 +38,8 @@ Servicios presentes en `services/`: auth/email/file/channel/campaign optimizer, 
 - `/auth/*`
 - `/api/channels/*`
 - `/channels/*`
+- `/api/campaigns/*`
+- `/campaigns/*`
 
 ### No operativas (respuesta uniforme `501`)
 - `/api/canales/*`
@@ -46,9 +48,7 @@ Servicios presentes en `services/`: auth/email/file/channel/campaign optimizer, 
 - `/api/notifications/*`
 - `/api/files/*`
 - `/api/estadisticas/*`
-- `/api/campaigns/*`
 - `/api/lists/*`
-- `/campaigns/*`
 
 Formato uniforme:
 ```json
