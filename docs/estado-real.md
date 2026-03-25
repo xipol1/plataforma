@@ -81,6 +81,9 @@
 | `GET /api/health` | 200 |
 | `/api/auth/*` | Montada desde `routes/auth.js` |
 | `/auth/*` | Montada desde `routes/auth.js` |
+| `/api/channels/*` | Operativa (MVP canales) |
+| `/api/canales/*` | Alias de `/api/channels/*` |
+| `/channels/*` | Alias de `/api/channels/*` |
 
 ### No operativas (deshabilitadas explícitamente)
 
@@ -100,8 +103,6 @@ Todas las rutas bajo los prefijos siguientes devuelven 501 JSON uniforme:
 | `/api/estadisticas` | `estadisticas` |
 | `/api/campaigns` | `campaigns` |
 | `/api/lists` | `lists` |
-| `/api/channels` | `channels` |
-| `/channels` | `channels` |
 | `/campaigns` | `campaigns` |
 
 ## Roturas detectadas (previas al saneamiento)

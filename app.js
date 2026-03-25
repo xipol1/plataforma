@@ -61,7 +61,7 @@ const safeMount = (mountPath, modulePath) => {
 safeMount('/api/auth', './routes/auth');
 safeMount('/auth', './routes/auth');
 
-app.use('/api/canales', notImplementedRouter('canales'));
+safeMount('/api/canales', './routes/canales');
 app.use('/api/anuncios', notImplementedRouter('anuncios'));
 app.use('/api/transacciones', notImplementedRouter('transacciones'));
 app.use('/api/notifications', notImplementedRouter('notifications'));
@@ -69,9 +69,10 @@ app.use('/api/files', notImplementedRouter('files'));
 app.use('/api/estadisticas', notImplementedRouter('estadisticas'));
 app.use('/api/campaigns', notImplementedRouter('campaigns'));
 app.use('/api/lists', notImplementedRouter('lists'));
-app.use('/api/channels', notImplementedRouter('channels'));
 
-app.use('/channels', notImplementedRouter('channels'));
+safeMount('/api/channels', './routes/channels');
+
+safeMount('/channels', './routes/channels');
 app.use('/campaigns', notImplementedRouter('campaigns'));
 
 const distPath = path.join(__dirname, 'dist');
