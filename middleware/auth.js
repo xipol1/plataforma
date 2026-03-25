@@ -69,8 +69,6 @@ const requiereEmailVerificado = (req, res, next) => {
 
 const verificarPropietario = () => {
   return (req, res, next) => {
-    // Contrato compatible con rutas existentes.
-    // La validación de ownership específico debe implementarse en el controlador/modelo correspondiente.
     if (!req.usuario) {
       return res.status(401).json({ success: false, message: 'No autorizado' });
     }
