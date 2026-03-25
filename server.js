@@ -3,6 +3,8 @@ require('dotenv').config();
 const app = require('./app');
 const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
+const database = require('./config/database');
 
 // ==========================================
 // INICIALIZACIÓN DEL SERVIDOR
@@ -18,34 +20,40 @@ async function startServer() {
       const msg = `${new Date().toISOString()} ${error?.stack || String(error)}\n`;
       try {
         fs.appendFileSync(fatalPath, msg);
-      } catch (e) {}
+      } catch (e) {
+        console.error('Error escribiendo _server_fatal.log:', e?.message || e);
+      }
       console.error(msg);
     };
 
     process.on('uncaughtException', logFatal);
     process.on('unhandledRejection', logFatal);
 
-    // 2. Iniciar la escucha del servidor
-    app.listen(PORT, () => {
+    if (!process.env.JWT_SECRET) console.warn('⚠️ Falta JWT_SECRET');
+    if (!process.env.MONGODB_URI) console.warn('⚠️ MONGODB_URI no definida');
+    if (process.env.DATABASE_URL && !process.env.MONGODB_URI) console.warn('⚠️ DATABASE_URL definida pero falta MONGODB_URI');
+    if (!process.env.STRIPE_SECRET_KEY) console.warn('⚠️ Falta STRIPE_SECRET_KEY');
+
+    const connectDB = async () => {
+      try {
+        const ok = await database.conectar();
+        if (!ok) {
+          const last = database.getLastConnectionError?.();
+          console.error('Error conectando a MongoDB:', last?.message || last || 'MONGODB_URI no definida');
+        }
+        return ok;
+      } catch (error) {
+        console.error('Error conectando a MongoDB:', error?.message || error);
+        return false;
+      }
+    };
+
+    await connectDB();
+    await database.configurarIndices?.();
+
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);
     });
-
-    const databaseConfig = (() => {
-      try {
-        return require('./config/database');
-      } catch (e) {
-        return null;
-      }
-    })();
-
-    if (databaseConfig?.conectar) {
-      console.log('⏳ Conectando a la base de datos...');
-      databaseConfig.conectar()
-        .then(() => databaseConfig.configurarIndices?.())
-        .catch((error) => {
-          console.error('❌ Error al inicializar base de datos:', error?.message || error);
-        });
-    }
 
   } catch (error) {
     console.error('❌ Error fatal durante el inicio del servidor:', error);

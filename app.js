@@ -35,18 +35,23 @@ app.get('/api/health', (req, res) => {
 });
 
 const safeMount = (mountPath, modulePath) => {
+  let mountError = null;
   try {
     const router = require(modulePath);
     if (router) {
       app.use(mountPath, router);
       return;
     }
-  } catch (e) {}
+  } catch (e) {
+    mountError = e;
+    console.error(`SAFE MOUNT ERROR (${mountPath} -> ${modulePath}):`, e);
+  }
 
   app.use(mountPath, (req, res) => {
     res.status(503).json({
       success: false,
-      message: 'Servicio no disponible'
+      message: 'Servicio no disponible',
+      ...(ENV === 'development' && mountError ? { error: mountError.message || String(mountError) } : {})
     });
   });
 };
@@ -109,4 +114,3 @@ app.use((error, req, res, next) => {
 });
 
 module.exports = app;
-
