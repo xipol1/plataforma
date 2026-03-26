@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Usuario = require('../models/Usuario');
 const AuthService = require('../services/authService');
@@ -7,6 +6,16 @@ const database = require('../config/database');
 
 const env = process.env.NODE_ENV || 'development';
 const isDev = env !== 'production';
+const logDev = (...args) => {
+  if (isDev) console.log(...args);
+};
+
+const errorPayload = (error) => (isDev ? { error: error?.message } : {});
+const serviceUnavailablePayload = (message, error) => ({
+  success: false,
+  message,
+  ...errorPayload(error)
+});
 
 const normalizeEmail = (value) => {
   if (!value) return '';
@@ -26,54 +35,45 @@ const buildUserResponse = (usuario) => {
 
 const login = async (req, res) => {
   const email = normalizeEmail(req.body?.email);
+  const password = String(req.body?.password || '');
 
   try {
-    console.log('LOGIN: request', { email });
-    console.log('LOGIN INPUT:', email);
+    logDev('LOGIN: request', { email });
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Email y password requeridos' });
+    }
 
-    if (!process.env.MONGODB_URI) {
+    if (!config.database?.uri) {
       console.warn('LOGIN: MONGODB_URI no definida');
-      return res.status(503).json({
-        success: false,
-        message: 'Servicio no disponible',
-        error: 'MONGODB_URI no definida'
-      });
+      return res.status(503).json(serviceUnavailablePayload('Servicio no disponible'));
     }
 
     if (!database.estaConectado()) {
-      console.log('LOGIN: connecting DB...');
+      logDev('LOGIN: connecting DB...');
       const ok = await database.conectar();
       if (!ok) {
         const last = database.getLastConnectionError?.();
-        return res.status(503).json({
-          success: false,
-          message: 'Servicio no disponible',
-          ...(last ? { error: last.message || String(last) } : {})
-        });
+        return res.status(503).json(serviceUnavailablePayload('Servicio no disponible', last));
       }
     }
 
     const user = await Usuario.findOne({ email });
-    console.log('LOGIN: user lookup', { found: Boolean(user) });
+    logDev('LOGIN: user lookup', { found: Boolean(user) });
 
     if (!user) {
       return res.status(401).json({ success: false, message: 'Credenciales inválidas' });
     }
 
-    console.log("USER:", user);
-
-    const password = String(req.body?.password || '');
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("PASSWORD MATCH:", isMatch);
+    logDev('LOGIN: password match', isMatch);
 
     if (!isMatch) {
-      console.log('LOGIN: password mismatch', { userId: user._id.toString() });
+      logDev('LOGIN: password mismatch', { userId: user._id.toString() });
       return res.status(401).json({ success: false, message: 'Credenciales inválidas' });
     }
 
-    console.log("GENERANDO TOKEN...");
     const tokens = await AuthService.generarTokens(user);
-    console.log('LOGIN: tokens generated', { userId: user._id.toString() });
+    logDev('LOGIN: tokens generated', { userId: user._id.toString() });
 
     return res.json({
       success: true,
@@ -83,25 +83,25 @@ const login = async (req, res) => {
         role: user.rol
       },
       token: tokens.tokenAcceso,
-      refreshToken: tokens.tokenRefresco
+      refreshToken: tokens.tokenRefresco,
+      expiresIn: tokens.expiresIn
     });
   } catch (error) {
-    console.error("LOGIN ERROR REAL:", error);
+    console.error('LOGIN ERROR:', error?.message || error);
     return res.status(500).json({
       success: false,
-      message: "Login error",
-      error: error.message
+      message: 'Error interno del servidor',
+      ...errorPayload(error)
     });
   }
 };
 
 const registro = async (req, res) => {
-  console.log('REGISTER BODY:', req.body);
   const email = normalizeEmail(req.body?.email);
+  const password = String(req.body?.password || '');
 
   try {
-    console.log('REGISTER: request', { email });
-    const password = String(req.body?.password || '');
+    logDev('REGISTER: request', { email });
 
     if (!email || !password) {
       return res.status(400).json({
@@ -110,49 +110,44 @@ const registro = async (req, res) => {
       });
     }
 
-    if (!process.env.MONGODB_URI) {
-      console.warn('REGISTER: MONGODB_URI no definida');
-      return res.status(503).json({
+    if (password.length < 8) {
+      return res.status(400).json({
         success: false,
-        message: 'Servicio no disponible',
-        error: 'MONGODB_URI no definida'
+        message: 'La contraseña debe tener al menos 8 caracteres'
       });
     }
 
+    if (!config.database?.uri) {
+      console.warn('REGISTER: MONGODB_URI no definida');
+      return res.status(503).json(serviceUnavailablePayload('Servicio no disponible'));
+    }
+
     if (!database.estaConectado()) {
-      console.log('REGISTER: connecting DB...');
+      logDev('REGISTER: connecting DB...');
       const ok = await database.conectar();
       if (!ok) {
         const last = database.getLastConnectionError?.();
-        return res.status(503).json({
-          success: false,
-          message: 'Servicio no disponible',
-          ...(last ? { error: last.message || String(last) } : {})
-        });
+        return res.status(503).json(serviceUnavailablePayload('Servicio no disponible', last));
       }
     }
 
     const existing = await Usuario.findOne({ email });
-    console.log('REGISTER: user lookup', { found: Boolean(existing) });
+    logDev('REGISTER: user lookup', { found: Boolean(existing) });
     if (existing) {
       return res.status(400).json({ success: false, message: 'El email ya está registrado' });
     }
 
-    console.log('ANTES DE CREAR USUARIO');
-    const hashedPassword = await bcrypt.hash(password.trim(), 10);
+    const bcryptRounds = Number(config.security?.bcryptRounds) || 10;
+    const hashedPassword = await bcrypt.hash(password.trim(), bcryptRounds);
 
     const user = await Usuario.create({
       email: email.trim().toLowerCase(),
       password: hashedPassword
     });
 
-    console.log('USUARIO CREADO:', user);
-    const check = await Usuario.findOne({ email });
-    console.log('VERIFICACIÓN EN DB:', check);
-
-    console.log('REGISTER: user created', { userId: user._id.toString() });
+    logDev('REGISTER: user created', { userId: user._id.toString() });
     const tokens = await AuthService.generarTokens(user);
-    console.log('REGISTER: tokens generated', { userId: user._id.toString() });
+    logDev('REGISTER: tokens generated', { userId: user._id.toString() });
 
     return res.status(201).json({
       success: true,
@@ -162,11 +157,18 @@ const registro = async (req, res) => {
       expiresIn: tokens.expiresIn
     });
   } catch (error) {
+    if (error?.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'El email ya está registrado'
+      });
+    }
+
     console.error('REGISTER ERROR:', error);
     return res.status(500).json({
       success: false,
-      message: 'Error en registro',
-      error: error.message
+      message: 'Error interno del servidor',
+      ...errorPayload(error)
     });
   }
 };

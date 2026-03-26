@@ -42,7 +42,7 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: path.resolve(__dirname, 'dist'),
       emptyOutDir: true,
-      sourcemap: true,
+      sourcemap: mode !== 'production',
       rollupOptions: {
         input: path.resolve(__dirname, 'index.html'),
         output: {
