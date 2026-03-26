@@ -2,11 +2,6 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 /* ─── DATA ──────────────────────────────────────────────── */
-const HERO_CARDS = [
-  { icon: '📱', bg: 'rgba(42,171,238,0.15)', color: 'var(--tg)', platform: 'Telegram', name: 'Tech Audience ES', members: '8.2K miembros', price: '€450/post', cls: 'animate-float' },
-  { icon: '🎮', bg: 'rgba(88,101,242,0.15)', color: 'var(--dc)', platform: 'Discord', name: 'Gaming Community Pro', members: '4.5K miembros', price: '€280/post', cls: 'animate-float-2', marginLeft: '24px' },
-  { icon: '🛒', bg: 'rgba(37,211,102,0.15)', color: 'var(--wa)', platform: 'WhatsApp', name: 'Ecommerce Growth Hub', members: '1.2K miembros', price: '€320/post', cls: 'animate-float-3' },
-]
 
 const TRUST_PLATFORMS = ['✈️ Telegram', '🎮 Discord', '💬 WhatsApp', '▶️ YouTube', '📸 Instagram', '🎵 TikTok', '📡 Twitch', '🔔 Patreon']
 
@@ -61,7 +56,7 @@ export default function LandingPage() {
   const [hoveredSeller, setHoveredSeller] = useState(null)
 
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: "'Inter', sans-serif" }}>
 
       {/* ── ANNOUNCEMENT ── */}
       <div style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg2)', padding: '10px 48px', textAlign: 'center', fontSize: '14px', color: 'var(--muted)' }}>
@@ -69,89 +64,131 @@ export default function LandingPage() {
       </div>
 
       {/* ── HERO ── */}
-      <section style={{ position: 'relative', minHeight: '560px', display: 'flex', alignItems: 'center', padding: '80px 48px', overflow: 'hidden' }}>
-        {/* bg gradients */}
+      <section style={{ position: 'relative', padding: '120px 48px 80px', overflow: 'hidden', background: 'linear-gradient(160deg,#0a2218 0%,#0d2e1e 40%,#0d1a14 100%)' }}>
+        {/* grid overlay */}
         <div style={{
           position: 'absolute', inset: 0, zIndex: 0,
-          background: 'radial-gradient(ellipse 60% 50% at 70% 50%, rgba(29,191,115,0.12) 0%, transparent 60%), radial-gradient(ellipse 40% 60% at 10% 80%, rgba(88,101,242,0.08) 0%, transparent 50%), linear-gradient(135deg,#0d0d0d 0%,#111 100%)',
-        }} />
-        {/* grid */}
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 0,
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px), linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)',
+          backgroundImage: 'linear-gradient(rgba(29,191,115,0.04) 1px,transparent 1px), linear-gradient(90deg,rgba(29,191,115,0.04) 1px,transparent 1px)',
           backgroundSize: '48px 48px',
-          WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 70% 50%,black 0%,transparent 70%)',
-          maskImage: 'radial-gradient(ellipse 80% 80% at 70% 50%,black 0%,transparent 70%)',
         }} />
 
-        {/* left content */}
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: '580px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(29,191,115,0.1)', border: '1px solid rgba(29,191,115,0.25)', borderRadius: '100px', padding: '5px 14px', fontSize: '13px', color: 'var(--green)', marginBottom: '24px', fontWeight: 500 }}>
-            <span className="animate-pulse-dot" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
-            +12.400 canales verificados
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '48px' }}>
+
+          {/* ── LEFT COLUMN ── */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {/* badge */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(29,191,115,0.12)', border: '1px solid rgba(29,191,115,0.3)', borderRadius: '100px', padding: '5px 16px', fontSize: '13px', color: 'var(--green)', marginBottom: '24px', fontWeight: 500 }}>
+              <span className="animate-pulse-dot" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
+              +12.400 canales verificados
+            </div>
+
+            <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: '48px', fontWeight: 700, lineHeight: 1.1, letterSpacing: '-1px', marginBottom: '20px', color: '#fff' }}>
+              Compra espacios publicitarios en <em style={{ fontStyle: 'normal', color: 'var(--green)' }}>comunidades reales</em>
+            </h1>
+
+            <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.65, maxWidth: '500px', marginBottom: '24px', fontWeight: 300, fontFamily: "'Inter', sans-serif" }}>
+              Accede a audiencias activas en canales privados y ejecuta campañas con pago protegido y métricas verificables.
+            </p>
+
+            {/* audience label */}
+            <div style={{ marginBottom: '0' }}>
+              <span style={{ fontSize: '15px', fontWeight: 600, color: '#fff', fontFamily: "'Inter', sans-serif" }}>Encuentra tus audiencias</span>
+              <span style={{ display: 'block', fontSize: '13px', color: 'rgba(255,255,255,0.4)', marginTop: '2px', fontFamily: "'Inter', sans-serif" }}>Segmentadas por intereses, comportamiento y contexto</span>
+            </div>
+
+            {/* search bar */}
+            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.15)', maxWidth: '720px', marginTop: '32px', marginBottom: '16px', height: '60px' }}>
+              <span style={{ display: 'flex', alignItems: 'center', paddingLeft: '20px', color: 'rgba(255,255,255,0.35)', fontSize: '18px', flexShrink: 0 }}>🔍</span>
+              <input
+                type="text"
+                placeholder="Buscar audiencias, canales o temáticas..."
+                style={{ flex: 1, border: 'none', outline: 'none', fontSize: '15px', color: '#fff', padding: '0 16px', background: 'transparent', fontFamily: "'Inter', sans-serif" }}
+              />
+              <a
+                href="#categories"
+                style={{ background: 'var(--green)', color: '#fff', padding: '0 24px', fontWeight: 600, fontSize: '14px', display: 'flex', alignItems: 'center', whiteSpace: 'nowrap', textDecoration: 'none', transition: 'background .2s, transform .15s', flexShrink: 0, fontFamily: "'Inter', sans-serif" }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--green-dark)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--green)'; e.currentTarget.style.transform = 'none' }}
+              >
+                Buscar
+              </a>
+            </div>
+
+            {/* chips */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '36px' }}>
+              {['Telegram', 'Discord', 'Ecommerce', 'Educación', 'Gaming'].map(chip => (
+                <a
+                  key={chip}
+                  href="#categories"
+                  style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '999px', padding: '6px 12px', fontSize: '13px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'background .15s, color .15s', fontFamily: "'Inter', sans-serif" }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(29,191,115,0.15)'; e.currentTarget.style.color = 'var(--green)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)' }}
+                >
+                  {chip}
+                </a>
+              ))}
+            </div>
+
+            {/* CTAs */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '48px' }}>
+              <a
+                href="#categories"
+                style={{ background: 'var(--green)', color: '#fff', padding: '12px 24px', borderRadius: '8px', fontWeight: 600, fontSize: '15px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px', transition: 'background .2s, transform .15s', fontFamily: "'Inter', sans-serif" }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--green-dark)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--green)'; e.currentTarget.style.transform = 'none' }}
+              >
+                Explorar canales
+              </a>
+              <Link
+                to="/auth/register"
+                style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none', transition: 'color .2s, border-color .2s', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '12px 24px', fontFamily: "'Inter', sans-serif" }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)' }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)' }}
+              >
+                Empezar campaña →
+              </Link>
+            </div>
+
+            {/* metrics */}
+            <div style={{ display: 'flex', gap: '40px', paddingTop: '32px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              {[['12.4K', 'Canales verificados'], ['98.7%', 'Satisfacción'], ['340K+', 'Anunciantes']].map(([v, l]) => (
+                <div key={l}>
+                  <strong style={{ fontFamily: "'Sora', sans-serif", fontSize: '26px', fontWeight: 700, display: 'block', color: '#fff' }}>{v}</strong>
+                  <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif" }}>{l}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: 'clamp(38px,5vw,58px)', fontWeight: 800, lineHeight: 1.05, letterSpacing: '-1.5px', marginBottom: '20px' }}>
-            Compra espacios en las mejores <em style={{ fontStyle: 'normal', color: 'var(--green)' }}>comunidades</em> privadas
-          </h1>
-
-          <p style={{ fontSize: '17px', color: 'var(--muted)', lineHeight: 1.7, maxWidth: '460px', marginBottom: '36px', fontWeight: 300 }}>
-            Accede a audiencias activas en canales verificados de Telegram, Discord y más. Pago protegido y métricas reales en cada campaña.
-          </p>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-            <a
-              href="#categories"
-              style={{ background: 'var(--green)', color: '#fff', padding: '14px 28px', borderRadius: '8px', fontWeight: 600, fontSize: '15px', transition: 'background .2s, transform .15s', display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'var(--green-dark)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'var(--green)'; e.currentTarget.style.transform = 'none' }}
-            >
-              🔍 Explorar canales
-            </a>
-            <Link
-              to="/auth/register"
-              style={{ color: 'var(--muted)', fontSize: '14px', display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none', transition: 'color .2s' }}
-              onMouseEnter={e => e.currentTarget.style.color = 'var(--text)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'var(--muted)'}
-            >
-              Empezar campaña →
-            </Link>
-          </div>
-
-          <div style={{ display: 'flex', gap: '40px', marginTop: '48px', paddingTop: '40px', borderTop: '1px solid var(--border)' }}>
-            {[['12.4K', 'Canales verificados'], ['98.7%', 'Satisfacción'], ['340K+', 'Anunciantes']].map(([v, l]) => (
-              <div key={l}>
-                <strong style={{ fontFamily: "'Syne', sans-serif", fontSize: '26px', fontWeight: 800, display: 'block', color: 'var(--text)' }}>{v}</strong>
-                <span style={{ fontSize: '13px', color: 'var(--muted)' }}>{l}</span>
+          {/* ── RIGHT PANEL ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', flexShrink: 0, opacity: 0.9 }}>
+            {[
+              { icon: '📱', bg: 'rgba(42,171,238,0.15)', color: 'var(--tg)', platform: 'Telegram', name: 'Tech Audience ES', members: '8.2K miembros', price: '€450/post', cls: 'animate-float' },
+              { icon: '🎮', bg: 'rgba(88,101,242,0.15)', color: 'var(--dc)', platform: 'Discord', name: 'Gaming Community Pro', members: '4.5K miembros', price: '€280/post', cls: 'animate-float-2', marginLeft: '20px' },
+              { icon: '🛒', bg: 'rgba(37,211,102,0.15)', color: 'var(--wa)', platform: 'WhatsApp', name: 'Ecommerce Growth Hub', members: '1.2K miembros', price: '€320/post', cls: 'animate-float-3' },
+            ].map(card => (
+              <div
+                key={card.name}
+                className={card.cls}
+                style={{
+                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '12px', padding: '14px 18px', width: '210px',
+                  display: 'flex', alignItems: 'center', gap: '12px',
+                  backdropFilter: 'blur(12px)',
+                  ...(card.marginLeft ? { marginLeft: card.marginLeft } : {}),
+                }}
+              >
+                <div style={{ width: '36px', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0, background: card.bg }}>
+                  {card.icon}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <strong style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.85)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: "'Inter', sans-serif" }}>{card.name}</strong>
+                  <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif" }}>{card.platform} · {card.members}</span>
+                </div>
+                <span style={{ color: 'var(--green)', fontWeight: 600, fontSize: '12px', flexShrink: 0, fontFamily: "'Inter', sans-serif" }}>{card.price}</span>
               </div>
             ))}
           </div>
-        </div>
-
-        {/* right floating cards */}
-        <div style={{ position: 'absolute', right: '48px', top: '50%', transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', gap: '16px', zIndex: 1 }}>
-          {HERO_CARDS.map((card, i) => (
-            <div
-              key={card.name}
-              className={card.cls}
-              style={{
-                background: 'var(--surface)', border: '1px solid var(--border)',
-                borderRadius: '12px', padding: '16px 20px', width: '240px',
-                display: 'flex', alignItems: 'center', gap: '14px',
-                backdropFilter: 'blur(8px)',
-                ...(card.marginLeft ? { marginLeft: card.marginLeft } : {}),
-              }}
-            >
-              <div style={{ width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0, background: card.bg, color: card.color }}>
-                {card.icon}
-              </div>
-              <div style={{ flex: 1 }}>
-                <strong style={{ display: 'block', fontSize: '13px', fontWeight: 500 }}>{card.name}</strong>
-                <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{card.platform} · {card.members}</span>
-              </div>
-              <span style={{ color: 'var(--green)', fontWeight: 600, fontSize: '13px', flexShrink: 0 }}>{card.price}</span>
-            </div>
-          ))}
         </div>
       </section>
 

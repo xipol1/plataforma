@@ -2,94 +2,73 @@ import React from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthContext'
 
-const S = {
-  nav: {
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '0 48px', height: '72px',
-    background: 'rgba(13,13,13,0.92)',
-    borderBottom: '1px solid var(--border)',
-    position: 'sticky', top: 0, zIndex: 100,
-    backdropFilter: 'blur(16px)',
-  },
-  logo: {
-    fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: '22px',
-    letterSpacing: '-0.5px', textDecoration: 'none', color: 'var(--text)',
-  },
-  logoAccent: { color: 'var(--green)' },
-  search: {
-    display: 'flex', alignItems: 'center',
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: '8px', overflow: 'hidden', flex: 1, maxWidth: '480px',
-    margin: '0 32px',
-  },
-  searchInput: {
-    flex: 1, background: 'transparent', border: 'none', outline: 'none',
-    padding: '10px 16px', color: 'var(--text)', fontFamily: "'DM Sans', sans-serif",
-    fontSize: '14px',
-  },
-  searchBtn: {
-    background: 'var(--green)', border: 'none', padding: '10px 18px',
-    cursor: 'pointer', color: '#fff', fontSize: '15px', transition: 'background .2s',
-  },
-  links: { display: 'flex', alignItems: 'center', gap: '24px', fontSize: '14px' },
-  linkMuted: { color: 'var(--muted)', transition: 'color .2s', textDecoration: 'none' },
-  btnOutline: {
-    border: '1px solid var(--border)', borderRadius: '6px', padding: '7px 16px',
-    transition: 'border-color .2s, color .2s', color: 'var(--muted)',
-    background: 'transparent', cursor: 'pointer', fontSize: '14px',
-    textDecoration: 'none',
-  },
-  btnGreen: {
-    background: 'var(--green)', borderRadius: '6px', padding: '7px 18px',
-    color: '#fff', fontWeight: 500, transition: 'background .2s',
-    border: 'none', cursor: 'pointer', fontSize: '14px', textDecoration: 'none',
-  },
-}
-
 export default function NavBar({ theme = 'dark', onToggleTheme = () => {} }) {
   const { isAuthenticated, user, logout } = useAuth()
   const navigate = useNavigate()
-
   const onLogout = () => { logout(); navigate('/auth/login') }
 
   return (
-    <header style={S.nav}>
-      <Link to="/" style={S.logo}>
-        Ad<span style={S.logoAccent}>flow</span>
+    <header style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '0 48px', height: '72px',
+      background: '#fff',
+      borderBottom: '1px solid #e4e5e7',
+      position: 'sticky', top: 0, zIndex: 100,
+    }}>
+      {/* Logo */}
+      <Link to="/" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: '22px', letterSpacing: '-0.5px', textDecoration: 'none', color: '#222' }}>
+        Ad<span style={{ color: '#1dbf73' }}>flow</span>
       </Link>
 
-      <div style={S.search}>
-        <input
-          type="text"
-          placeholder="Buscar audiencias, canales o temáticas..."
-          style={S.searchInput}
-          readOnly
-        />
-        <button type="button" style={S.searchBtn}>🔍</button>
-      </div>
+      {/* Secondary search */}
+      {!isAuthenticated && (
+        <div style={{ display: 'flex', alignItems: 'center', background: '#f5f5f5', border: '1px solid #e4e5e7', borderRadius: '8px', height: '38px', width: '240px', opacity: 0.7, overflow: 'hidden' }}>
+          <span style={{ padding: '0 10px', color: '#999', fontSize: '14px', flexShrink: 0 }}>🔍</span>
+          <input type="text" placeholder="Buscar audiencias, canales o temáticas..." style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', fontSize: '13px', color: '#555', fontFamily: "'Inter', sans-serif", minWidth: 0 }} />
+        </div>
+      )}
 
-      <nav style={S.links}>
+      {/* Nav links */}
+      <nav style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
         {isAuthenticated ? (
           <>
-            <NavLink to="/dashboard" style={({ isActive }) => ({ ...S.linkMuted, color: isActive ? 'var(--green)' : 'var(--muted)' })}>
+            <NavLink to="/dashboard" style={({ isActive }) => ({ color: isActive ? '#1dbf73' : '#62646a', textDecoration: 'none', padding: '8px 12px' })}>
               Dashboard
             </NavLink>
-            <span style={{ ...S.linkMuted, fontSize: '13px' }}>{user?.email}</span>
-            <button type="button" onClick={onLogout} style={S.btnOutline}>Salir</button>
+            <span style={{ color: '#62646a', padding: '8px 12px', fontSize: '13px' }}>{user?.email}</span>
+            <button onClick={onLogout} style={{ border: '1px solid #222', borderRadius: '4px', padding: '7px 16px', background: 'transparent', cursor: 'pointer', fontSize: '14px', fontWeight: 500, color: '#222' }}>
+              Salir
+            </button>
           </>
         ) : (
           <>
-            <NavLink to="/#categories" style={S.linkMuted}>Explorar</NavLink>
-            <NavLink to="/auth/register" style={S.linkMuted}>Vender</NavLink>
-            <NavLink to="/auth/login" style={S.btnOutline}>Entrar</NavLink>
-            <NavLink to="/auth/register" style={S.btnGreen}>Registrarse</NavLink>
+            <NavLink to="/#categories" style={{ color: '#62646a', textDecoration: 'none', padding: '8px 12px', transition: 'color .15s' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#222'}
+              onMouseLeave={e => e.currentTarget.style.color = '#62646a'}
+            >
+              Explorar
+            </NavLink>
+            <NavLink to="/auth/register" style={{ color: '#62646a', textDecoration: 'none', padding: '8px 12px', transition: 'color .15s' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#222'}
+              onMouseLeave={e => e.currentTarget.style.color = '#62646a'}
+            >
+              Vender
+            </NavLink>
+            <NavLink to="/auth/login" style={{ color: '#62646a', textDecoration: 'none', padding: '7px 16px', transition: 'color .15s' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#222'}
+              onMouseLeave={e => e.currentTarget.style.color = '#62646a'}
+            >
+              Iniciar sesión
+            </NavLink>
+            <NavLink to="/auth/register" style={{ border: '1px solid #222', borderRadius: '4px', padding: '7px 20px', color: '#222', textDecoration: 'none', fontWeight: 500, transition: 'background .15s, color .15s' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#222'; e.currentTarget.style.color = '#fff' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#222' }}
+            >
+              Únete
+            </NavLink>
           </>
         )}
-        <button
-          type="button"
-          onClick={onToggleTheme}
-          style={{ ...S.btnOutline, padding: '5px 10px', fontSize: '12px' }}
-        >
+        <button onClick={onToggleTheme} style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '16px', padding: '8px', marginLeft: '4px' }}>
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
       </nav>
