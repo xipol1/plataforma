@@ -36,7 +36,9 @@ export function AuthProvider({ children }) {
           localStorage.setItem('user', JSON.stringify(res.user))
           setUser(res.user)
         }
-        if (mounted && res?.success === false) {
+        // Only clear session on explicit auth rejection (401/403), not on network errors
+        const isAuthRejection = res?.success === false && (res?.status === 401 || res?.status === 403)
+        if (mounted && isAuthRejection) {
           localStorage.removeItem('token')
           localStorage.removeItem('refreshToken')
           localStorage.removeItem('user')
