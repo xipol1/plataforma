@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { Navigate, useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../../../auth/AuthContext'
 import AdvertiserDashboard from './AdvertiserDashboard'
 import CreatorDashboard from './CreatorDashboard'
@@ -30,6 +30,12 @@ export default function DashboardPage() {
   const { pathname } = useLocation()
 
   const role = user?.role || user?.rol || 'advertiser'
+
+  // Advertisers get their own full dashboard suite
+  if (role === 'advertiser' || role === 'anunciante') {
+    return <Navigate to="/advertiser" replace />
+  }
+
   const RoleDashboard = dashboardByRole[role] || AdvertiserDashboard
 
   const roleLabel = {
