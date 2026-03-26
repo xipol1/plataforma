@@ -1,91 +1,158 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthContext'
 
-export default function NavBar({ theme = 'dark', onToggleTheme = () => {} }) {
+export default function NavBar() {
   const { isAuthenticated, user, logout } = useAuth()
   const navigate = useNavigate()
-  const isDark = theme === 'dark'
+  const [searchFocused, setSearchFocused] = useState(false)
+  const [isDark, setIsDark] = useState(true)
 
-  const onLogout = () => {
-    logout()
-    navigate('/auth/login')
+  // Init theme from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('adflow-theme')
+    const dark = saved !== 'light'
+    setIsDark(dark)
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+  }, [])
+
+  const toggleTheme = () => {
+    const next = !isDark
+    setIsDark(next)
+    document.documentElement.dataset.theme = next ? 'dark' : 'light'
+    localStorage.setItem('adflow-theme', next ? 'dark' : 'light')
   }
 
+  const onLogout = () => { logout(); navigate('/auth/login') }
+
+  const navBg = isDark ? 'rgba(5,5,5,0.88)' : 'rgba(255,255,255,0.9)'
+  const navBorder = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.08)'
+  const linkColor = isDark ? '#86868b' : '#6e6e73'
+  const linkHover = isDark ? '#f5f5f7' : '#1d1d1f'
+  const searchBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)'
+  const searchBorder = searchFocused
+    ? isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.2)'
+    : isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.1)'
+  const inputColor = isDark ? '#f5f5f7' : '#1d1d1f'
+  const logoColor = isDark ? '#f5f5f7' : '#1d1d1f'
+
   return (
-    <header className={isDark ? 'sticky top-0 z-50 border-b border-white/10 bg-[#0d0d0d]/95 backdrop-blur' : 'sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur'}>
-      <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-4 px-4 py-3">
-        <Link to="/" className={isDark ? "font-['Sora'] text-2xl font-bold tracking-tight text-white" : "font-['Sora'] text-2xl font-bold tracking-tight text-slate-900"}>
-          Ad<span className="text-emerald-500">flow</span>
-        </Link>
-        <div className={isDark ? 'hidden w-full max-w-[360px] items-center overflow-hidden rounded-lg border border-white/10 bg-[#1f1f1f] opacity-70 md:flex' : 'hidden w-full max-w-[360px] items-center overflow-hidden rounded-lg border border-slate-200 bg-slate-100 opacity-70 md:flex'}>
-          <input
-            type="text"
-            readOnly
-            placeholder="Buscar audiencias, canales o temáticas..."
-            className={isDark ? 'h-10 w-full bg-transparent px-4 text-sm text-gray-200 placeholder:text-gray-500 outline-none' : 'h-10 w-full bg-transparent px-4 text-sm text-slate-700 placeholder:text-slate-400 outline-none'}
-          />
-          <button type="button" className="h-10 bg-emerald-500 px-4 text-sm font-semibold text-white">
-            🔍
-          </button>
-        </div>
-        <nav className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={onToggleTheme}
-            className={isDark ? 'rounded-md border border-white/20 px-2.5 py-1 text-xs text-gray-200 hover:border-emerald-400' : 'rounded-md border border-slate-300 px-2.5 py-1 text-xs text-slate-700 hover:border-emerald-500'}
-          >
-            {isDark ? '☀️ Light' : '🌙 Dark'}
-          </button>
-          {isAuthenticated ? (
-            <>
-              <NavLink
-                to="/dashboard"
-                className={({ isActive }) =>
-                  `text-sm ${isActive ? 'text-emerald-400' : isDark ? 'text-gray-300' : 'text-slate-700'}`
-                }
-              >
-                Dashboard
-              </NavLink>
-              <span className={isDark ? 'hidden text-sm text-gray-500 md:inline' : 'hidden text-sm text-slate-500 md:inline'}>{user?.email}</span>
-              <button
-                type="button"
-                onClick={onLogout}
-                className={isDark ? 'rounded-md border border-white/15 px-3 py-1.5 text-sm text-gray-300 hover:border-emerald-500 hover:text-emerald-400' : 'rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:border-emerald-500 hover:text-emerald-600'}
-              >
-                Salir
-              </button>
-            </>
-          ) : (
-            <>
-              <NavLink
-                to="/#categories"
-                className={isDark ? 'hidden text-sm text-gray-400 transition hover:text-gray-100 md:inline' : 'hidden text-sm text-slate-500 transition hover:text-slate-900 md:inline'}
-              >
-                Explorar
-              </NavLink>
-              <NavLink
-                to="/auth/register"
-                className={isDark ? 'hidden text-sm text-gray-400 transition hover:text-gray-100 md:inline' : 'hidden text-sm text-slate-500 transition hover:text-slate-900 md:inline'}
-              >
-                Vender
-              </NavLink>
-              <NavLink
-                to="/auth/login"
-                className={isDark ? 'rounded-md border border-white/15 px-3 py-1.5 text-sm text-gray-300 hover:border-emerald-500 hover:text-emerald-400' : 'rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:border-emerald-500 hover:text-emerald-600'}
-              >
-                Entrar
-              </NavLink>
-              <NavLink
-                to="/auth/register"
-                className="rounded-md bg-emerald-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-600"
-              >
-                Registrarse
-              </NavLink>
-            </>
-          )}
-        </nav>
+    <header style={{
+      display: 'flex', alignItems: 'center',
+      padding: '0 40px', height: '60px',
+      background: navBg,
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      borderBottom: `1px solid ${navBorder}`,
+      position: 'sticky', top: 0, zIndex: 100,
+      gap: '24px',
+      transition: 'background .3s, border-color .3s',
+    }}>
+
+      {/* Logo */}
+      <Link to="/" style={{
+        fontFamily: "'Sora', sans-serif", fontWeight: 700,
+        fontSize: '19px', letterSpacing: '-0.4px',
+        textDecoration: 'none', color: logoColor,
+        flexShrink: 0, transition: 'color .3s',
+      }}>
+        Ad<span style={{ color: '#8b5cf6' }}>flow</span>
+      </Link>
+
+      {/* Nav links + compact search */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        {[['/marketplace', 'Explorar'], ['/auth/register', 'Vender']].map(([to, label]) => (
+          <NavLink key={label} to={to} style={{
+            color: linkColor, textDecoration: 'none',
+            padding: '6px 12px', fontSize: '14px', borderRadius: '6px',
+            transition: 'color .15s, background .15s',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.color = linkHover; e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = linkColor; e.currentTarget.style.background = 'transparent' }}
+          >{label}</NavLink>
+        ))}
+
+        {/* Compact search */}
+        {!isAuthenticated && (
+          <div style={{
+            display: 'flex', alignItems: 'center',
+            background: searchBg,
+            border: `1px solid ${searchBorder}`,
+            borderRadius: '8px', height: '34px', width: '200px',
+            padding: '0 10px', gap: '7px',
+            opacity: 0.7, transition: 'all .2s', marginLeft: '8px',
+          }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+              style={{ color: isDark ? '#48484a' : '#aeaeb2', flexShrink: 0 }}>
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" placeholder="Buscar canales..."
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              style={{
+                flex: 1, background: 'transparent', border: 'none', outline: 'none',
+                fontSize: '13px', color: inputColor,
+                fontFamily: "'Inter', sans-serif", minWidth: 0,
+              }}
+            />
+          </div>
+        )}
       </div>
+
+      {/* Spacer */}
+      <div style={{ flex: 1 }} />
+
+      {/* Theme toggle + auth */}
+      <nav style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        {/* Day/night toggle */}
+        <button onClick={toggleTheme} title={isDark ? 'Modo claro' : 'Modo oscuro'} style={{
+          width: '34px', height: '34px', borderRadius: '8px',
+          background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+          border: `1px solid ${isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'}`,
+          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '15px', marginRight: '8px',
+          transition: 'background .2s, border-color .2s',
+        }}>
+          {isDark ? '☀️' : '🌙'}
+        </button>
+
+        {isAuthenticated ? (
+          <>
+            <NavLink to="/dashboard"
+              style={({ isActive }) => ({ color: isActive ? '#8b5cf6' : linkColor, textDecoration: 'none', padding: '6px 12px', fontSize: '14px' })}>
+              Dashboard
+            </NavLink>
+            <span style={{ color: linkColor, padding: '6px 12px', fontSize: '13px' }}>{user?.email}</span>
+            <button onClick={onLogout} style={{
+              border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)'}`,
+              borderRadius: '6px', padding: '6px 14px',
+              background: 'transparent', cursor: 'pointer',
+              fontSize: '13px', fontWeight: 500, color: linkColor,
+              transition: 'color .15s, border-color .15s',
+            }}>Salir</button>
+          </>
+        ) : (
+          <>
+            <NavLink to="/auth/login" style={{
+              color: linkColor, textDecoration: 'none',
+              padding: '6px 14px', fontSize: '14px', borderRadius: '6px',
+              transition: 'color .15s',
+            }}
+              onMouseEnter={e => e.currentTarget.style.color = linkHover}
+              onMouseLeave={e => e.currentTarget.style.color = linkColor}
+            >Iniciar sesión</NavLink>
+            <NavLink to="/auth/register" style={{
+              background: '#8b5cf6', color: '#fff',
+              textDecoration: 'none', padding: '7px 16px',
+              borderRadius: '7px', fontSize: '14px', fontWeight: 600,
+              transition: 'background .15s, transform .15s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#7c3aed'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#8b5cf6'; e.currentTarget.style.transform = 'none' }}
+            >Registrarse</NavLink>
+          </>
+        )}
+      </nav>
     </header>
   )
 }

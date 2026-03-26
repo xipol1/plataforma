@@ -2,72 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Variables CSS para colores personalizados */
+/* ─── Design tokens — DARK (default) ────────────────────── */
 :root {
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
+  --green:      #8b5cf6;
+  --green-dark: #7c3aed;
+  --green-glow: rgba(139,92,246,0.15);
+  --bg:         #050505;
+  --bg2:        #0f0f0f;
+  --bg3:        #161616;
+  --surface:    #161616;
+  --surface2:   #1e1e1e;
+  --border:     rgba(255,255,255,0.07);
+  --border-med: rgba(255,255,255,0.12);
+  --text:       #f5f5f7;
+  --muted:      #86868b;
+  --muted2:     #48484a;
+  --tg: #2aabee;
+  --dc: #5865f2;
+  --wa: #25d366;
+  --yt: #ef4444;
 }
 
-/* Clases personalizadas para colores primarios */
-@layer components {
-  .text-primary-50 { color: var(--color-primary-50); }
-  .text-primary-100 { color: var(--color-primary-100); }
-  .text-primary-200 { color: var(--color-primary-200); }
-  .text-primary-300 { color: var(--color-primary-300); }
-  .text-primary-400 { color: var(--color-primary-400); }
-  .text-primary-500 { color: var(--color-primary-500); }
-  .text-primary-600 { color: var(--color-primary-600); }
-  .text-primary-700 { color: var(--color-primary-700); }
-  .text-primary-800 { color: var(--color-primary-800); }
-  .text-primary-900 { color: var(--color-primary-900); }
+/* ─── Design tokens — LIGHT ─────────────────────────────── */
+[data-theme="light"] {
+  --bg:         #ffffff;
+  --bg2:        #f5f5f7;
+  --bg3:        #ebebeb;
+  --surface:    #f0f0f2;
+  --surface2:   #e5e5ea;
+  --border:     rgba(0,0,0,0.08);
+  --border-med: rgba(0,0,0,0.14);
+  --text:       #1d1d1f;
+  --muted:      #6e6e73;
+  --muted2:     #aeaeb2;
+}
 
-  .bg-primary-50 { background-color: var(--color-primary-50); }
-  .bg-primary-100 { background-color: var(--color-primary-100); }
-  .bg-primary-200 { background-color: var(--color-primary-200); }
-  .bg-primary-300 { background-color: var(--color-primary-300); }
-  .bg-primary-400 { background-color: var(--color-primary-400); }
-  .bg-primary-500 { background-color: var(--color-primary-500); }
-  .bg-primary-600 { background-color: var(--color-primary-600); }
-  .bg-primary-700 { background-color: var(--color-primary-700); }
-  .bg-primary-800 { background-color: var(--color-primary-800); }
-  .bg-primary-900 { background-color: var(--color-primary-900); }
+/* ─── Base ──────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
 
-  .border-primary-50 { border-color: var(--color-primary-50); }
-  .border-primary-100 { border-color: var(--color-primary-100); }
-  .border-primary-200 { border-color: var(--color-primary-200); }
-  .border-primary-300 { border-color: var(--color-primary-300); }
-  .border-primary-400 { border-color: var(--color-primary-400); }
-  .border-primary-500 { border-color: var(--color-primary-500); }
-  .border-primary-600 { border-color: var(--color-primary-600); }
-  .border-primary-700 { border-color: var(--color-primary-700); }
-  .border-primary-800 { border-color: var(--color-primary-800); }
-  .border-primary-900 { border-color: var(--color-primary-900); }
-
-  .hover\:bg-primary-50:hover { background-color: var(--color-primary-50); }
-  .hover\:bg-primary-100:hover { background-color: var(--color-primary-100); }
-  .hover\:bg-primary-200:hover { background-color: var(--color-primary-200); }
-  .hover\:bg-primary-300:hover { background-color: var(--color-primary-300); }
-  .hover\:bg-primary-400:hover { background-color: var(--color-primary-400); }
-  .hover\:bg-primary-500:hover { background-color: var(--color-primary-500); }
-  .hover\:bg-primary-600:hover { background-color: var(--color-primary-600); }
-  .hover\:bg-primary-700:hover { background-color: var(--color-primary-700); }
-  .hover\:bg-primary-800:hover { background-color: var(--color-primary-800); }
-  .hover\:bg-primary-900:hover { background-color: var(--color-primary-900); }
-
-  .focus\:ring-primary-500:focus { 
-    --tw-ring-color: var(--color-primary-500);
+  html {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    scroll-behavior: smooth;
   }
-  .focus\:border-primary-500:focus { 
-    border-color: var(--color-primary-500);
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
   }
+
+  a { text-decoration: none; color: inherit; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted2); }
 }
 
 /* Estilos base personalizados */
@@ -99,41 +90,50 @@
   }
 }
 
-/* Utilidades personalizadas */
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+@keyframes floatCard {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
 
-  .scrollbar-none {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+/* ─── Custom utility classes (outside @layer to avoid JIT purge) ── */
+.animate-pulse-dot { animation: pulse 2s infinite; }
+.animate-float  { animation: floatCard 4s ease-in-out infinite; }
+.animate-float-2 { animation: floatCard 4s ease-in-out infinite; animation-delay: -2s; }
+.animate-float-3 { animation: floatCard 4s ease-in-out infinite; animation-delay: -1s; }
+.text-balance { text-wrap: balance; }
 
-  .scrollbar-none::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .animation-fade-in {
-    animation: fadeIn 0.3s ease-in-out;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  .shadow-soft {
-    box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
-  }
-  
-  .gradient-primary {
-    background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-800) 100%);
-  }
+/* Marquee carousel */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+.marquee-track:hover { animation-play-state: paused; }
+
+/* Scroll fade-up */
+.fade-up {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* ─── Legacy primary color utilities (keep for other pages) ── */
+@layer components {
+  .text-primary-500 { color: #3b82f6; }
+  .bg-primary-500 { background-color: #3b82f6; }
+  .border-primary-500 { border-color: #3b82f6; }
 }
