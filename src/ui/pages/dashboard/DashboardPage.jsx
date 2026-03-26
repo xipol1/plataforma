@@ -31,9 +31,13 @@ export default function DashboardPage() {
 
   const role = user?.role || user?.rol || 'advertiser'
 
-  // Advertisers get their own full dashboard suite
+  // Advertisers → full advertiser suite
   if (role === 'advertiser' || role === 'anunciante') {
     return <Navigate to="/advertiser" replace />
+  }
+  // Creators → full creator suite
+  if (role === 'creator' || role === 'creador') {
+    return <Navigate to="/creator" replace />
   }
 
   const RoleDashboard = dashboardByRole[role] || AdvertiserDashboard

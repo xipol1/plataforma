@@ -18,6 +18,14 @@ import AdsPage          from '../ui/pages/dashboard/advertiser/AdsPage'
 import FinancesPage     from '../ui/pages/dashboard/advertiser/FinancesPage'
 import SettingsPage     from '../ui/pages/dashboard/advertiser/SettingsPage'
 
+// Creator dashboard suite
+import CreatorLayout        from '../ui/pages/dashboard/creator/CreatorLayout'
+import CreatorOverviewPage  from '../ui/pages/dashboard/creator/CreatorOverviewPage'
+import CreatorChannelsPage  from '../ui/pages/dashboard/creator/CreatorChannelsPage'
+import CreatorRequestsPage  from '../ui/pages/dashboard/creator/CreatorRequestsPage'
+import CreatorEarningsPage  from '../ui/pages/dashboard/creator/CreatorEarningsPage'
+import CreatorSettingsPage  from '../ui/pages/dashboard/creator/CreatorSettingsPage'
+
 export default function AppRoutes() {
   const { isAuthenticated } = useAuth()
 
@@ -66,6 +74,22 @@ export default function AppRoutes() {
         <Route path="ads"      element={<AdsPage />} />
         <Route path="finances" element={<FinancesPage />} />
         <Route path="settings" element={<SettingsPage />} />
+      </Route>
+
+      {/* ── Creator dashboard — own sidebar layout ── */}
+      <Route
+        path="/creator"
+        element={
+          <ProtectedRoute>
+            <CreatorLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index         element={<CreatorOverviewPage />} />
+        <Route path="channels" element={<CreatorChannelsPage />} />
+        <Route path="requests" element={<CreatorRequestsPage />} />
+        <Route path="earnings" element={<CreatorEarningsPage />} />
+        <Route path="settings" element={<CreatorSettingsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
