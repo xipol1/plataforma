@@ -14,8 +14,10 @@ const validacionesRegistro = [
     .normalizeEmail()
     .withMessage('Email inválido'),
   body('password')
-    .isLength({ min: 6 })
-    .withMessage('La contraseña debe tener al menos 6 caracteres'),
+    .isLength({ min: 8 })
+    .withMessage('La contraseña debe tener al menos 8 caracteres')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
+    .withMessage('La contraseña debe incluir mayúscula, minúscula y número'),
   body('nombre')
     .optional()
     .trim()
@@ -105,8 +107,10 @@ const validacionesNuevaPassword = [
     .isLength({ min: 32 })
     .withMessage('Token inválido'),
   body('password')
-    .isLength({ min: 6 })
-    .withMessage('La contraseña debe tener al menos 6 caracteres')
+    .isLength({ min: 8 })
+    .withMessage('La contraseña debe tener al menos 8 caracteres')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
+    .withMessage('La contraseña debe incluir mayúscula, minúscula y número')
 ];
 
 const validacionesActualizarPerfil = [
@@ -161,7 +165,7 @@ const validacionesActualizarPerfil = [
 // Rate limiting específico para autenticación
 const limitarLogin = limitarIntentos({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 1000000,
+  max: 10,
   message: {
     success: false,
     message: 'Demasiados intentos de login. Intenta de nuevo en 15 minutos.'
@@ -172,7 +176,7 @@ const limitarLogin = limitarIntentos({
 
 const limitarRegistro = limitarIntentos({
   windowMs: 60 * 60 * 1000, // 1 hora
-  max: 1000000,
+  max: 5,
   message: {
     success: false,
     message: 'Demasiados registros desde esta IP. Intenta de nuevo en 1 hora.'
@@ -181,7 +185,7 @@ const limitarRegistro = limitarIntentos({
 
 const limitarRestablecimiento = limitarIntentos({
   windowMs: 60 * 60 * 1000, // 1 hora
-  max: 1000000,
+  max: 5,
   message: {
     success: false,
     message: 'Demasiadas solicitudes de restablecimiento. Intenta de nuevo en 1 hora.'

@@ -367,6 +367,42 @@ class ApiService {
     });
   }
 
+  /**
+   * Obtener campañas del usuario autenticado
+   */
+  async getMyCampaigns() {
+    return this.request('/campaigns');
+  }
+
+  /**
+   * Crear campaña
+   */
+  async createCampaign(payload) {
+    return this.request('/campaigns', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getCampaignById(id) {
+    return this.request(`/campaigns/${id}`);
+  }
+
+  async getCampaignTracking(id) {
+    return this.request(`/campaigns/${id}/tracking`);
+  }
+
+  async publishCampaign(id) {
+    return this.request(`/campaigns/${id}/publish`, {
+      method: 'POST',
+    });
+  }
+
+  async trackCampaignClick(id, destino = '') {
+    const query = destino ? `?destino=${encodeURIComponent(destino)}` : '';
+    return this.request(`/campaigns/${id}/click${query}`, { auth: false });
+  }
+
   // ==========================================
   // MÉTODOS DE LISTAS DE CANALES
   // ==========================================
@@ -433,6 +469,13 @@ class ApiService {
     return this.request('/transacciones', {
       method: 'POST',
       body: JSON.stringify(transactionData),
+    });
+  }
+
+  async createStripeCheckout(campaignId) {
+    return this.request('/transacciones/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ campaignId }),
     });
   }
 
