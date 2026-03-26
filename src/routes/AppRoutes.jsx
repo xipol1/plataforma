@@ -6,6 +6,7 @@ import LoginPage from '../ui/pages/auth/LoginPage'
 import RegisterPage from '../ui/pages/auth/RegisterPage'
 import LandingPage from '../ui/pages/landing/LandingPage'
 import DashboardPage from '../ui/pages/dashboard/DashboardPage'
+import MarketplacePage from '../ui/pages/marketplace/MarketplacePage'
 import { useAuth } from '../auth/AuthContext'
 
 export default function AppRoutes() {
@@ -15,6 +16,7 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/" element={<AppLayout />}>
         <Route index element={<LandingPage />} />
+        <Route path="marketplace" element={<MarketplacePage />} />
         <Route
           path="auth"
           element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/auth/login" replace />}

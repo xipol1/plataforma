@@ -140,9 +140,14 @@ const registro = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password.trim(), 10);
 
+    const nombre = String(req.body?.nombre || req.body?.name || '').trim()
+    const rol    = ['creator', 'advertiser'].includes(req.body?.role) ? req.body.role : 'advertiser'
+
     const user = await Usuario.create({
       email: email.trim().toLowerCase(),
-      password: hashedPassword
+      password: hashedPassword,
+      nombre,
+      rol,
     });
 
     logDev('REGISTER: user created', { userId: user._id.toString() });
@@ -166,6 +171,40 @@ const registro = async (req, res) => {
   }
 };
 
+const verificarToken = async (req, res) => {
+  try {
+    const authHeader = req.headers['authorization'] || ''
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : ''
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Token requerido' })
+    }
+
+    let decoded
+    try {
+      decoded = AuthService.verificarTokenAcceso(token)
+    } catch {
+      return res.status(401).json({ success: false, message: 'Token inválido o expirado' })
+    }
+
+    if (!database.estaConectado()) {
+      await database.conectar()
+    }
+
+    const user = await Usuario.findById(decoded.id).select('-password -sesiones')
+    if (!user || !user.activo) {
+      return res.status(401).json({ success: false, message: 'Usuario no encontrado' })
+    }
+
+    return res.json({
+      success: true,
+      user: buildUserResponse(user)
+    })
+  } catch (error) {
+    console.error('VERIFY TOKEN ERROR:', error?.message)
+    return res.status(500).json({ success: false, message: 'Error interno' })
+  }
+}
+
 const notImplemented = (req, res) => {
   res.status(501).json({ success: false, message: 'No implementado' });
 };
@@ -173,6 +212,7 @@ const notImplemented = (req, res) => {
 module.exports = {
   login,
   registro,
+  verificarToken,
   refreshToken: notImplemented,
   verificarEmail: notImplemented,
   solicitarRestablecimiento: notImplemented,
@@ -182,6 +222,5 @@ module.exports = {
   actualizarPerfil: notImplemented,
   cambiarPassword: notImplemented,
   desactivarCuenta: notImplemented,
-  verificarToken: notImplemented,
   obtenerEstadisticas: notImplemented
 };
