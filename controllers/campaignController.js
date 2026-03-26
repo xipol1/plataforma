@@ -1,249 +1,175 @@
-const Campaign = require('../models/Campaign');
-const Canal = require('../models/Canal');
-const Transaccion = require('../models/Transaccion');
-const { ensureDb } = require('../lib/ensureDb');
+﻿const { readCollection, writeCollection } = require('../services/persistentStore');
 
-const httpError = (status, message) => {
-  const err = new Error(message);
-  err.status = status;
-  return err;
+const demoChannels = [
+  { id: 'demo-ch-crypto-alpha-signals', nombre: 'Crypto Alpha Signals', plataforma: 'telegram', engagement: 2.9, ctr: 3.2, precio: 450 },
+  { id: 'demo-ch-gaming-deals-hub', nombre: 'Gaming Deals Hub', plataforma: 'discord', engagement: 4.1, ctr: 3.9, precio: 650 },
+  { id: 'demo-ch-ai-insider-pro', nombre: 'AI Insider Pro', plataforma: 'telegram', engagement: 3.2, ctr: 3.4, precio: 1200 },
+  { id: 'demo-ch-startup-weekly', nombre: 'Startup Weekly', plataforma: 'newsletter', engagement: 3.6, ctr: 2.7, precio: 220 }
+];
+
+const COLLECTION = 'campaigns';
+const TRANSITIONS = {
+  draft: ['paid', 'cancelled'],
+  paid: ['published', 'cancelled'],
+  published: ['completed', 'cancelled'],
+  completed: [],
+  cancelled: []
 };
 
-const canAccessCampaign = async (campaign, userId) => {
-  if (!campaign || !userId) return false;
-  if (campaign.advertiser?.toString?.() === String(userId)) return true;
-  const isOwner = await Canal.exists({ _id: campaign.channel, propietario: userId });
-  return Boolean(isOwner);
+const normalizeBudget = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : 0;
 };
 
-const createCampaign = async (req, res, next) => {
-  try {
-    const ok = await ensureDb();
-    if (!ok) return res.status(503).json({ success: false, message: 'Servicio no disponible' });
+const readCampaigns = () => readCollection(COLLECTION, []);
+const saveCampaigns = (items) => writeCollection(COLLECTION, items);
+const userIdOf = (req) => req.usuario?.id || req.usuario?._id || req.usuario?.sub;
 
-    const userId = req.usuario?.id;
-    if (!userId) return next(httpError(401, 'No autorizado'));
-
-    const channelId = String(req.body?.channel || '').trim();
-    const content = String(req.body?.content || '').trim();
-    const targetUrl = String(req.body?.targetUrl || '').trim();
-    const price = Number(req.body?.price);
-
-    if (!channelId || !content || !targetUrl || !Number.isFinite(price)) {
-      return next(httpError(400, 'Datos inválidos'));
-    }
-
-    const canal = await Canal.findById(channelId).select('_id').lean();
-    if (!canal) return next(httpError(404, 'Canal no encontrado'));
-
-    const campaign = await Campaign.create({
-      advertiser: userId,
-      channel: canal._id,
-      content,
-      targetUrl,
-      price,
-      status: 'DRAFT',
-      createdAt: new Date()
-    });
-
-    await Transaccion.create({
-      campaign: campaign._id,
-      advertiser: userId,
-      amount: price,
-      status: 'pending'
-    });
-
-    return res.status(201).json({ success: true, data: campaign });
-  } catch (error) {
-    next(error);
+const ensureAdvertiser = (req, res) => {
+  const role = req.usuario?.rol || req.usuario?.role;
+  if (role !== 'advertiser' && role !== 'admin') {
+    res.status(403).json({ success: false, message: 'Solo anunciantes o admins pueden gestionar campañas' });
+    return false;
   }
+  return true;
 };
 
-const getCampaigns = async (req, res, next) => {
-  try {
-    const ok = await ensureDb();
-    if (!ok) return res.status(503).json({ success: false, message: 'Servicio no disponible' });
-
-    const userId = req.usuario?.id;
-    if (!userId) return next(httpError(401, 'No autorizado'));
-
-    const isAdvertiser = req.usuario?.rol === 'advertiser';
-
-    const ownedChannels = await Canal.find({ propietario: userId }).select('_id').lean();
-    const channelIds = ownedChannels.map((c) => c._id);
-
-    const or = [];
-    if (isAdvertiser) or.push({ advertiser: userId });
-    if (channelIds.length > 0) or.push({ channel: { $in: channelIds } });
-
-    if (or.length === 0) return res.json({ success: true, data: { items: [] } });
-
-    const items = await Campaign.find({ $or: or }).sort({ createdAt: -1 }).lean();
-    return res.json({ success: true, data: { items } });
-  } catch (error) {
-    next(error);
-  }
+const buildCampaign = (payload, userId) => {
+  const now = new Date();
+  const presupuesto = normalizeBudget(payload.presupuesto || payload.price || payload.budget);
+  return {
+    id: `cmp-${now.getTime()}-${Math.floor(Math.random() * 10000)}`,
+    ownerId: userId,
+    titulo: String(payload.titulo || payload.title || 'Campaña sin título').trim(),
+    descripcion: String(payload.descripcion || payload.content || '').trim(),
+    presupuesto,
+    targetUrl: String(payload.targetUrl || '').trim(),
+    channel: String(payload.channel || '').trim(),
+    estado: 'draft',
+    createdAt: now.toISOString(),
+    canales: Array.isArray(payload.canales) ? payload.canales : []
+  };
 };
 
-const getCampaignById = async (req, res, next) => {
-  try {
-    const ok = await ensureDb();
-    if (!ok) return res.status(503).json({ success: false, message: 'Servicio no disponible' });
-
-    const userId = req.usuario?.id;
-    if (!userId) return next(httpError(401, 'No autorizado'));
-
-    const campaign = await Campaign.findById(req.params.id).lean();
-    if (!campaign) return next(httpError(404, 'Campaign no encontrada'));
-
-    const allowed = await canAccessCampaign(campaign, userId);
-    if (!allowed) return next(httpError(403, 'No autorizado'));
-
-    return res.json({ success: true, data: campaign });
-  } catch (error) {
-    next(error);
-  }
+const getCampaigns = async (req, res) => {
+  if (!ensureAdvertiser(req, res)) return;
+  const userId = userIdOf(req);
+  const campaigns = readCampaigns();
+  const data = campaigns.filter((item) => item.ownerId === userId);
+  return res.json({ success: true, data });
 };
 
-const updateCampaignStatus = async (req, res, next) => {
-  try {
-    const ok = await ensureDb();
-    if (!ok) return res.status(503).json({ success: false, message: 'Servicio no disponible' });
-
-    const userId = req.usuario?.id;
-    if (!userId) return next(httpError(401, 'No autorizado'));
-
-    const desiredStatus = String(req.body?.status || '').trim().toUpperCase();
-
-    const campaign = await Campaign.findById(req.params.id);
-    if (!campaign) return next(httpError(404, 'Campaign no encontrada'));
-
-    const currentStatus = String(campaign.status || '').toUpperCase();
-
-    if (desiredStatus === currentStatus) return res.json({ success: true, data: campaign });
-
-    const isAdvertiser = campaign.advertiser?.toString?.() === String(userId);
-    const isChannelOwner = await Canal.exists({ _id: campaign.channel, propietario: userId });
-
-    const isValidTransition =
-      (currentStatus === 'DRAFT' && desiredStatus === 'PAID' && isAdvertiser) ||
-      (currentStatus === 'PAID' && desiredStatus === 'PUBLISHED' && Boolean(isChannelOwner)) ||
-      (currentStatus === 'PUBLISHED' && desiredStatus === 'COMPLETED') ||
-      (desiredStatus === 'CANCELLED' && isAdvertiser);
-
-    if (!isValidTransition) return next(httpError(400, 'Transición de estado inválida'));
-
-    campaign.status = desiredStatus;
-
-    if (desiredStatus === 'PUBLISHED' && !campaign.publishedAt) campaign.publishedAt = new Date();
-    if (desiredStatus === 'COMPLETED' && !campaign.completedAt) campaign.completedAt = new Date();
-
-    await campaign.save();
-    return res.json({ success: true, data: campaign });
-  } catch (error) {
-    next(error);
-  }
+const getCampaignById = async (req, res) => {
+  if (!ensureAdvertiser(req, res)) return;
+  const userId = userIdOf(req);
+  const campaigns = readCampaigns();
+  const item = campaigns.find((campaign) => campaign.id === req.params.id);
+  if (!item) return res.status(404).json({ success: false, message: 'Campaña no encontrada' });
+  if (item.ownerId !== userId) return res.status(403).json({ success: false, message: 'No autorizado' });
+  return res.json({ success: true, data: item });
 };
 
-// POST /api/campaigns/:id/pay — DRAFT → PAID (simulated payment)
-const payCampaign = async (req, res, next) => {
-  try {
-    const ok = await ensureDb();
-    if (!ok) return res.status(503).json({ success: false, message: 'Servicio no disponible' });
-
-    const userId = req.usuario?.id;
-    if (!userId) return next(httpError(401, 'No autorizado'));
-
-    const campaign = await Campaign.findById(req.params.id);
-    if (!campaign) return next(httpError(404, 'Campaign no encontrada'));
-
-    if (campaign.advertiser?.toString?.() !== String(userId)) {
-      return next(httpError(403, 'No autorizado'));
-    }
-
-    if (campaign.status !== 'DRAFT') {
-      return next(httpError(400, `No se puede pagar una campaña en estado ${campaign.status}`));
-    }
-
-    const transaccion = await Transaccion.findOneAndUpdate(
-      { campaign: campaign._id, status: 'pending' },
-      { status: 'paid', paidAt: new Date() },
-      { new: true }
-    );
-
-    campaign.status = 'PAID';
-    await campaign.save();
-
-    return res.json({ success: true, data: { campaign, transaccion } });
-  } catch (error) {
-    next(error);
+const createCampaign = async (req, res) => {
+  if (!ensureAdvertiser(req, res)) return;
+  const userId = userIdOf(req);
+  const campaign = buildCampaign(req.body || {}, userId);
+  if (campaign.presupuesto <= 0) {
+    return res.status(400).json({ success: false, message: 'Presupuesto inválido' });
   }
+  const campaigns = readCampaigns();
+  campaigns.push(campaign);
+  saveCampaigns(campaigns);
+  return res.status(201).json({ success: true, data: campaign });
 };
 
-// POST /api/campaigns/:id/confirm — PAID → PUBLISHED (channel owner confirms)
-const confirmCampaign = async (req, res, next) => {
-  try {
-    const ok = await ensureDb();
-    if (!ok) return res.status(503).json({ success: false, message: 'Servicio no disponible' });
-
-    const userId = req.usuario?.id;
-    if (!userId) return next(httpError(401, 'No autorizado'));
-
-    const campaign = await Campaign.findById(req.params.id);
-    if (!campaign) return next(httpError(404, 'Campaign no encontrada'));
-
-    const isChannelOwner = await Canal.exists({ _id: campaign.channel, propietario: userId });
-    if (!isChannelOwner) return next(httpError(403, 'Solo el dueño del canal puede confirmar'));
-
-    if (campaign.status !== 'PAID') {
-      return next(httpError(400, `No se puede confirmar una campaña en estado ${campaign.status}`));
-    }
-
-    campaign.status = 'PUBLISHED';
-    campaign.publishedAt = new Date();
-    await campaign.save();
-
-    return res.json({ success: true, data: campaign });
-  } catch (error) {
-    next(error);
+const updateCampaignStatus = async (req, res) => {
+  if (!ensureAdvertiser(req, res)) return;
+  const userId = userIdOf(req);
+  const nextStatus = String(req.body?.status || '').trim().toLowerCase();
+  const campaigns = readCampaigns();
+  const index = campaigns.findIndex((campaign) => campaign.id === req.params.id);
+  if (index === -1) return res.status(404).json({ success: false, message: 'Campaña no encontrada' });
+  if (campaigns[index].ownerId !== userId) return res.status(403).json({ success: false, message: 'No autorizado' });
+  const currentStatus = String(campaigns[index].estado || 'draft').toLowerCase();
+  if (!TRANSITIONS[currentStatus]?.includes(nextStatus)) {
+    return res.status(400).json({ success: false, message: 'Transición de estado inválida' });
   }
+  campaigns[index].estado = nextStatus;
+  campaigns[index].updatedAt = new Date().toISOString();
+  saveCampaigns(campaigns);
+  return res.json({ success: true, data: campaigns[index] });
 };
 
-// POST /api/campaigns/:id/complete — PUBLISHED → COMPLETED
-const completeCampaign = async (req, res, next) => {
-  try {
-    const ok = await ensureDb();
-    if (!ok) return res.status(503).json({ success: false, message: 'Servicio no disponible' });
+const payCampaign = async (req, res) => {
+  req.body = { ...(req.body || {}), status: 'paid' };
+  return updateCampaignStatus(req, res);
+};
 
-    const userId = req.usuario?.id;
-    if (!userId) return next(httpError(401, 'No autorizado'));
+const confirmCampaign = async (req, res) => {
+  req.body = { ...(req.body || {}), status: 'published' };
+  return updateCampaignStatus(req, res);
+};
 
-    const campaign = await Campaign.findById(req.params.id);
-    if (!campaign) return next(httpError(404, 'Campaign no encontrada'));
+const completeCampaign = async (req, res) => {
+  req.body = { ...(req.body || {}), status: 'completed' };
+  return updateCampaignStatus(req, res);
+};
 
-    const allowed = await canAccessCampaign(campaign, userId);
-    if (!allowed) return next(httpError(403, 'No autorizado'));
-
-    if (campaign.status !== 'PUBLISHED') {
-      return next(httpError(400, `No se puede completar una campaña en estado ${campaign.status}`));
-    }
-
-    campaign.status = 'COMPLETED';
-    campaign.completedAt = new Date();
-    await campaign.save();
-
-    return res.json({ success: true, data: campaign });
-  } catch (error) {
-    next(error);
+const optimize = async (req, res) => {
+  if (!ensureAdvertiser(req, res)) return;
+  const budget = normalizeBudget(req.body?.presupuesto || req.body?.budget || req.body?.price);
+  if (budget <= 0) {
+    return res.status(400).json({ success: false, message: 'Presupuesto inválido para optimización' });
   }
+  const orderedChannels = demoChannels
+    .slice()
+    .sort((a, b) => (b.engagement || 0) - (a.engagement || 0))
+    .slice(0, 5)
+    .map((channel) => ({
+      id: channel.id,
+      nombre: channel.nombre,
+      plataforma: channel.plataforma,
+      precio: channel.precio,
+      score: Number((channel.engagement || 0) * (channel.ctr || 0)).toFixed(2)
+    }));
+  return res.json({ success: true, data: { presupuesto: budget, recomendados: orderedChannels } });
+};
+
+const launchAutoCampaign = async (req, res) => {
+  if (!ensureAdvertiser(req, res)) return;
+  const userId = userIdOf(req);
+  const budget = normalizeBudget(req.body?.presupuesto || req.body?.budget);
+  if (budget <= 0) {
+    return res.status(400).json({ success: false, message: 'Presupuesto inválido para lanzamiento' });
+  }
+  const optimizedChannels = demoChannels
+    .slice()
+    .sort((a, b) => (b.engagement || 0) - (a.engagement || 0))
+    .slice(0, 3);
+  const newCampaign = {
+    id: `cmp-auto-${Date.now()}`,
+    ownerId: userId,
+    titulo: String(req.body?.titulo || 'Campaña automática').trim(),
+    descripcion: String(req.body?.descripcion || '').trim(),
+    presupuesto: budget,
+    estado: 'published',
+    createdAt: new Date().toISOString(),
+    canales: optimizedChannels.map((channel) => channel.id)
+  };
+  const campaigns = readCampaigns();
+  campaigns.push(newCampaign);
+  saveCampaigns(campaigns);
+  return res.status(201).json({ success: true, data: { campaign: newCampaign, canalesSeleccionados: optimizedChannels } });
 };
 
 module.exports = {
-  createCampaign,
   getCampaigns,
   getCampaignById,
+  createCampaign,
   updateCampaignStatus,
   payCampaign,
   confirmCampaign,
-  completeCampaign
+  completeCampaign,
+  optimize,
+  launchAutoCampaign
 };

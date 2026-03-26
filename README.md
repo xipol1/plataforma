@@ -1,8 +1,8 @@
 # Adflow · Plataforma de monetización de canales
 
-Estado actual del proyecto: **MVP en construcción**.
+Estado actual del proyecto: **MVP en evolución**.
 
-Este repositorio contiene backend (Node/Express) + frontend (React/Vite) para un marketplace de canales (Telegram, Discord, WhatsApp, etc.).
+Repositorio con backend (Node/Express) + frontend (React/Vite) para marketplace de espacios en canales y comunidades.
 
 ---
 
@@ -12,19 +12,24 @@ Este repositorio contiene backend (Node/Express) + frontend (React/Vite) para un
 - Health checks:
   - `GET /health`
   - `GET /api/health`
-- Autenticación base (`/api/auth/*` y `/auth/*`)
-- Módulo `channels` mínimo operativo:
+- Autenticación base (`/api/auth/*` y `/auth/*`).
+- Frontend con landing, login/register y dashboard base.
+- Módulo `channels` demo:
   - `GET /api/channels`
   - `GET /api/channels/:id`
-- Landing page con tema oscuro/claro y navegación principal.
+- Módulos de flujo marketplace montados en backend:
+  - `/api/canales/*`
+  - `/api/campaigns/*`
+  - `/api/transacciones/*`
+  - `/api/estadisticas/*`
+  - `/api/lists/*`
 
 ### ⚠️ Parcial / pendiente
-- La mayoría de módulos de dominio siguen en modo placeholder (`501 NOT_IMPLEMENTED`):
-  - `canales`, `anuncios`, `transacciones`, `notifications`, `files`, `estadisticas`, `campaigns`, `lists`.
-- No hay suite de tests activa.
-- ESLint no tiene configuración en el repo (el script existe, pero falla por config faltante).
+- `anuncios` y `notifications` siguen en respuesta uniforme `NOT_IMPLEMENTED`.
+- Parte del flujo de negocio depende de MongoDB (`MONGODB_URI`); sin DB responde `503` en rutas que requieren persistencia real.
+- Documentación histórica aún puede quedar por detrás de cambios recientes de ramas en integración.
 
-Para detalle completo, revisar:
+Para detalle completo:
 - `docs/estado-real.md`
 - `docs/plan-fases.md`
 
@@ -35,7 +40,8 @@ Para detalle completo, revisar:
 ### Backend
 - Node.js + Express
 - JWT + bcrypt
-- Middleware de seguridad: helmet, cors, compression, rate limit
+- Helmet, CORS, compression, morgan, rate limit
+- MongoDB + Mongoose
 
 ### Frontend
 - React 18 + React Router 6
@@ -46,6 +52,7 @@ Para detalle completo, revisar:
 ## Requisitos
 - Node.js >= 16
 - npm >= 8
+- MongoDB (recomendado para flujo completo backend)
 
 ---
 
@@ -57,6 +64,7 @@ cp .env.example .env
 ```
 
 ### Variables mínimas recomendadas
+
 ```env
 MONGODB_URI=mongodb://localhost:27017/plataforma_monetizacion
 JWT_SECRET=tu_secreto
@@ -70,28 +78,32 @@ FRONTEND_URL=http://localhost:3000
 ## Ejecución
 
 ### Backend (dev)
+
 ```bash
 npm run dev
 ```
 
 ### Frontend (dev)
+
 ```bash
 npm run frontend:dev
 ```
 
 ### Full (backend + frontend)
+
 ```bash
 npm run dev:full
 ```
 
 ### Build frontend
+
 ```bash
 npm run build
 ```
 
 ---
 
-## Endpoints principales (estado actual)
+## Endpoints principales
 
 ### Salud
 - `GET /health`
@@ -100,14 +112,23 @@ npm run build
 ### Auth
 - `POST /api/auth/registro`
 - `POST /api/auth/login`
-- Otros endpoints de auth existen pero varios aún están en implementación parcial.
 
-### Channels (módulo demo/temporal)
+### Channels demo
 - `GET /api/channels`
 - `GET /api/channels/:id`
 
-### Módulos pendientes (respuesta uniforme)
-Los módulos no implementados responden:
+### Marketplace backend (en evolución)
+- `canales`: `/api/canales/*`
+- `campaigns`: `/api/campaigns/*`
+- `transacciones`: `/api/transacciones/*`
+- `estadisticas`: `/api/estadisticas/*`
+- `lists`: `/api/lists/*`
+
+### Módulos en placeholder
+- `anuncios`: `/api/anuncios/*`
+- `notifications`: `/api/notifications/*`
+
+Respuesta uniforme:
 
 ```json
 {
@@ -132,18 +153,16 @@ npm run lint
 ```
 
 Notas:
-- Se agregó una base de ESLint (`.eslintrc.cjs`) para validar código del MVP.
-- Se agregaron smoke tests en `tests/smoke.test.js` para `health` y `channels`.
-- Checklist de release: `docs/release-checklist.md`.
+- Existe smoke test activo en `tests/smoke.test.js`.
+- Existe suite de estructura/API en `tests/marketplace.test.js`.
+- Si incluyes carpetas de backup dentro del repo, ESLint puede escanearlas y fallar por archivos externos al core.
 
 ---
 
 ## Roadmap corto
-1. Implementar modelos y controladores de dominio (`Canal`, `Campana`, `Transaccion`, etc.).
-2. Reemplazar placeholders `501` módulo por módulo.
-3. Conectar frontend con endpoints reales (sin mocks).
-4. Configurar ESLint y tests smoke de backend.
-5. Endurecer despliegue/observabilidad para producción.
+1. Completar módulos `anuncios` y `notifications`.
+2. Consolidar contratos de API y alinear documentación técnica.
+3. Endurecer validaciones, observabilidad y CI para producción.
 
 ---
 

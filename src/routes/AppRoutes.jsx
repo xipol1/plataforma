@@ -1,4 +1,4 @@
-import React from 'react'
+﻿import React from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from '../ui/routing/ProtectedRoute'
 import AppLayout from '../ui/layouts/AppLayout'
@@ -15,18 +15,7 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/" element={<AppLayout />}>
         <Route index element={<LandingPage />} />
-        <Route
-          path="auth"
-          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/auth/login" replace />}
-        />
-        <Route
-          path="auth/login"
-          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />}
-        />
-        <Route
-          path="auth/register"
-          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />}
-        />
+      </Route>
 
         <Route
           path="dashboard"

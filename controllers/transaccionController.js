@@ -1,120 +1,83 @@
-const Transaccion = require('../models/Transaccion');
-const Campaign = require('../models/Campaign');
-const { ensureDb } = require('../lib/ensureDb');
+﻿const crypto = require('crypto');
+const { readCollection, writeCollection } = require('../services/persistentStore');
 
-const httpError = (status, message) => {
-  const err = new Error(message);
-  err.status = status;
-  return err;
+const TX_COLLECTION = 'transactions';
+const EVENT_COLLECTION = 'stripe_events';
+
+const normalizeAmount = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : 0;
 };
 
-const obtenerMisTransacciones = async (req, res, next) => {
-  try {
-    const ok = await ensureDb();
-    if (!ok) return res.status(503).json({ success: false, message: 'Servicio no disponible' });
+const readTx = () => readCollection(TX_COLLECTION, []);
+const saveTx = (items) => writeCollection(TX_COLLECTION, items);
+const readEvents = () => readCollection(EVENT_COLLECTION, []);
+const saveEvents = (items) => writeCollection(EVENT_COLLECTION, items);
 
-    const userId = req.usuario?.id;
-    if (!userId) return next(httpError(401, 'No autorizado'));
+const listTransacciones = async (req, res) => {
+  const userId = req.usuario?.id || req.usuario?._id || req.usuario?.sub;
+  const transactions = readTx();
+  const data = transactions.filter((tx) => tx.userId === userId);
+  return res.json({ success: true, data });
+};
 
-    const items = await Transaccion.find({ advertiser: userId })
-      .populate('campaign', 'content status targetUrl price createdAt')
-      .sort({ createdAt: -1 })
-      .lean();
+const crearTransaccion = async (req, res) => {
+  const userId = req.usuario?.id || req.usuario?._id || req.usuario?.sub;
+  const monto = normalizeAmount(req.body?.monto || req.body?.amount);
 
-    return res.json({ success: true, data: { items } });
-  } catch (error) {
-    next(error);
+  if (monto <= 0) {
+    return res.status(400).json({ success: false, message: 'Monto invÃ¡lido' });
   }
-};
 
-const obtenerTransaccion = async (req, res, next) => {
-  try {
-    const ok = await ensureDb();
-    if (!ok) return res.status(503).json({ success: false, message: 'Servicio no disponible' });
+  const referencia = String(req.body?.referencia || '').trim();
+  const transactions = readTx();
 
-    const userId = req.usuario?.id;
-    if (!userId) return next(httpError(401, 'No autorizado'));
-
-    const transaccion = await Transaccion.findById(req.params.id)
-      .populate('campaign', 'content status targetUrl price createdAt')
-      .lean();
-
-    if (!transaccion) return next(httpError(404, 'Transacción no encontrada'));
-
-    if (transaccion.advertiser?.toString?.() !== String(userId)) {
-      return next(httpError(403, 'No autorizado'));
+  if (referencia) {
+    const existing = transactions.find((tx) => tx.userId === userId && tx.referencia === referencia);
+    if (existing) {
+      return res.status(200).json({ success: true, data: existing, duplicate: true });
     }
-
-    return res.json({ success: true, data: transaccion });
-  } catch (error) {
-    next(error);
   }
+
+  const transaction = {
+    id: `tx-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+    userId,
+    monto,
+    moneda: String(req.body?.moneda || 'EUR').toUpperCase(),
+    estado: 'pending',
+    referencia,
+    createdAt: new Date().toISOString()
+  };
+
+  transactions.push(transaction);
+  saveTx(transactions);
+  return res.status(201).json({ success: true, data: transaction });
 };
 
-// POST /api/transacciones/:id/pay — simulates payment when Stripe is not active
-const procesarPago = async (req, res, next) => {
-  try {
-    const ok = await ensureDb();
-    if (!ok) return res.status(503).json({ success: false, message: 'Servicio no disponible' });
+const stripeWebhook = async (req, res) => {
+  const eventType = req.body?.type || 'unknown';
+  const providedEventId = req.body?.id;
+  const eventId = providedEventId || crypto.createHash('sha1').update(JSON.stringify(req.body || {})).digest('hex');
 
-    const userId = req.usuario?.id;
-    if (!userId) return next(httpError(401, 'No autorizado'));
+  const events = readEvents();
+  const existing = events.find((event) => event.eventId === eventId);
 
-    const transaccion = await Transaccion.findById(req.params.id);
-    if (!transaccion) return next(httpError(404, 'Transacción no encontrada'));
-
-    if (transaccion.advertiser?.toString?.() !== String(userId)) {
-      return next(httpError(403, 'No autorizado'));
-    }
-
-    if (transaccion.status !== 'pending') {
-      return next(httpError(400, `La transacción ya está en estado ${transaccion.status}`));
-    }
-
-    transaccion.status = 'paid';
-    transaccion.paidAt = new Date();
-    await transaccion.save();
-
-    await Campaign.findByIdAndUpdate(transaccion.campaign, { status: 'PAID' });
-
-    return res.json({ success: true, data: transaccion });
-  } catch (error) {
-    next(error);
+  if (existing) {
+    return res.status(200).json({ success: true, duplicate: true, eventId, message: 'Evento ya procesado' });
   }
-};
 
-const obtenerEstadisticasFinancieras = async (req, res, next) => {
-  try {
-    const ok = await ensureDb();
-    if (!ok) return res.status(503).json({ success: false, message: 'Servicio no disponible' });
+  events.push({
+    eventId,
+    eventType,
+    receivedAt: new Date().toISOString()
+  });
+  saveEvents(events);
 
-    const userId = req.usuario?.id;
-    if (!userId) return next(httpError(401, 'No autorizado'));
-
-    const [total, paid, pending] = await Promise.all([
-      Transaccion.countDocuments({ advertiser: userId }),
-      Transaccion.aggregate([
-        { $match: { advertiser: require('mongoose').Types.ObjectId.createFromHexString ? undefined : userId } },
-        { $match: { advertiser: new (require('mongoose').Types.ObjectId)(userId), status: 'paid' } },
-        { $group: { _id: null, total: { $sum: '$amount' } } }
-      ]),
-      Transaccion.countDocuments({ advertiser: userId, status: 'pending' })
-    ]);
-
-    const totalPaid = paid[0]?.total || 0;
-
-    return res.json({
-      success: true,
-      data: { totalTransacciones: total, totalPagado: totalPaid, pendientes: pending }
-    });
-  } catch (error) {
-    next(error);
-  }
+  return res.status(202).json({ success: true, duplicate: false, eventId, event: eventType });
 };
 
 module.exports = {
-  obtenerMisTransacciones,
-  obtenerTransaccion,
-  procesarPago,
-  obtenerEstadisticasFinancieras
+  listTransacciones,
+  crearTransaccion,
+  stripeWebhook
 };

@@ -367,6 +367,23 @@ class ApiService {
     });
   }
 
+  /**
+   * Obtener campañas del usuario autenticado
+   */
+  async getMyCampaigns() {
+    return this.request('/campaigns');
+  }
+
+  /**
+   * Crear campaña
+   */
+  async createCampaign(payload) {
+    return this.request('/campaigns', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
   // ==========================================
   // MÉTODOS DE LISTAS DE CANALES
   // ==========================================

@@ -1,79 +1,75 @@
-# Estado real del repositorio
+﻿# Estado real del repositorio
 
-## 1) Auditoría estructural
+## 1) Resumen ejecutivo
 
-### Controladores
-| Componente | Estado |
-|---|---|
-| `controllers/authController.js` | ✅ Existe |
-| `anuncioController` | ❌ Falta |
-| `canalController` | ❌ Falta |
-| `transaccionController` | ❌ Falta |
-| `notificationController` | ❌ Falta |
-| `fileController` | ❌ Falta |
-| `estadisticaController` | ❌ Falta |
-| `campaignController` | ❌ Falta |
-| `channelListController` | ❌ Falta |
-| `controllers/channelsController.js` | ✅ Existe (API demo) |
+Repositorio **activo y en transiciÃ³n**: el MVP backend+frontend funciona para `health`, `auth`, `channels`, `campaigns`, `transacciones`, `anuncios`, `notifications` y `files`, mientras varios mÃ³dulos de dominio siguen en modo placeholder `501 NOT_IMPLEMENTED`.
 
-### Modelos
-| Modelo | Estado |
-|---|---|
-| `models/Usuario.js` | ✅ Existe |
-| `Canal` | ❌ Falta |
-| `Anuncio` | ❌ Falta |
-| `Transaccion` | ❌ Falta |
-| `Notificacion` | ❌ Falta |
-| `Campana` | ❌ Falta |
+## 2) Backend (estado por mÃ³dulos)
 
-### Servicios
-Servicios presentes en `services/`: auth/email/file/channel/campaign optimizer, etc. No hay evidencia de integración completa con controladores de dominio (canales/anuncios/transacciones).
-
-## 2) Rutas operativas vs no operativas
-
-### Operativas
-- `/health`
-- `/api/health`
-- `/api/auth/*`
-- `/auth/*`
-- `/api/channels/*`
-- `/channels/*`
-
-### No operativas (respuesta uniforme `501`)
-- `/api/canales/*`
-- `/api/anuncios/*`
+### Operativo (MVP)
+- `GET /health`
+- `GET /api/health`
+- `/api/auth/*` y `/auth/*`
+- `/api/channels/*` y `/channels/*`
+- `/api/campaigns/*` y `/campaigns/*`
 - `/api/transacciones/*`
+- `/api/anuncios/*`
 - `/api/notifications/*`
 - `/api/files/*`
-- `/api/estadisticas/*`
-- `/api/campaigns/*`
-- `/api/lists/*`
-- `/campaigns/*`
 
-Formato uniforme:
+### Parcial / pendiente (placeholder 501 uniforme)
+- `/api/canales/*`
+- `/api/estadisticas/*`
+- `/api/lists/*`
+
+Respuesta uniforme actual:
 ```json
 {
   "success": false,
   "code": "NOT_IMPLEMENTED",
   "module": "<modulo>",
-  "message": "Módulo pendiente"
+  "message": "MÃ³dulo pendiente"
 }
 ```
 
-## 3) Variables de entorno requeridas (mínimas)
+## 3) Frontend
+
+El enrutado principal usa estructura actual en `src/ui/*` (landing, auth y dashboard). No depende de `src/legacy` para rutas activas del MVP.
+
+## 4) Calidad y validaciÃ³n
+
+Estado actual de scripts:
+- `npm run lint` âœ…
+- `npm test` âœ…
+- `npm run build` âœ…
+
+Existe suite smoke (`tests/smoke.test.js`) cubriendo:
+- health checks,
+- auth validation,
+- campaigns demo,
+- transacciones demo.
+
+## 5) Variables de entorno mÃ­nimas
+
 - `MONGODB_URI`
 - `JWT_SECRET`
-- Recomendadas para auth completa: `JWT_REFRESH_SECRET`, `JWT_EXPIRES_IN`, `JWT_REFRESH_EXPIRES_IN`
-- Para pagos: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
 
-## 4) Riesgos críticos
+Recomendadas:
+- `JWT_REFRESH_SECRET`
+- `JWT_EXPIRES_IN`
+- `JWT_REFRESH_EXPIRES_IN`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+
+## 6) Riesgos abiertos
 
 ### P0
-1. Falta de controladores/modelos de dominio (marketplace no funcional de extremo a extremo).
+1. Faltan modelos/controladores de dominio para mÃ³dulos que hoy responden 501.
+2. Persistencia implementada en JSON local para MVP; falta migraciÃ³n total a DB por mÃ³dulo.
 
 ### P1
-1. Desalineación documentación vs estado real (README/todo pueden inducir a error).
-2. Dependencia de respuestas 501 para gran parte de la API.
+1. Endurecer observabilidad y trazabilidad para producciÃ³n.
+2. Completar cobertura de tests mÃ¡s allÃ¡ de smoke (unit/integration por mÃ³dulo).
 
 ### P2
-1. Frontend avanzado pendiente para flujos completos de marketplace (más allá de auth + dashboard base).
+1. Cerrar brecha entre mÃ³dulos MVP y dominio completo de marketplace.

@@ -13,7 +13,7 @@ router.get('/', autenticar, campaignController.getCampaigns);
 router.get(
   '/:id',
   autenticar,
-  [param('id').isMongoId().withMessage('ID inválido')],
+  [param('id').isString().notEmpty().withMessage('ID inválido')],
   validarCampos,
   campaignController.getCampaignById
 );
@@ -22,10 +22,13 @@ router.post(
   '/',
   autenticar,
   [
-    body('channel').isMongoId().withMessage('channel inválido'),
-    body('content').isString().notEmpty().trim(),
-    body('targetUrl').isString().notEmpty().trim(),
-    body('price').isFloat({ min: 0 }).toFloat()
+    body('titulo').optional().isString().trim(),
+    body('descripcion').optional().isString().trim(),
+    body('targetUrl').optional().isString().trim(),
+    body('channel').optional().isString().trim(),
+    body('presupuesto').optional().isFloat({ gt: 0 }).toFloat(),
+    body('price').optional().isFloat({ gt: 0 }).toFloat(),
+    body('budget').optional().isFloat({ gt: 0 }).toFloat()
   ],
   validarCampos,
   campaignController.createCampaign
@@ -35,7 +38,7 @@ router.patch(
   '/:id/status',
   autenticar,
   [
-    param('id').isMongoId().withMessage('ID inválido'),
+    param('id').isString().notEmpty().withMessage('ID inválido'),
     body('status').isIn(allowedStatus).withMessage('status inválido')
   ],
   validarCampos,
@@ -46,7 +49,7 @@ router.patch(
 router.post(
   '/:id/pay',
   autenticar,
-  [param('id').isMongoId().withMessage('ID inválido')],
+  [param('id').isString().notEmpty().withMessage('ID inválido')],
   validarCampos,
   campaignController.payCampaign
 );
@@ -54,7 +57,7 @@ router.post(
 router.post(
   '/:id/confirm',
   autenticar,
-  [param('id').isMongoId().withMessage('ID inválido')],
+  [param('id').isString().notEmpty().withMessage('ID inválido')],
   validarCampos,
   campaignController.confirmCampaign
 );
@@ -62,7 +65,7 @@ router.post(
 router.post(
   '/:id/complete',
   autenticar,
-  [param('id').isMongoId().withMessage('ID inválido')],
+  [param('id').isString().notEmpty().withMessage('ID inválido')],
   validarCampos,
   campaignController.completeCampaign
 );

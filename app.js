@@ -5,7 +5,6 @@ const compression = require('compression');
 const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
-
 const app = express();
 
 const ENV = process.env.NODE_ENV || 'development';
@@ -75,7 +74,7 @@ app.get('/r/:campaignId', async (req, res) => {
         await Tracking.create({ campaign: campaign._id, ip, timestamp: new Date() });
       }
     } catch (_) {
-      // Silent fail — tracking must never break the redirect
+      // Silent fail â€” tracking must never break the redirect
     }
   });
 
@@ -94,7 +93,7 @@ app.get('/r/:campaignId', async (req, res) => {
     // Fall through to 404
   }
 
-  return res.status(404).json({ success: false, message: 'Campaña no encontrada' });
+  return res.status(404).json({ success: false, message: 'CampaÃ±a no encontrada' });
 });
 
 const safeMount = (mountPath, modulePath) => {
@@ -129,7 +128,10 @@ const enabledRoutes = [
   ['/campaigns', './routes/campaigns'],
   ['/api/transacciones', './routes/transacciones'],
   ['/api/estadisticas', './routes/estadisticas'],
-  ['/api/lists', './routes/lists']
+  ['/api/lists', './routes/lists'],
+  ['/api/anuncios', './routes/anuncios'],
+  ['/api/notifications', './routes/notifications'],
+  ['/api/files', './routes/files']
 ];
 
 enabledRoutes.forEach(([mountPath, modulePath]) => safeMount(mountPath, modulePath));

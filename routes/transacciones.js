@@ -1,30 +1,29 @@
-const express = require('express');
-const { param } = require('express-validator');
-const { autenticar } = require('../middleware/auth');
-const { validarCampos } = require('../middleware/validarCampos');
-const transaccionController = require('../controllers/transaccionController');
-
+﻿const express = require('express');
+const { body } = require('express-validator');
 const router = express.Router();
 
-router.get('/', autenticar, transaccionController.obtenerMisTransacciones);
+const transaccionController = require('../controllers/transaccionController');
+const { autenticar, autorizarRoles } = require('../middleware/auth');
+const { validarCampos } = require('../middleware/validarCampos');
+const { limitadorAPI, limitadorGeneral } = require('../middleware/rateLimiter');
 
-router.get('/estadisticas', autenticar, transaccionController.obtenerEstadisticasFinancieras);
+router.post('/webhook', transaccionController.stripeWebhook);
 
-router.get(
-  '/:id',
-  autenticar,
-  [param('id').isMongoId().withMessage('ID inválido')],
-  validarCampos,
-  transaccionController.obtenerTransaccion
-);
+router.use(limitadorAPI);
+router.use(autenticar);
 
-// POST /api/transacciones/:id/pay — simulated payment
+router.get('/', transaccionController.listTransacciones);
+
 router.post(
-  '/:id/pay',
-  autenticar,
-  [param('id').isMongoId().withMessage('ID inválido')],
+  '/',
+  limitadorGeneral,
+  autorizarRoles('advertiser', 'admin'),
+  [
+    body('monto').isFloat({ gt: 0 }).withMessage('Monto invÃ¡lido'),
+    body('moneda').optional().isLength({ min: 3, max: 3 }).withMessage('Moneda invÃ¡lida')
+  ],
   validarCampos,
-  transaccionController.procesarPago
+  transaccionController.crearTransaccion
 );
 
 module.exports = router;

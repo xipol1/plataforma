@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+﻿const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 
 const normalizeRoles = (inputRoles) => {
@@ -17,8 +17,8 @@ const autenticar = (req, res, next) => {
   }
 
   if (!config.jwt?.secret) {
-    console.warn('⚠️ JWT_SECRET no configurado; autenticación deshabilitada');
-    return res.status(500).json({ success: false, message: 'Autenticación no configurada' });
+    console.warn('âš ï¸ JWT_SECRET no configurado; autenticaciÃ³n deshabilitada');
+    return res.status(500).json({ success: false, message: 'AutenticaciÃ³n no configurada' });
   }
 
   try {
@@ -32,7 +32,7 @@ const autenticar = (req, res, next) => {
     next();
   } catch (error) {
     console.error('AUTH ERROR:', error);
-    return res.status(401).json({ success: false, message: 'Token inválido' });
+    return res.status(401).json({ success: false, message: 'Token invÃ¡lido' });
   }
 };
 
@@ -50,7 +50,7 @@ const autorizarRoles = (...inputRoles) => {
       return next();
     }
 
-    return res.status(403).json({ success: false, message: 'No tienes permisos para esta acción' });
+    return res.status(403).json({ success: false, message: 'No tienes permisos para esta acciÃ³n' });
   };
 };
 
@@ -69,6 +69,8 @@ const requiereEmailVerificado = (req, res, next) => {
 
 const verificarPropietario = () => {
   return (req, res, next) => {
+    // Contrato compatible con rutas existentes.
+    // La validaciÃ³n de ownership especÃ­fico debe implementarse en el controlador/modelo correspondiente.
     if (!req.usuario) {
       return res.status(401).json({ success: false, message: 'No autorizado' });
     }
