@@ -32,22 +32,13 @@ const STEPS = [
   { n: '04', title: 'Métricas reales', desc: 'Controla clicks, alcance y conversiones desde tu dashboard. Repite con los canales que mejor rendimiento ofrecen.' },
 ]
 
-const SELLERS = [
-  { initials: 'TP', grad: 'linear-gradient(135deg,#2aabee,#0e6fa8)', name: 'techpro', niche: 'Marketing · Telegram', stars: '★★★★★', rating: '4.9', reviews: 312, badge: '⭐ Top Canal' },
-  { initials: 'EH', grad: 'linear-gradient(135deg,#25d366,#15803d)', name: 'ecomhub', niche: 'Ecommerce · WhatsApp', stars: '★★★★★', rating: '4.9', reviews: 421, badge: '⭐ Top Canal' },
-  { initials: 'FT', grad: 'linear-gradient(135deg,#25d366,#15803d)', name: 'fitcoach_lu', niche: 'Fitness · WhatsApp', stars: '★★★★★', rating: '5.0', reviews: 97, badge: '✅ Verificado' },
-  { initials: 'GM', grad: 'linear-gradient(135deg,#5865f2,#3730a3)', name: 'gamermk', niche: 'Gaming · Discord', stars: '★★★★☆', rating: '4.8', reviews: 189, badge: '🔥 Trending' },
-  { initials: 'AI', grad: 'linear-gradient(135deg,#f97316,#b45309)', name: 'ai_labs_co', niche: 'IA · Discord', stars: '★★★★☆', rating: '4.8', reviews: 138, badge: '🆕 Emergente' },
+const listings = [
+  { name: 'Tech Audience ES', platform: 'Telegram', members: '120k audiencia', rating: '4.9', price: '€450 / post' },
+  { name: 'Ecommerce Growth Hub', platform: 'Discord', members: '150k audiencia', rating: '4.8', price: '€650 / post' },
+  { name: 'Gaming Community Pro', platform: 'WhatsApp', members: '80k audiencia', rating: '5.0', price: '€390 / post' }
 ]
 
-const PLAT_COLORS = {
-  tg: { bg: 'rgba(42,171,238,0.2)', color: 'var(--tg)', border: 'rgba(42,171,238,.3)' },
-  dc: { bg: 'rgba(88,101,242,0.2)', color: 'var(--dc)', border: 'rgba(88,101,242,.3)' },
-  wa: { bg: 'rgba(37,211,102,0.2)', color: 'var(--wa)', border: 'rgba(37,211,102,.3)' },
-  yt: { bg: 'rgba(255,0,0,0.2)', color: 'var(--yt)', border: 'rgba(255,0,0,.3)' },
-  cr: { bg: 'rgba(149,0,255,0.2)', color: '#a855f7', border: 'rgba(149,0,255,.3)' },
-  in: { bg: 'rgba(255,100,0,0.2)', color: '#f97316', border: 'rgba(255,100,0,.3)' },
-}
+const categories = ['Tech', 'Gaming', 'IA', 'Ecommerce', 'Educación', 'Creators']
 
 /* ─── COMPONENT ─────────────────────────────────────────── */
 export default function LandingPage() {
@@ -63,202 +54,95 @@ export default function LandingPage() {
         Nuevo: <strong style={{ color: 'var(--text)' }}>Adflow Premium</strong> para anunciantes con alto volumen
       </div>
 
-      {/* ── HERO ── */}
-      <section style={{ position: 'relative', padding: '120px 48px 80px', overflow: 'hidden', background: 'linear-gradient(160deg,#0a2218 0%,#0d2e1e 40%,#0d1a14 100%)' }}>
-        {/* grid overlay */}
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 0,
-          backgroundImage: 'linear-gradient(rgba(29,191,115,0.04) 1px,transparent 1px), linear-gradient(90deg,rgba(29,191,115,0.04) 1px,transparent 1px)',
-          backgroundSize: '48px 48px',
-        }} />
+      <section className="relative mx-auto grid w-full max-w-[1240px] gap-12 px-4 pb-16 pt-[120px] md:px-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:pb-24">
+        <div>
+          <span className="inline-flex items-center rounded-full border border-emerald-300/40 bg-emerald-400/10 px-3 py-1 text-xs font-semibold tracking-wide text-emerald-200">
+            Marketplace Adflow
+          </span>
+          <h1 className="mt-6 max-w-2xl font-['Sora'] text-[40px] font-bold leading-[1.1] tracking-tight md:text-[48px]">
+            Compra espacios publicitarios en comunidades reales
+          </h1>
+          <p className={isDark ? 'mt-5 max-w-2xl text-base leading-7 text-indigo-100/80 md:text-lg' : 'mt-5 max-w-2xl text-base leading-7 text-slate-600 md:text-lg'}>
+            Accede a audiencias activas en canales privados y ejecuta campañas con pago protegido y métricas verificables.
+          </p>
 
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '48px' }}>
-
-          {/* ── LEFT COLUMN ── */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            {/* badge */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(29,191,115,0.12)', border: '1px solid rgba(29,191,115,0.3)', borderRadius: '100px', padding: '5px 16px', fontSize: '13px', color: 'var(--green)', marginBottom: '24px', fontWeight: 500 }}>
-              <span className="animate-pulse-dot" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
-              +12.400 canales verificados
-            </div>
-
-            <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: '48px', fontWeight: 700, lineHeight: 1.1, letterSpacing: '-1px', marginBottom: '20px', color: '#fff' }}>
-              Compra espacios publicitarios en <em style={{ fontStyle: 'normal', color: 'var(--green)' }}>comunidades reales</em>
-            </h1>
-
-            <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.65, maxWidth: '500px', marginBottom: '24px', fontWeight: 300, fontFamily: "'Inter', sans-serif" }}>
-              Accede a audiencias activas en canales privados y ejecuta campañas con pago protegido y métricas verificables.
+          <div className="mt-6">
+            <p className={isDark ? "font-['Sora'] text-sm font-semibold text-white" : "font-['Sora'] text-sm font-semibold text-slate-900"}>
+              Encuentra tus audiencias
             </p>
+            <p className={isDark ? 'mt-1 text-sm text-indigo-100/70' : 'mt-1 text-sm text-slate-600'}>
+              Segmentadas por intereses, comportamiento y contexto
+            </p>
+          </div>
 
-            {/* audience label */}
-            <div style={{ marginBottom: '0' }}>
-              <span style={{ fontSize: '15px', fontWeight: 600, color: '#fff', fontFamily: "'Inter', sans-serif" }}>Encuentra tus audiencias</span>
-              <span style={{ display: 'block', fontSize: '13px', color: 'rgba(255,255,255,0.4)', marginTop: '2px', fontFamily: "'Inter', sans-serif" }}>Segmentadas por intereses, comportamiento y contexto</span>
-            </div>
-
-            {/* search bar */}
-            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.15)', maxWidth: '720px', marginTop: '32px', marginBottom: '16px', height: '60px' }}>
-              <span style={{ display: 'flex', alignItems: 'center', paddingLeft: '20px', color: 'rgba(255,255,255,0.35)', fontSize: '18px', flexShrink: 0 }}>🔍</span>
+          <form className="mt-8 w-full max-w-[720px]" onSubmit={(event) => event.preventDefault()}>
+            <div className={isDark ? 'flex h-[60px] items-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-4 shadow-[0_10px_30px_rgba(0,0,0,0.15)]' : 'flex h-[60px] items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 shadow-[0_10px_30px_rgba(0,0,0,0.15)]'}>
               <input
                 type="text"
                 placeholder="Buscar audiencias, canales o temáticas..."
-                style={{ flex: 1, border: 'none', outline: 'none', fontSize: '15px', color: '#fff', padding: '0 16px', background: 'transparent', fontFamily: "'Inter', sans-serif" }}
+                className={isDark ? 'h-full flex-1 bg-transparent text-sm text-white placeholder:text-indigo-100/50 outline-none' : 'h-full flex-1 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 outline-none'}
               />
-              <a
-                href="#categories"
-                style={{ background: 'var(--green)', color: '#fff', padding: '0 24px', fontWeight: 600, fontSize: '14px', display: 'flex', alignItems: 'center', whiteSpace: 'nowrap', textDecoration: 'none', transition: 'background .2s, transform .15s', flexShrink: 0, fontFamily: "'Inter', sans-serif" }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'var(--green-dark)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'var(--green)'; e.currentTarget.style.transform = 'none' }}
+              <button
+                type="button"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500 text-white shadow-sm transition-transform hover:-translate-y-0.5"
               >
-                Buscar
-              </a>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" strokeWidth="2" />
+                  <path d="M16 16l5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
             </div>
 
-            {/* chips */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '36px' }}>
-              {['Telegram', 'Discord', 'Ecommerce', 'Educación', 'Gaming'].map(chip => (
-                <a
+            <div className="mt-4 flex flex-wrap gap-2">
+              {['Telegram', 'Discord', 'Ecommerce', 'Educación', 'Gaming'].map((chip) => (
+                <button
                   key={chip}
-                  href="#categories"
-                  style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '999px', padding: '6px 12px', fontSize: '13px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'background .15s, color .15s', fontFamily: "'Inter', sans-serif" }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(29,191,115,0.15)'; e.currentTarget.style.color = 'var(--green)' }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)' }}
+                  type="button"
+                  className={isDark ? 'rounded-full bg-white/10 px-3 py-1.5 text-xs text-indigo-100/90 transition hover:bg-white/15' : 'rounded-full bg-slate-200 px-3 py-1.5 text-xs text-slate-700 transition hover:bg-slate-300'}
                 >
                   {chip}
-                </a>
+                </button>
               ))}
             </div>
+          </form>
 
-            {/* CTAs */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', marginBottom: '48px' }}>
-              <a
-                href="#categories"
-                style={{ background: 'var(--green)', color: '#fff', padding: '12px 24px', borderRadius: '8px', fontWeight: 600, fontSize: '15px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px', transition: 'background .2s, transform .15s', fontFamily: "'Inter', sans-serif" }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'var(--green-dark)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'var(--green)'; e.currentTarget.style.transform = 'none' }}
-              >
-                Explorar canales
-              </a>
-              <Link
-                to="/auth/register"
-                style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none', transition: 'color .2s, border-color .2s', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '12px 24px', fontFamily: "'Inter', sans-serif" }}
-                onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)' }}
-                onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)' }}
-              >
-                Empezar campaña →
-              </Link>
-            </div>
-
-            {/* metrics */}
-            <div style={{ display: 'flex', gap: '40px', paddingTop: '32px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-              {[['12.4K', 'Canales verificados'], ['98.7%', 'Satisfacción'], ['340K+', 'Anunciantes']].map(([v, l]) => (
-                <div key={l}>
-                  <strong style={{ fontFamily: "'Sora', sans-serif", fontSize: '26px', fontWeight: 700, display: 'block', color: '#fff' }}>{v}</strong>
-                  <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif" }}>{l}</span>
-                </div>
-              ))}
-            </div>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a href="#featured" className="rounded-lg bg-emerald-500 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-600">
+              Explorar canales
+            </a>
+            <Link to="/auth/register" className={isDark ? 'rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10' : 'rounded-lg border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100'}>
+              Empezar campaña
+            </Link>
           </div>
 
           {/* ── RIGHT PANEL ── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', flexShrink: 0, opacity: 0.9 }}>
             {[
-              { icon: '📱', bg: 'rgba(42,171,238,0.15)', color: 'var(--tg)', platform: 'Telegram', name: 'Tech Audience ES', members: '8.2K miembros', price: '€450/post', cls: 'animate-float' },
-              { icon: '🎮', bg: 'rgba(88,101,242,0.15)', color: 'var(--dc)', platform: 'Discord', name: 'Gaming Community Pro', members: '4.5K miembros', price: '€280/post', cls: 'animate-float-2', marginLeft: '20px' },
-              { icon: '🛒', bg: 'rgba(37,211,102,0.15)', color: 'var(--wa)', platform: 'WhatsApp', name: 'Ecommerce Growth Hub', members: '1.2K miembros', price: '€320/post', cls: 'animate-float-3' },
-            ].map(card => (
-              <div
-                key={card.name}
-                className={card.cls}
-                style={{
-                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: '12px', padding: '14px 18px', width: '210px',
-                  display: 'flex', alignItems: 'center', gap: '12px',
-                  backdropFilter: 'blur(12px)',
-                  ...(card.marginLeft ? { marginLeft: card.marginLeft } : {}),
-                }}
-              >
-                <div style={{ width: '36px', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0, background: card.bg }}>
-                  {card.icon}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <strong style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.85)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: "'Inter', sans-serif" }}>{card.name}</strong>
-                  <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter', sans-serif" }}>{card.platform} · {card.members}</span>
-                </div>
-                <span style={{ color: 'var(--green)', fontWeight: 600, fontSize: '12px', flexShrink: 0, fontFamily: "'Inter', sans-serif" }}>{card.price}</span>
+              ['12.4K', 'Canales verificados'],
+              ['98.7%', 'Satisfacción'],
+              ['€84M', 'Volumen anual']
+            ].map(([value, label]) => (
+              <div key={label} className={isDark ? 'rounded-xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur' : 'rounded-xl border border-slate-200 bg-white p-4 shadow-sm'}>
+                <p className="font-['Sora'] text-2xl font-bold">{value}</p>
+                <p className={isDark ? 'mt-1 text-xs text-indigo-100/70' : 'mt-1 text-xs text-slate-500'}>{label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── TRUST BAR ── */}
-      <div style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '18px 48px', display: 'flex', alignItems: 'center', gap: '48px', overflowX: 'auto', background: 'var(--bg2)' }}>
-        <span style={{ fontSize: '12px', color: 'var(--muted2)', whiteSpace: 'nowrap', fontWeight: 500, letterSpacing: '.5px', textTransform: 'uppercase' }}>Plataformas</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '32px', flex: 1 }}>
-          {TRUST_PLATFORMS.map(p => (
-            <span key={p} style={{ fontFamily: "'Syne', sans-serif", fontSize: '15px', fontWeight: 700, color: 'var(--muted2)', whiteSpace: 'nowrap' }}>{p}</span>
-          ))}
-        </div>
-      </div>
-
-      {/* ── CATEGORIES ── */}
-      <section id="categories" style={{ padding: '72px 48px' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '32px' }}>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '28px', fontWeight: 800, letterSpacing: '-.5px' }}>Explorar por categoría</h2>
-          <a href="#listings" style={{ fontSize: '14px', color: 'var(--green)' }}>Ver todas →</a>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px' }}>
-          {CATEGORIES.map((cat, i) => (
-            <div
-              key={cat.name}
-              onMouseEnter={() => setHoveredCat(i)}
-              onMouseLeave={() => setHoveredCat(null)}
-              style={{
-                background: hoveredCat === i ? 'var(--surface2)' : 'var(--surface)',
-                border: `1px solid ${hoveredCat === i ? 'var(--green)' : 'var(--border)'}`,
-                borderRadius: '12px', padding: '20px 18px', cursor: 'pointer',
-                transition: 'border-color .2s, transform .2s, background .2s',
-                display: 'flex', flexDirection: 'column', gap: '10px',
-                transform: hoveredCat === i ? 'translateY(-3px)' : 'none',
-              }}
-            >
-              <div style={{ fontSize: '28px' }}>{cat.icon}</div>
-              <strong style={{ fontSize: '14px', fontWeight: 600, fontFamily: "'Syne', sans-serif" }}>{cat.name}</strong>
-              <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{cat.count}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── FEATURED LISTINGS ── */}
-      <section id="listings" style={{ padding: '72px 48px', background: 'var(--bg2)' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '32px' }}>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '28px', fontWeight: 800, letterSpacing: '-.5px' }}>Canales destacados</h2>
-          <a href="#" style={{ fontSize: '14px', color: 'var(--green)' }}>Ver todos →</a>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-          {LISTINGS.map((l, i) => {
-            const pc = PLAT_COLORS[l.platCls]
-            return (
-              <div
-                key={l.seller + i}
-                onMouseEnter={() => setHoveredCard(i)}
-                onMouseLeave={() => setHoveredCard(null)}
-                style={{
-                  background: 'var(--surface)', border: `1px solid ${hoveredCard === i ? 'var(--green)' : 'var(--border)'}`,
-                  borderRadius: '14px', overflow: 'hidden', cursor: 'pointer',
-                  transition: 'border-color .2s, transform .2s, box-shadow .2s',
-                  transform: hoveredCard === i ? 'translateY(-4px)' : 'none',
-                  boxShadow: hoveredCard === i ? '0 16px 40px rgba(0,0,0,.4)' : 'none',
-                }}
-              >
-                {/* thumbnail */}
-                <div style={{ height: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px', position: 'relative', overflow: 'hidden', background: l.thumbBg }}>
-                  <span style={{ position: 'relative', zIndex: 1 }}>{l.thumb}</span>
-                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.15)' }} />
-                  <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 1, borderRadius: '6px', padding: '3px 8px', fontSize: '11px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', background: pc.bg, color: pc.color, border: `1px solid ${pc.border}` }}>
-                    {l.platLabel}
+        <div className={isDark ? 'rounded-3xl border border-white/10 bg-white/[0.06] p-4 shadow-xl backdrop-blur-xl opacity-90 lg:origin-top-right lg:scale-[0.9]' : 'rounded-3xl border border-slate-200 bg-white/80 p-4 shadow-xl backdrop-blur opacity-90 lg:origin-top-right lg:scale-[0.9]'}>
+          <div className={isDark ? 'mb-4 flex items-center justify-between border-b border-white/10 pb-4' : 'mb-4 flex items-center justify-between border-b border-slate-200 pb-4'}>
+            <p className="font-['Sora'] text-lg font-bold">Canales destacados hoy</p>
+            <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-xs text-emerald-200">Actualizado en vivo</span>
+          </div>
+          <div className="space-y-3">
+            {listings.map((channel) => (
+              <article key={channel.name} className={isDark ? 'rounded-xl border border-white/10 bg-[#101626] p-4 transition hover:border-emerald-400/60' : 'rounded-xl border border-slate-200 bg-slate-50 p-4 transition hover:border-emerald-400'}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className={isDark ? 'font-semibold text-white' : 'font-semibold text-slate-900'}>{channel.name}</h3>
+                    <p className={isDark ? 'text-xs text-indigo-100/70' : 'text-xs text-slate-500'}>{channel.platform} · {channel.members}</p>
                   </div>
                   {l.badge && (
                     <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 1, background: 'rgba(251,191,36,.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,.3)', borderRadius: '6px', padding: '2px 8px', fontSize: '10px', fontWeight: 700, letterSpacing: '.3px' }}>
@@ -266,44 +150,9 @@ export default function LandingPage() {
                     </div>
                   )}
                 </div>
-
-                {/* body */}
-                <div style={{ padding: '16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: l.sellerBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff', flexShrink: 0 }}>
-                      {l.sellerInitials}
-                    </div>
-                    <span style={{ fontSize: '13px', fontWeight: 500 }}>
-                      {l.seller}
-                      {l.isPro && <span style={{ fontSize: '10px', background: 'rgba(29,191,115,.15)', color: 'var(--green)', borderRadius: '4px', padding: '1px 6px', fontWeight: 600, marginLeft: '4px' }}>PRO</span>}
-                    </span>
-                  </div>
-
-                  <div style={{ fontSize: '14px', lineHeight: 1.5, marginBottom: '10px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {l.title}
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '12px', color: 'var(--muted)', marginBottom: '12px' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#fbbf24' }}>
-                      ★ {l.rating} <span style={{ color: 'var(--muted)' }}>({l.reviews})</span>
-                    </span>
-                    <span>{l.members}</span>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
-                    <div>
-                      <span style={{ fontFamily: "'Syne', sans-serif", fontSize: '16px', fontWeight: 700 }}>{l.price}</span>
-                      <span style={{ fontSize: '11px', fontWeight: 400, color: 'var(--muted)' }}>{l.unit}</span>
-                    </div>
-                    <Link
-                      to="/auth/login"
-                      style={{ background: 'var(--green)', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 14px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', transition: 'background .2s', textDecoration: 'none' }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'var(--green-dark)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'var(--green)'}
-                    >
-                      Ver canal
-                    </Link>
-                  </div>
+                <div className={isDark ? 'mt-3 flex items-center justify-between border-t border-white/10 pt-3' : 'mt-3 flex items-center justify-between border-t border-slate-200 pt-3'}>
+                  <p className="font-['Sora'] text-xl font-bold">{channel.price}</p>
+                  <Link to="/auth/login" className="rounded-md bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600">Ver canal</Link>
                 </div>
               </div>
             )
@@ -311,94 +160,48 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ── */}
-      <section style={{ padding: '72px 48px' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '32px' }}>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '28px', fontWeight: 800, letterSpacing: '-.5px' }}>¿Cómo funciona?</h2>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '32px' }}>
-          {STEPS.map(s => (
-            <div key={s.n} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--surface)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Syne', sans-serif", fontSize: '20px', fontWeight: 800, color: 'var(--green)' }}>
-                {s.n}
-              </div>
-              <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: '17px', fontWeight: 700 }}>{s.title}</h3>
-              <p style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.65 }}>{s.desc}</p>
-            </div>
+      <section className="mx-auto w-full max-w-[1240px] px-4 pb-8 md:px-10">
+        <div className="grid gap-4 md:grid-cols-3">
+          {products.map((item) => (
+            <article key={item.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur">
+              <div className="mb-3 inline-grid h-11 w-11 place-items-center rounded-lg bg-white/10 text-2xl">{item.icon}</div>
+              <h3 className="font-['Sora'] text-xl font-bold">{item.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-indigo-100/75">{item.description}</p>
+            </article>
           ))}
         </div>
       </section>
 
-      {/* ── PROMO BANNER ── */}
-      <div style={{ margin: '0 48px 72px', borderRadius: '20px', background: 'linear-gradient(135deg,#0a2e1a 0%,#0d1f2d 50%,#0e0e2e 100%)', border: '1px solid rgba(29,191,115,.2)', padding: '64px', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '32px', flexWrap: 'wrap' }}>
-        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(29,191,115,.15) 0%,transparent 70%)', pointerEvents: 'none' }} />
-        <div>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '32px', fontWeight: 800, letterSpacing: '-.5px', marginBottom: '12px' }}>
-            ¿Tienes un canal privado?<br />Empieza a monetizarlo hoy
-          </h2>
-          <p style={{ fontSize: '15px', color: 'var(--muted)', maxWidth: '420px', lineHeight: 1.7 }}>
-            Únete a más de 4.200 creadores que ya generan ingresos recurrentes vendiendo espacios publicitarios en sus comunidades en Adflow.
+      <section id="categories" className="mx-auto w-full max-w-[1240px] px-4 py-12 md:px-10 md:py-16">
+        <div className="mb-6 flex items-end justify-between">
+          <h2 className="font-['Sora'] text-3xl font-bold">Categorías premium</h2>
+          <a href="#featured" className="text-sm text-emerald-300 hover:text-emerald-200">Ver todas →</a>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          {categories.map((category) => (
+            <article key={category} className="rounded-xl border border-white/10 bg-[#111827]/70 p-4 text-center transition hover:-translate-y-1 hover:border-emerald-400/70">
+              <h3 className="font-['Sora'] text-lg font-bold">{category}</h3>
+              <p className="mt-1 text-xs text-indigo-100/70">Canales verificados</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="featured" className="mx-auto w-full max-w-[1240px] px-4 pb-16 md:px-10 md:pb-24">
+        <div className="rounded-3xl border border-indigo-300/20 bg-gradient-to-r from-[#1a1f3f] via-[#14243d] to-[#143829] p-8 md:p-12">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-200/80">Adflow Premium</p>
+          <h2 className="mt-3 font-['Sora'] text-3xl font-bold md:text-4xl">Tu operación de campañas como una fintech de marketing</h2>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-indigo-100/80 md:text-base">
+            Workflows aprobatorios, gestión multi-equipo, presupuesto por unidad de negocio y soporte prioritario con
+            SLA dedicado para agencias y marcas enterprise.
           </p>
-        </div>
-        <Link
-          to="/auth/register"
-          style={{ background: 'var(--green)', color: '#fff', padding: '14px 32px', borderRadius: '8px', fontWeight: 600, fontSize: '15px', whiteSpace: 'nowrap', flexShrink: 0, transition: 'background .2s, transform .15s', display: 'inline-block', textDecoration: 'none' }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'var(--green-dark)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'var(--green)'; e.currentTarget.style.transform = 'none' }}
-        >
-          Vender espacios →
-        </Link>
-      </div>
-
-      {/* ── TOP SELLERS ── */}
-      <section style={{ padding: '72px 48px', background: 'var(--bg2)' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '32px' }}>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '28px', fontWeight: 800, letterSpacing: '-.5px' }}>Canales mejor valorados</h2>
-          <a href="#" style={{ fontSize: '14px', color: 'var(--green)' }}>Ver todos →</a>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
-          {SELLERS.map((s, i) => (
-            <div
-              key={s.name}
-              onMouseEnter={() => setHoveredSeller(i)}
-              onMouseLeave={() => setHoveredSeller(null)}
-              style={{
-                background: 'var(--surface)', border: `1px solid ${hoveredSeller === i ? 'var(--green)' : 'var(--border)'}`,
-                borderRadius: '14px', padding: '24px 20px', textAlign: 'center', cursor: 'pointer',
-                transition: 'border-color .2s, transform .2s',
-                transform: hoveredSeller === i ? 'translateY(-3px)' : 'none',
-              }}
-            >
-              <div style={{ width: '60px', height: '60px', borderRadius: '50%', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', fontWeight: 800, color: '#fff', fontFamily: "'Syne', sans-serif", background: s.grad }}>
-                {s.initials}
-              </div>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: '15px', fontWeight: 700, marginBottom: '4px' }}>{s.name}</div>
-              <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '10px' }}>{s.niche}</div>
-              <div style={{ color: '#fbbf24', fontSize: '13px', marginBottom: '6px' }}>{s.stars} {s.rating}</div>
-              <div style={{ fontSize: '12px', color: 'var(--muted2)' }}>{s.reviews} reseñas</div>
-              <span style={{ marginTop: '12px', display: 'inline-block', background: 'rgba(29,191,115,.1)', border: '1px solid rgba(29,191,115,.2)', color: 'var(--green)', borderRadius: '20px', padding: '3px 12px', fontSize: '11px', fontWeight: 600 }}>
-                {s.badge}
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer style={{ background: 'var(--bg2)', borderTop: '1px solid var(--border)', padding: '56px 48px 32px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '48px', marginBottom: '48px' }}>
-          <div>
-            <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: '24px', display: 'block', marginBottom: '12px' }}>
-              Ad<span style={{ color: 'var(--green)' }}>flow</span>
-            </span>
-            <p style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.7, maxWidth: '260px' }}>
-              El marketplace líder de publicidad en canales privados. Conecta anunciantes con las mejores comunidades.
-            </p>
-            <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-              {['✈️', '🐦', '📸', '▶️'].map(s => (
-                <a key={s} href="#" style={{ width: '34px', height: '34px', borderRadius: '8px', background: 'var(--surface)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>{s}</a>
-              ))}
-            </div>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Link to="/auth/register" className="rounded-lg bg-white px-6 py-3 text-sm font-semibold text-[#111827] hover:bg-gray-100">
+              Solicitar demo enterprise
+            </Link>
+            <Link to="/auth/login" className="rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10">
+              Entrar al panel
+            </Link>
           </div>
           {[
             { title: 'Plataformas', links: ['Telegram', 'Discord', 'WhatsApp', 'YouTube', 'TikTok'] },

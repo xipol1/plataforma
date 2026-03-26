@@ -8,23 +8,21 @@ export default function NavBar({ theme = 'dark', onToggleTheme = () => {} }) {
   const onLogout = () => { logout(); navigate('/auth/login') }
 
   return (
-    <header style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 48px', height: '72px',
-      background: '#fff',
-      borderBottom: '1px solid #e4e5e7',
-      position: 'sticky', top: 0, zIndex: 100,
-    }}>
-      {/* Logo */}
-      <Link to="/" style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: '22px', letterSpacing: '-0.5px', textDecoration: 'none', color: '#222' }}>
-        Ad<span style={{ color: '#1dbf73' }}>flow</span>
-      </Link>
-
-      {/* Secondary search */}
-      {!isAuthenticated && (
-        <div style={{ display: 'flex', alignItems: 'center', background: '#f5f5f5', border: '1px solid #e4e5e7', borderRadius: '8px', height: '38px', width: '240px', opacity: 0.7, overflow: 'hidden' }}>
-          <span style={{ padding: '0 10px', color: '#999', fontSize: '14px', flexShrink: 0 }}>🔍</span>
-          <input type="text" placeholder="Buscar audiencias, canales o temáticas..." style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', fontSize: '13px', color: '#555', fontFamily: "'Inter', sans-serif", minWidth: 0 }} />
+    <header className={isDark ? 'sticky top-0 z-50 border-b border-white/10 bg-[#0d0d0d]/95 backdrop-blur' : 'sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur'}>
+      <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-4 px-4 py-3">
+        <Link to="/" className={isDark ? "font-['Sora'] text-2xl font-bold tracking-tight text-white" : "font-['Sora'] text-2xl font-bold tracking-tight text-slate-900"}>
+          Ad<span className="text-emerald-500">flow</span>
+        </Link>
+        <div className={isDark ? 'hidden w-full max-w-[360px] items-center overflow-hidden rounded-lg border border-white/10 bg-[#1f1f1f] opacity-70 md:flex' : 'hidden w-full max-w-[360px] items-center overflow-hidden rounded-lg border border-slate-200 bg-slate-100 opacity-70 md:flex'}>
+          <input
+            type="text"
+            readOnly
+            placeholder="Buscar audiencias, canales o temáticas..."
+            className={isDark ? 'h-10 w-full bg-transparent px-4 text-sm text-gray-200 placeholder:text-gray-500 outline-none' : 'h-10 w-full bg-transparent px-4 text-sm text-slate-700 placeholder:text-slate-400 outline-none'}
+          />
+          <button type="button" className="h-10 bg-emerald-500 px-4 text-sm font-semibold text-white">
+            🔍
+          </button>
         </div>
       )}
 
