@@ -1,4 +1,4 @@
-﻿# Estado real del repositorio
+﻿﻿# Estado real del repositorio
 
 ## 1) Resumen ejecutivo
 

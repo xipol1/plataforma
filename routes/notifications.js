@@ -1,4 +1,4 @@
-﻿const express = require('express');
+﻿﻿const express = require('express');
 const { body, param } = require('express-validator');
 const notificationController = require('../controllers/notificationController');
 const { autenticar } = require('../middleware/auth');

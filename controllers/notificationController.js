@@ -1,4 +1,4 @@
-﻿const { readCollection, writeCollection } = require('../services/persistentStore');
+﻿﻿const { readCollection, writeCollection } = require('../services/persistentStore');
 
 const COLLECTION = 'notifications';
 

@@ -126,6 +126,7 @@ const enabledRoutes = [
   ['/api/canales', './routes/canales'],
   ['/api/campaigns', './routes/campaigns'],
   ['/campaigns', './routes/campaigns'],
+  ['/api/partners', './routes/partnerApi'],
   ['/api/transacciones', './routes/transacciones'],
   ['/api/estadisticas', './routes/estadisticas'],
   ['/api/lists', './routes/lists'],

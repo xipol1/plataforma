@@ -1,4 +1,4 @@
-﻿const { readCollection, writeCollection } = require('../services/persistentStore');
+﻿﻿const { readCollection, writeCollection } = require('../services/persistentStore');
 
 const demoChannels = [
   { id: 'demo-ch-crypto-alpha-signals', nombre: 'Crypto Alpha Signals', plataforma: 'telegram', engagement: 2.9, ctr: 3.2, precio: 450 },

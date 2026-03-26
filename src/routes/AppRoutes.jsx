@@ -1,4 +1,4 @@
-﻿import React from 'react'
+import React from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from '../ui/routing/ProtectedRoute'
 import AppLayout from '../ui/layouts/AppLayout'
@@ -6,17 +6,14 @@ import LoginPage from '../ui/pages/auth/LoginPage'
 import RegisterPage from '../ui/pages/auth/RegisterPage'
 import LandingPage from '../ui/pages/landing/LandingPage'
 import DashboardPage from '../ui/pages/dashboard/DashboardPage'
-import { useAuth } from '../auth/AuthContext'
 
 export default function AppRoutes() {
-  const { isAuthenticated } = useAuth()
-
   return (
     <Routes>
       <Route path="/" element={<AppLayout />}>
         <Route index element={<LandingPage />} />
-      </Route>
-
+        <Route path="auth/login" element={<LoginPage />} />
+        <Route path="auth/register" element={<RegisterPage />} />
         <Route
           path="dashboard"
           element={

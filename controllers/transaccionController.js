@@ -1,4 +1,4 @@
-﻿const crypto = require('crypto');
+﻿﻿const crypto = require('crypto');
 const { readCollection, writeCollection } = require('../services/persistentStore');
 
 const TX_COLLECTION = 'transactions';
