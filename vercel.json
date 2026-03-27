@@ -10,6 +10,7 @@
     }
   },
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/demo", "destination": "/demo-mockup/index.html" },
+    { "source": "/((?!api/|demo-mockup/).*)", "destination": "/index.html" }
   ]
 }

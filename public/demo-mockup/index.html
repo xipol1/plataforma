@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adflow — Demo interactiva</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="/favicon.ico" />
+</head>
+<body>
+
+<div id="app">
+  <!-- Sidebar -->
+  <nav id="sidebar"></nav>
+
+  <!-- Main area -->
+  <div id="main">
+
+    <!-- Demo switcher banner -->
+    <div id="demo-banner">
+      <span class="demo-label">🎯 Demo interactiva — sin registro requerido</span>
+      <div class="role-pills">
+        <div class="role-pill active-adv" data-role="advertiser" onclick="window.setRole('advertiser')">
+          📢 Anunciante
+        </div>
+        <div class="role-pill" data-role="creator" onclick="window.setRole('creator')">
+          💼 Creador
+        </div>
+      </div>
+      <a href="/" class="demo-back">← Volver a Adflow</a>
+    </div>
+
+    <!-- Topbar -->
+    <header id="topbar"></header>
+
+    <!-- Page content -->
+    <main id="content"></main>
+  </div>
+</div>
+
+<script src="index.js"></script>
+</body>
+</html>

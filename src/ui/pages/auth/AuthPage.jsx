@@ -318,7 +318,7 @@ export default function AuthPage({ defaultTab = 'login' }) {
 
           {/* Demo buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <button onClick={() => navigate('/marketplace')} style={{
+            <button onClick={() => { window.location.href = '/demo?role=advertiser' }} style={{
               width: '100%', background: AG(0.1),
               border: `1px solid ${AG(0.25)}`, borderRadius: '10px',
               padding: '11px', fontSize: '13px', fontWeight: 600,
@@ -328,19 +328,19 @@ export default function AuthPage({ defaultTab = 'login' }) {
               onMouseEnter={e => { e.currentTarget.style.background = AG(0.18); e.currentTarget.style.transform = 'translateY(-1px)' }}
               onMouseLeave={e => { e.currentTarget.style.background = AG(0.1); e.currentTarget.style.transform = 'none' }}
             >
-              Explorar demo como anunciante
+              📢 Explorar demo como anunciante
             </button>
-            <button onClick={() => { reset('register'); setRole('creator') }} style={{
-              width: '100%', background: 'var(--surface2)',
-              border: '1px solid var(--border-med)', borderRadius: '10px',
+            <button onClick={() => { window.location.href = '/demo?role=creator' }} style={{
+              width: '100%', background: 'var(--gg0, rgba(37,211,102,0.08))',
+              border: '1px solid rgba(37,211,102,0.22)', borderRadius: '10px',
               padding: '11px', fontSize: '13px', fontWeight: 600,
-              color: 'var(--text)', cursor: 'pointer', fontFamily: F,
+              color: '#25d366', cursor: 'pointer', fontFamily: F,
               transition: 'background .15s, transform .1s',
             }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)' }}
-              onMouseLeave={e => { e.currentTarget.style.transform = 'none' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(37,211,102,0.16)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(37,211,102,0.08)'; e.currentTarget.style.transform = 'none' }}
             >
-              Ver demo como creador
+              💼 Ver demo como creador
             </button>
           </div>
         </div>
