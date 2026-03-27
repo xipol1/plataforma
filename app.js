@@ -129,7 +129,8 @@ const enabledRoutes = [
   ['/campaigns', './routes/campaigns'],
   ['/api/transacciones', './routes/transacciones'],
   ['/api/estadisticas', './routes/estadisticas'],
-  ['/api/lists', './routes/lists']
+  ['/api/lists', './routes/lists'],
+  ['/api/partners', './routes/partnerApi'],
 ];
 
 enabledRoutes.forEach(([mountPath, modulePath]) => safeMount(mountPath, modulePath));
